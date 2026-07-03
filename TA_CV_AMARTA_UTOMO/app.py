@@ -36,21 +36,69 @@ def welcome():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = request.form.get('username').strip()
+        password = request.form.get('password').strip() # Password sekarang menyimpan nama unik
         
-        if username == 'admin' and password == 'admin':
-            session['user'] = {'username': 'admin', 'role': 'admin'}
+        # 1. DATABASE SEMENTARA (Kunci pencarian diganti berdasarkan Password/Nama)
+        data_karyawan = {
+            'Rony': {
+                'username_tampil': 'Rony',
+                'id': 'KRY-0042',
+                'jabatan': 'Produksi / Staff Lapangan',
+                'hadir': '18 HARI',
+                'izin': '2 HARI',
+                'progres': '75%',
+                'gaji': 'JUNI 2026'
+            },
+            'Aloy': {
+                'username_tampil': 'Aloy',
+                'id': 'KRY-0015',
+                'jabatan': 'Teknik / Surveyor',
+                'hadir': '20 HARI',
+                'izin': '0 HARI',
+                'progres': '90%',
+                'gaji': 'MEI 2026'
+            },
+            'Putri': {
+                'username_tampil': 'Putri',
+                'id': 'KRY-0089',
+                'jabatan': 'Administrasi / Dokumen Kontrol',
+                'hadir': '16 HARI',
+                'izin': '4 HARI',
+                'progres': '60%',
+                'gaji': 'JUNI 2026'
+            }
+        }
+        
+        # 2. LOGIKA VALIDASI LOGIN
+        if 'admin' in username.lower():
+            session['user'] = {'username': username, 'role': 'admin'}
             return redirect(url_for('admin_dashboard'))
-        elif username == 'karyawan' and password == 'karyawan':
-            session['user'] = {'username': 'karyawan', 'role': 'karyawan'}
-            return redirect(url_for('karyawan_dashboard'))
-        elif username == 'direktur' and password == 'direktur':
-            session['user'] = {'username': 'direktur', 'role': 'direktur'}
+            
+        elif 'direktur' in username.lower():
+            session['user'] = {'username': username, 'role': 'direktur'}
             return redirect(url_for('direktur_dashboard'))
+            
+        # Jika username-nya 'karyawan' dan password-nya cocok dengan salah satu nama staf kita
+        elif username.lower() == 'karyawan' and password in data_karyawan:
+            # Ambil data spesifik berdasarkan password nama yang diinput
+            staf = data_karyawan[password]
+            session['user'] = {
+                'username': staf['username_tampil'], # Mengambil nama lengkap/tampilan asli untuk halo pengguna
+                'role': 'karyawan',
+                'id': staf['id'],
+                'jabatan': staf['jabatan'],
+                'hadir': staf['hadir'],
+                'izin': staf['izin'],
+                'progres': staf['progres'],
+                'gaji': staf['gaji']
+            }
+            return redirect(url_for('karyawan_dashboard'))
+            
         else:
             flash('Username atau password salah!', 'danger')
             return redirect(url_for('login'))
+            
     return render_template('login.html')
 
 @app.route('/logout')

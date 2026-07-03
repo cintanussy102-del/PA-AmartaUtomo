@@ -11,11 +11,16 @@
 {% endblock %}
 
 {% block content %}
+<div class="welcome-user-text" style="margin-bottom: 20px; font-size: 0.95rem; color: #4a5568;">
+    Halo, <strong>{{ session['user']['username'] if session['user'] else 'Karyawan' }}</strong> 
+    <i class="fas fa-user-circle" style="color: #a0aec0; margin-left: 3px;"></i>
+</div>
+
 <div class="metrics-grid-four">
     <div class="metric-card card-blue">
         <div class="card-icon"><i class="fas fa-calendar-alt"></i></div>
         <div class="card-info">
-            <h3 class="card-value">18 HARI</h3>
+            <h3 class="card-value">{{ session['user']['hadir'] if session['user']['hadir'] else '0 HARI' }}</h3>
             <span class="card-label">Hadir Bulan Ini</span>
         </div>
     </div>
@@ -23,7 +28,7 @@
     <div class="metric-card card-orange">
         <div class="card-icon"><i class="fas fa-user-clock"></i></div>
         <div class="card-info">
-            <h3 class="card-value">2 HARI</h3>
+            <h3 class="card-value">{{ session['user']['izin'] if session['user']['izin'] else '0 HARI' }}</h3>
             <span class="card-label">Izin / Cuti</span>
         </div>
     </div>
@@ -31,7 +36,7 @@
     <div class="metric-card card-green">
         <div class="card-icon"><i class="fas fa-chart-line"></i></div>
         <div class="card-info">
-            <h3 class="card-value">75%</h3>
+            <h3 class="card-value">{{ session['user']['progres'] if session['user']['progres'] else '0%' }}</h3>
             <span class="card-label">Progres Kerja</span>
         </div>
     </div>
@@ -39,14 +44,13 @@
     <div class="metric-card card-purple">
         <div class="card-icon"><i class="fas fa-file-invoice-dollar"></i></div>
         <div class="card-info">
-            <h3 class="card-value">JUNI 2026</h3>
+            <h3 class="card-value">{{ session['user']['gaji'] if session['user']['gaji'] else '-' }}</h3>
             <span class="card-label">Slip Gaji Terbaru</span>
         </div>
     </div>
 </div>
 
 <div class="dashboard-grid-two">
-    
     <div class="content-box">
         <div class="box-header">
             <h3>PROGRES KERJA MINGGU INI</h3>
@@ -128,7 +132,7 @@
     </div>
     <div class="box-body">
         <p class="announcement-text">
-            <strong>Reminder:</strong> Pengumpulan laporan bulanan paling lambat tanggal 28 Juni 2026. Harap submit melalui menu Input Progres Kerja. [cite: 408]
+            <strong>Reminder:</strong> Pengumpulan laporan bulanan paling lambat tanggal 28 Juni 2026. Harap submit melalui menu Input Progres Kerja.
         </p>
     </div>
 </div>
