@@ -27,7 +27,9 @@
                         <a href="{{ url_for('admin_dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
                         <a href="{{ url_for('admin_absensi') }}"><i class="fas fa-calendar-check"></i> Absensi</a>
                         <a href="{{ url_for('admin_data_karyawan') }}"><i class="fas fa-users"></i> Data Karyawan</a>
+                        <a href="#"><i class="fas fa-sitemap"></i> Divisi</a>
                         <a href="{{ url_for('admin_rekap_laporan') }}"><i class="fas fa-file-alt"></i> Laporan</a>
+                        <a href="{{ url_for('admin_slip_gaji') }}"><i class="fas fa-wallet"></i> Slip Gaji</a>
 
                     {% elif role == 'karyawan' %}
                         <a href="{{ url_for('karyawan_dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
