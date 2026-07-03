@@ -37,6 +37,9 @@
                         {% elif role == 'direktur' %}
                         <a href="{{ url_for('direktur_dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
                         <a href="{{ url_for('direktur_monitoring') }}"><i class="fas fa-chart-line"></i> Monitoring</a>
+                        <a href="{{ url_for('direktur_absensi') }}"><i class="fas fa-calendar-check"></i> Absensi Karyawan</a>
+                        <a href="{{ url_for('direktur_penggajian') }}"><i class="fas fa-wallet"></i> Penggajian</a>
+                        <a href="{{ url_for('direktur_laporan') }}"><i class="fas fa-file-alt"></i> Laporan</a>
                     {% endif %}
                 {% endif %}
             </nav>

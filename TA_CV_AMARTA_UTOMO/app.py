@@ -154,5 +154,20 @@ def direktur_dashboard():
 def direktur_monitoring():
     return render_template('direktur/monitoring.html')
 
+@app.route('/direktur/absensi')
+@login_required(role='direktur')
+def direktur_absensi():
+    return render_template('direktur/absensi.html')
+
+@app.route('/direktur/penggajian')
+@login_required(role='direktur')
+def direktur_penggajian():
+    return render_template('direktur/validasi_gaji.html')
+
+@app.route('/direktur/laporan')
+@login_required(role='direktur')
+def direktur_laporan():
+    return render_template('direktur/laporan.html')
+
 if __name__ == '__main__':
     app.run(debug=debug_mode, port=server_port)
