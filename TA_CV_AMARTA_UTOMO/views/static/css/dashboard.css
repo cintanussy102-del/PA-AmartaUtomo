@@ -2,6 +2,178 @@
    GABUNGAN PENUNJANG INTERFASE DASHBOARD
    ========================================== */
 
+/* ==========================================
+   PONDASI TATA LETAK UTAMA (LAYOUT SYSTEM)
+   ========================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: #f4f7fc; /* Latar belakang abu terang lembut sesuai mockup */
+    color: #333;
+    overflow-x: hidden;
+}
+
+/* Mengatur Flexbox agar Sidebar di kiri dan Konten di kanan */
+.dashboard-wrapper {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* ==========================================
+   STYLING SIDEBAR GLOBAL (NAVIGASI GELAP DI KIRI)
+   ========================================== */
+.sidebar {
+    width: 260px;
+    background-color: #1a252f; /* Warna biru-gelap pekat arsitektur di mockup */
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    z-index: 100;
+}
+
+.sidebar-brand {
+    padding: 25px 20px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-brand h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #ffffff;
+}
+
+.sidebar-menu {
+    flex: 1;
+    padding: 20px 0;
+}
+
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    padding: 14px 25px;
+    color: #cbd5e0;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.sidebar-menu a i {
+    margin-right: 15px;
+    width: 20px;
+    font-size: 1.1rem;
+}
+
+.sidebar-menu a:hover, 
+.sidebar-menu a.active {
+    color: #ffffff;
+    background-color: #2c3e50; /* Efek highlight saat menu aktif */
+    border-left: 4px solid #4b89dc;
+}
+
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-logout-sidebar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 10px;
+    background-color: #e53e3e;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: background 0.3s ease;
+}
+
+.btn-logout-sidebar:hover {
+    background-color: #c53030;
+}
+
+/* ==========================================
+   STYLING AREA KONTEN UTAMA (SEBELAH KANAN)
+   ========================================== */
+.main-content {
+    flex: 1;
+    margin-left: 260px; /* Memberi ruang 260px agar konten tidak tertimpa sidebar */
+    display: flex;
+    flex-direction: column;
+}
+
+.topbar-header {
+    height: 70px;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.current-page-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #1a252f;
+}
+
+.user-profile-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar-icon {
+    font-size: 2rem;
+    color: #a0aec0;
+}
+
+.content-body {
+    padding: 30px;
+    flex: 1;
+}
+
+/* ==========================================
+   PENYESUAIAN KARTU DAN GRAFIK KARYAWAN
+   ========================================== */
+.metrics-grid-four {
+    margin-bottom: 25px;
+}
+
+.metric-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.01);
+    text-align: center; /* Memastikan isi teks kartu di dashboard karyawan rata tengah */
+    justify-content: center;
+}
+
+.metric-card.card-blue { border-top: 4px solid #4b89dc; }
+.metric-card.card-orange { border-top: 4px solid #e67e22; }
+.metric-card.card-green { border-top: 4px solid #2ecc71; }
+.metric-card.card-purple { border-top: 4px solid #9b59b6; }
+
+.metric-card .card-info {
+    align-items: center;
+    width: 100%;
+}
+
 /* Pengaturan variasi warna garis atas kartu metrik sesuai mockup */
 .card-blue { border-top-color: #4b89dc; }
 .card-green { border-top-color: #2ecc71; }
@@ -616,3 +788,4 @@
     color: white;
 }
 .btn-table-action.btn-process:hover { background-color: #3572b8; }
+
