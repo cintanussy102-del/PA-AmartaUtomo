@@ -11,6 +11,11 @@
 {% endblock %}
 
 {% block content %}
+<div class="welcome-user-text" style="margin-bottom: 20px; font-size: 0.95rem; color: #4a5568;">
+    Halo, <strong>{{ session['user']['username'] if session['user'] else 'Karyawan' }}</strong> 
+    <i class="fas fa-user-circle" style="color: #a0aec0; margin-left: 3px;"></i>
+</div>
+
 <div class="metrics-grid-four">
     <div class="metric-card card-blue">
         <div class="card-icon"><i class="fas fa-calendar-alt"></i></div>
@@ -46,7 +51,6 @@
 </div>
 
 <div class="dashboard-grid-two">
-    
     <div class="content-box">
         <div class="box-header">
             <h3>PROGRES KERJA MINGGU INI</h3>
@@ -128,7 +132,7 @@
     </div>
     <div class="box-body">
         <p class="announcement-text">
-            <strong>Reminder:</strong> Pengumpulan laporan bulanan paling lambat tanggal 28 Juni 2026. Harap submit melalui menu Input Progres Kerja. [cite: 408]
+            <strong>Reminder:</strong> Pengumpulan laporan bulanan paling lambat tanggal 28 Juni 2026. Harap submit melalui menu Input Progres Kerja.
         </p>
     </div>
 </div>
