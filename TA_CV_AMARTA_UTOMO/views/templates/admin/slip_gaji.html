@@ -1,0 +1,49 @@
+{% extends 'base.html' %} 
+{% block title %}Slip Gaji Karyawan{% endblock %} 
+{% block content %} 
+<div class="content-box" style="padding: 40px; background: white; border-radius: 20px;">
+    <h2 style="margin-bottom: 20px;">Slip Gaji Karyawan</h2>
+    
+    <!-- Bagian Header Slip -->
+    <div style="border-bottom: 1px solid #ccc; margin-bottom: 20px; padding-bottom: 10px;">
+        <p><strong>CV Amarta Utomo</strong><br>Jl. Osamaliki No. 57, Salatiga<br>Periode Penggajian: Juni 2026</p>
+    </div>
+
+    <!-- Informasi Karyawan -->
+    <div style="margin-bottom: 30px;">
+        <h3>INFORMASI KARYAWAN</h3>
+        <p>Nama: [Nama Admin]<br>ID Karyawan: ADM-001<br>Jabatan: Admin</p>
+    </div>
+
+    <!-- Tabel Penghasilan & Potongan -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 30px;">
+        <div>
+            <h4>PENGHASILAN</h4>
+            <table style="width: 100%;">
+                <tr><td>Gaji Pokok</td><td>Rp 4.500.000</td></tr>
+                <tr><td>Tunjangan</td><td>Rp 500.000</td></tr>
+                <tr style="font-weight: bold;"><td>TOTAL PENGHASILAN</td><td>RP 5.000.000</td></tr>
+            </table>
+        </div>
+        <div>
+            <h4>POTONGAN</h4>
+            <table style="width: 100%;">
+                <tr><td>Potongan Absen/Alpa</td><td>Rp 200.000</td></tr>
+                <tr style="font-weight: bold;"><td>TOTAL POTONGAN</td><td>RP 200.000</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Total Gaji Bersih -->
+    <div style="background: #3b82f6; color: white; padding: 15px; border-radius: 8px; font-weight: bold; text-align: center; margin-bottom: 40px;">
+        TOTAL GAJI BERSIH: RP 4.800.000
+    </div>
+
+    <!-- Tanda Tangan -->
+    <div style="text-align: right;">
+        <p>Mengetahui,<br>Direktur</p>
+        <br><br><br>
+        <p>( ........................... )</p>
+    </div>
+</div>
+{% endblock %}

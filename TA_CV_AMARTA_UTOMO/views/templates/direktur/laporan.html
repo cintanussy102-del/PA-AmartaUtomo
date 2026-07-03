@@ -1,0 +1,36 @@
+{% extends 'base.html' %} 
+{% block title %}Laporan Pekerjaan{% endblock %} 
+{% block page_title %}Laporan Pekerjaan{% endblock %} 
+
+{% block content %} 
+<!-- Tabel Laporan Utama -->
+<div class="content-box">
+    <div class="box-body no-padding">
+        <table class="amarta-table">
+            <thead>
+                <tr><th>NO</th><th>PENGIRIM</th><th>ROLE</th><th>DIVISI</th><th>TANGGAL</th><th>DESKRIPSI PEKERJAAN</th><th>STATUS</th><th>REVISI</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td>Rony Parulian</td><td>Karyawan</td><td>Produksi</td><td>20 Jun 2026</td><td>Pemasangan rangka atap gudang B</td><td><span class="status-badge aktif">Selesai</span></td><td>-</td></tr>
+                <tr><td>2</td><td>Paul Aro</td><td>Karyawan</td><td>Teknik</td><td>19 Jun 2026</td><td>Instalasi panel listrik lantai 3</td><td><span class="status-badge" style="background:#fed7d7; color:#c53030;">Revisi</span></td><td>Ya</td></tr>
+                <tr><td>3</td><td>Siti Badriah</td><td>Admin</td><td>Administrasi</td><td>21 Jun 2026</td><td>Rekap data absensi bulan Juni</td><td><span class="status-badge aktif">Selesai</span></td><td>-</td></tr>
+                <tr><td>4</td><td>Fildan Rahayu</td><td>Karyawan</td><td>Teknik</td><td>18 Jun 2026</td><td>Pengelasan struktur baja tower C</td><td><span class="status-badge" style="background:#fed7d7; color:#c53030;">Revisi</span></td><td>Ya</td></tr>
+                <tr><td>5</td><td>Rara Lida</td><td>Karyawan</td><td>Produksi</td><td>22 Jun 2026</td><td>Pengecoran pondasi area parkir</td><td><span class="status-badge baris" style="background:#feebc8; color:#dd6b20;">Proses</span></td><td>-</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Ringkasan Revisi Pekerjaan -->
+<div class="metrics-grid" style="grid-template-columns: repeat(3, 1fr);">
+    <div class="metric-card" style="border-top-color: #e74c3c;">
+        <div class="card-info"><span class="card-label">Total Revisi</span><h3 class="card-value">3</h3></div>
+    </div>
+    <div class="metric-card" style="border-top-color: #2ecc71;">
+        <div class="card-info"><span class="card-label">Laporan Selesai</span><h3 class="card-value">7</h3></div>
+    </div>
+    <div class="metric-card" style="border-top-color: #f39c12;">
+        <div class="card-info"><span class="card-label">Sedang Proses</span><h3 class="card-value">3</h3></div>
+    </div>
+</div>
+{% endblock %}

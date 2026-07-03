@@ -1,0 +1,57 @@
+{% extends 'base.html' %} 
+{% block title %}Rekap Laporan Progres{% endblock %} 
+{% block page_title %}Rekap Laporan Progres{% endblock %} 
+
+{% block content %} 
+<!-- Panel Utama Tabel Rekap -->
+<div class="content-box">
+    <div class="box-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h3>Daftar Laporan Masuk</h3>
+        <button class="btn-primary-amarta"><i class="fas fa-file-download"></i> Unduh Rekap</button>
+    </div>
+    <div class="box-body no-padding">
+        <table class="amarta-table">
+            <thead>
+                <tr>
+                    <th>NO</th>
+                    <th>TANGGAL</th>
+                    <th>KARYAWAN</th>
+                    <th>PROYEK</th>
+                    <th>PROGRES</th>
+                    <th>STATUS</th>
+                    <th>AKSI</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>24 Jun 2026</td>
+                    <td><strong>Rony Parulian</strong></td>
+                    <td>Pembangunan Gudang B</td>
+                    <td>85%</td>
+                    <td><span class="status-badge aktif">Disetujui</span></td>
+                    <td><button class="btn-table-action btn-view">Detail</button></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>24 Jun 2026</td>
+                    <td><strong>Siti Aminah</strong></td>
+                    <td>Renovasi Kantor</td>
+                    <td>60%</td>
+                    <td><span class="status-badge baris">Pending</span></td>
+                    <td><button class="btn-table-action btn-process">Validasi</button></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>23 Jun 2026</td>
+                    <td><strong>Andi Wijaya</strong></td>
+                    <td>Jembatan Musi</td>
+                    <td>45%</td>
+                    <td><span class="status-badge aktif">Disetujui</span></td>
+                    <td><button class="btn-table-action btn-view">Detail</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

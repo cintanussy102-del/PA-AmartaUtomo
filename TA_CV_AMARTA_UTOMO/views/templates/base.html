@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistem Kepegawaian{% endblock %} - CV Amarta Utomo</title>
+    <!-- Menghubungkan ke berkas CSS Dashboard utama kelompok -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <!-- Google Font & Font Awesome untuk icon sidebar -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="dashboard-wrapper">
+        <!-- SIDEBAR KIRI (Dark Theme sesuai Mockup) -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h2>CV AMARTA UTOMO</h2>
+            </div>
+            
+            <nav class="sidebar-menu">
+                {% if session['user'] %}
+                    {% set role = session['user']['role'] %}
+
+                    {% if role == 'admin' %}
+                        <a href="{{ url_for('admin_dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
+                        <a href="{{ url_for('admin_absensi') }}"><i class="fas fa-calendar-check"></i> Absensi</a>
+                        <a href="{{ url_for('admin_data_karyawan') }}"><i class="fas fa-users"></i> Data Karyawan</a>
+                        <a href="{{ url_for('admin_divisi') }}"><i class="fas fa-sitemap"></i> Divisi</a>
+                        <a href="{{ url_for('admin_rekap_laporan') }}"><i class="fas fa-file-alt"></i> Laporan</a>
+                        <a href="{{ url_for('admin_slip_gaji') }}"><i class="fas fa-wallet"></i> Slip Gaji</a>  
+
+                    {% elif role == 'karyawan' %}
+                        <a href="{{ url_for('karyawan_dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
+                        <a href="{{ url_for('karyawan_absensi') }}"><i class="fas fa-calendar-check"></i> Absensi</a>
+                    
+                    {% elif role == 'direktur' %}
+                        <a href="{{ url_for('direktur_dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
+                        <a href="{{ url_for('direktur_monitoring') }}"><i class="fas fa-chart-line"></i> Monitoring Pekerjaan</a>
+                        <a href="{{ url_for('direktur_absensi') }}"><i class="fas fa-calendar-check"></i> Absensi Karyawan</a>
+                        <a href="{{ url_for('direktur_penggajian') }}"><i class="fas fa-wallet"></i> Penggajian</a>
+                        <a href="{{ url_for('direktur_laporan') }}"><i class="fas fa-file-alt"></i> Laporan</a>
+                    {% endif %}
+                {% endif %}
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="{{ url_for('logout') }}" class="logout-link">Keluar sistem</a>
+                </a>
+            </div>
+        </aside>
+
+        <!-- KONTEN KANAN (Main Content Area) -->
+        <main class="main-content">
+            <!-- Topbar Header -->
+            <header class="topbar-header">
+                <div class="page-info">
+                    <h1 class="current-page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+                </div>
+                <div class="user-profile-nav">
+                    <span>Halo, <strong>{{ session['user']['username'] if session['user'] else 'Pengguna' }}</strong></span>
+                    <i class="fas fa-user-circle avatar-icon"></i>
+                </div>
+            </header>
+
+            <!-- Isi Konten Dinamis Halaman -->
+            <section class="content-body">
+                {% block content %}
+                <!-- Konten spesifik halaman ditaruh di sini -->
+                {% endblock %}
+            </section>
+        </main>
+    </div>
+
+</body>
+</html>

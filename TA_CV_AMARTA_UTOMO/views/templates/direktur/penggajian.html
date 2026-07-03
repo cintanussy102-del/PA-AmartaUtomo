@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Validasi Penggajian Karyawan{% endblock %}
+{% block page_title %}Penggajian Karyawan{% endblock %}
+
+{% block sidebar_menu %}
+<a href="{{ url_for('direktur_dashboard') }}"><i class="fas fa-chart-line"></i> Dashboard</a>
+<a href="{{ url_for('direktur_monitoring') }}"><i class="fas fa-eye"></i> Monitoring Pekerjaan</a>
+<a href="{{ url_for('direktur_validasi_gaji') }}" class="active"><i class="fas fa-check-double"></i> Validasi Gaji</a>
+{% endblock %}
+
+{% block content %}
+<!-- TIGA KARTU RINGKASAN PENGGAJIAN (Sesuai Mockup Page 19) -->
+<div class="content-box">
+    <h3>Data Penggajian Karyawan</h3>
+    <table class="amarta-table">
+        <thead>
+            <tr>
+                <th>No</th><th>Nama Karyawan</th><th>Divisi</th><th>Total Gaji</th><th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td><td>Rony Parulian</td><td>Produksi</td><td>Rp 5.800.000</td>
+                <td><span class="status-badge aktif">Terkirim</span></td>
+            </tr>
+            <tr>
+                <td>2</td><td>Siti Aminah</td><td>Administrasi</td><td>Rp 5.050.000</td>
+                <td><span class="status-badge baris" style="color:red">Belum</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

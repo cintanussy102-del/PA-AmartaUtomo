@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Monitoring Pekerjaan & Proyek{% endblock %}
+{% block page_title %}Monitoring Pekerjaan{% endblock %}
+
+{% block sidebar_menu %}
+<a href="{{ url_for('direktur_dashboard') }}"><i class="fas fa-chart-line"></i> Dashboard</a>
+<a href="{{ url_for('direktur_monitoring') }}" class="active"><i class="fas fa-eye"></i> Monitoring Pekerjaan</a>
+<a href="{{ url_for('direktur_validasi_gaji') }}"><i class="fas fa-check-double"></i> Validasi Gaji</a>
+{% endblock %}
+
+{% block content %}
+<div class="content-box">
+    <div class="box-body no-padding">
+        <table class="amarta-table">
+            <thead>
+                <tr>
+                    <th>Nama Proyek</th>
+                    <th>PIC</th>
+                    <th>Divisi</th>
+                    <th>Deadline</th>
+                    <th style="width: 25%;">Progres</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Pembangunan Gudang B</strong></td>
+                    <td>Rony Parulian</td>
+                    <td>Produksi</td>
+                    <td>15 Jul 2026</td>
+                    <td>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-bg"><div class="progress-fill fill-green" style="width: 85%;"></div></div>
+                            <span class="progress-text-percent">85%</span>
+                        </div>
+                    </td>
+                    <td><span class="status-badge status-on-track">On Track</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Renovasi Kantor Pusat</strong></td>
+                    <td>Andi Wijaya</td>
+                    <td>Teknik</td>
+                    <td>30 Ags 2026</td>
+                    <td>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-bg"><div class="progress-fill fill-blue" style="width: 62%;"></div></div>
+                            <span class="progress-text-percent">62%</span>
+                        </div>
+                    </td>
+                    <td><span class="status-badge status-on-track">On Track</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Proyek Jalan Tol Sec. 3</strong></td>
+                    <td>Hendra Kurnia</td>
+                    <td>Teknik</td>
+                    <td>10 Des 2026</td>
+                    <td>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-bg"><div class="progress-fill fill-orange" style="width: 45%;"></div></div>
+                            <span class="progress-text-percent">45%</span>
+                        </div>
+                    </td>
+                    <td><span class="status-badge status-delayed">Delayed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Perumahan Cluster D</strong></td>
+                    <td>Dewi Lestari</td>
+                    <td>Produksi</td>
+                    <td>15 Okt 2026</td>
+                    <td>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-bg"><div class="progress-fill fill-orange" style="width: 30%;"></div></div>
+                            <span class="progress-text-percent">30%</span>
+                        </div>
+                    </td>
+                    <td><span class="status-badge status-delayed">Delayed</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Jembatan Sungai Musi</strong></td>
+                    <td>Dedi Prasetyo</td>
+                    <td>Teknik</td>
+                    <td>18 Feb 2027</td>
+                    <td>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-bg"><div class="progress-fill fill-red" style="width: 10%;"></div></div>
+                            <span class="progress-text-percent">10%</span>
+                        </div>
+                    </td>
+                    <td><span class="status-badge status-critical">Critical</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="metrics-grid-four margin-top-30">
+    <div class="metric-card card-blue">
+        <div class="card-info">
+            <h3 class="card-value">8</h3>
+            <span class="card-label">Total Proyek</span>
+        </div>
+    </div>
+    <div class="metric-card card-green">
+        <div class="card-info">
+            <h3 class="card-value">4</h3>
+            <span class="card-label">Sudah Selesai</span>
+        </div>
+    </div>
+    <div class="metric-card card-orange">
+        <div class="card-info">
+            <h3 class="card-value">2</h3>
+            <span class="card-label">Perlu Perhatian</span>
+        </div>
+    </div>
+    <div class="metric-card card-red">
+        <div class="card-info">
+            <h3 class="card-value">2</h3>
+            <span class="card-label">Terhambat</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

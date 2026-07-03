@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Input Laporan Kerja Karyawan{% endblock %}
+{% block page_title %}Input Laporan Kerja{% endblock %}
+
+{% block sidebar_menu %}
+<a href="{{ url_for('karyawan_dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
+<a href="{{ url_for('karyawan_absensi') }}"><i class="fas fa-calendar-check"></i> Absensi</a>
+<a href="{{ url_for('karyawan_input_progres') }}" class="active"><i class="fas fa-tasks"></i> Input Laporan Kerja</a>
+<a href="{{ url_for('karyawan_slip_gaji') }}"><i class="fas fa-wallet"></i> Slip Gaji</a>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid-two">
+    
+    <div class="left-column">
+        <div class="content-box">
+            <div class="box-header">
+                <h3>DETAIL PROGRES PEKERJAAN</h3>
+            </div>
+            <div class="box-body">
+                <form action="#" method="POST" class="amarta-form">
+                    
+                    <div class="form-group">
+                        <label for="pilih_proyek">Pilih Proyek / Tugas:</label>
+                        <select id="pilih_proyek" name="id_pekerjaan" class="form-control-input" required>
+                            <option value="">-- Pilih Proyek Aktif --</option>
+                            <option value="1">Pembangunan Gudang B</option>
+                            <option value="2">Renovasi Kantor Pusat</option>
+                            <option value="3">Proyek Jalan Tol Sec. 3</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="persentase_progres">Progres Capaian (%):</label>
+                        <input type="number" id="persentase_progres" name="progres" min="0" max="100" placeholder="Contoh: 75" class="form-control-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="deskripsi_tugas">Deskripsi Tugas / Pekerjaan Hari Ini:</label>
+                        <textarea id="deskripsi_tugas" name="tugas_pekerjaan" rows="5" placeholder="Tulis rincian aktivitas yang telah diselesaikan hari ini..." class="form-control-input textarea" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status_tugas">Status Tugas Saat Ini:</label>
+                        <select id="status_tugas" name="status_tugas" class="form-control-input" required>
+                            <option value="On Track">On Track</option>
+                            <option value="Delayed">Delayed</option>
+                            <option value="Selesai">Selesai (Butuh Validasi)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-primary-amarta full-width-btn">
+                        <i class="fas fa-paper-plane"></i> Kirim Laporan
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="right-column">
+        <div class="content-box">
+            <div class="box-header">
+                <h3>DATA PENGIRIM</h3>
+            </div>
+            <div class="box-body">
+                <div class="sender-profile-info">
+                    <p>ID Karyawan: <strong class="text-blue">KRY-0042</strong></p>
+                    <p>Nama Staf: <strong>Rony Parulian</strong></p>
+                    <p>Divisi / Jabatan: <span>Produksi / Staff Produksi</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-box">
+            <div class="box-header">
+                <h3>RINGKASAN PROGRES</h3>
+            </div>
+            <div class="box-body">
+                <div class="summary-progress-stats">
+                    <div class="stat-row">
+                        <span>Total Laporan Dikirim</span>
+                        <strong class="stat-count blue-text">5</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>Disetujui / Selesai</span>
+                        <strong class="stat-count green-text">3</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>Butuh Revisi</span>
+                        <strong class="stat-count orange-text">2</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
