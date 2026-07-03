@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Input Laporan Kerja Karyawan{% endblock %}
+{% block title %}Input Laporan Kerja{% endblock %}
 {% block page_title %}Input Laporan Kerja{% endblock %}
 
 {% block sidebar_menu %}
@@ -13,87 +13,157 @@
 {% block content %}
 <div class="dashboard-grid-two">
     
-    <div class="left-column">
-        <div class="content-box">
-            <div class="box-header">
-                <h3>DETAIL PROGRES PEKERJAAN</h3>
-            </div>
-            <div class="box-body">
-                <form action="#" method="POST" class="amarta-form">
-                    
+    <div class="content-box">
+        <div class="box-header">
+            <h3>DATA PENGIRIM</h3>
+        </div>
+        <div class="box-body">
+            <form action="#" method="POST" class="amarta-form">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     <div class="form-group">
-                        <label for="pilih_proyek">Pilih Proyek / Tugas:</label>
-                        <select id="pilih_proyek" name="id_pekerjaan" class="form-control-input" required>
-                            <option value="">-- Pilih Proyek Aktif --</option>
-                            <option value="1">Pembangunan Gudang B</option>
-                            <option value="2">Renovasi Kantor Pusat</option>
-                            <option value="3">Proyek Jalan Tol Sec. 3</option>
-                        </select>
+                        <label>Nama Pengirim</label>
+                        <input type="text" class="form-control-input" value="{{ session['user']['username'] if session['user'] else 'Rony Parulian' }}" readonly style="background-color: #f1f5f9;">
                     </div>
-
                     <div class="form-group">
-                        <label for="persentase_progres">Progres Capaian (%):</label>
-                        <input type="number" id="persentase_progres" name="progres" min="0" max="100" placeholder="Contoh: 75" class="form-control-input" required>
+                        <label>ID Karyawan</label>
+                        <input type="text" class="form-control-input" value="{{ session['user']['id'] if session['user'] else 'KRY-0042' }}" readonly style="background-color: #f1f5f9;">
                     </div>
-
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
                     <div class="form-group">
-                        <label for="deskripsi_tugas">Deskripsi Tugas / Pekerjaan Hari Ini:</label>
-                        <textarea id="deskripsi_tugas" name="tugas_pekerjaan" rows="5" placeholder="Tulis rincian aktivitas yang telah diselesaikan hari ini..." class="form-control-input textarea" required></textarea>
+                        <label>Divisi</label>
+                        <input type="text" class="form-control-input" value="{{ session['user']['jabatan'].split(' / ')[0] if session['user'] else 'Produksi' }}" readonly style="background-color: #f1f5f9;">
                     </div>
-
                     <div class="form-group">
-                        <label for="status_tugas">Status Tugas Saat Ini:</label>
-                        <select id="status_tugas" name="status_tugas" class="form-control-input" required>
-                            <option value="On Track">On Track</option>
-                            <option value="Delayed">Delayed</option>
-                            <option value="Selesai">Selesai (Butuh Validasi)</option>
-                        </select>
+                        <label>Tanggal Dikirim</label>
+                        <input type="text" class="form-control-input" value="24 Juni 2026" readonly style="background-color: #f1f5f9;">
                     </div>
-
-                    <button type="submit" class="btn-primary-amarta full-width-btn">
-                        <i class="fas fa-paper-plane"></i> Kirim Laporan
-                    </button>
-                </form>
-            </div>
+                </div>
+                
+                <button type="submit" class="btn-primary-amarta" style="width: auto; padding: 10px 25px;">Kirim Laporan</button>
+            </form>
         </div>
     </div>
 
-    <div class="right-column">
-        <div class="content-box">
-            <div class="box-header">
-                <h3>DATA PENGIRIM</h3>
-            </div>
-            <div class="box-body">
-                <div class="sender-profile-info">
-                    <p>ID Karyawan: <strong class="text-blue">KRY-0042</strong></p>
-                    <p>Nama Staf: <strong>Rony Parulian</strong></p>
-                    <p>Divisi / Jabatan: <span>Produksi / Staff Produksi</span></p>
+    <div class="content-box">
+        <div class="box-header">
+            <h3>RINGKASAN PROGRES</h3>
+        </div>
+        <div class="box-body" style="display: flex; flex-direction: column; gap: 15px;">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center;">
+                <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border-top: 3px solid #2ecc71;">
+                    <h2 style="font-size: 1.5rem; color: #1e293b;">5</h2>
+                    <span style="font-size: 0.75rem; color: #64748b; font-weight: 500;">Selesai</span>
+                </div>
+                <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border-top: 3px solid #f39c12;">
+                    <h2 style="font-size: 1.5rem; color: #1e293b;">3</h2>
+                    <span style="font-size: 0.75rem; color: #64748b; font-weight: 500;">Sedang Dikerjakan</span>
+                </div>
+                <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border-top: 3px solid #e74c3c;">
+                    <h2 style="font-size: 1.5rem; color: #1e293b;">2</h2>
+                    <span style="font-size: 0.75rem; color: #64748b; font-weight: 500;">Belum Dibuat</span>
                 </div>
             </div>
-        </div>
 
-        <div class="content-box">
-            <div class="box-header">
-                <h3>RINGKASAN PROGRES</h3>
-            </div>
-            <div class="box-body">
-                <div class="summary-progress-stats">
-                    <div class="stat-row">
-                        <span>Total Laporan Dikirim</span>
-                        <strong class="stat-count blue-text">5</strong>
-                    </div>
-                    <div class="stat-row">
-                        <span>Disetujui / Selesai</span>
-                        <strong class="stat-count green-text">3</strong>
-                    </div>
-                    <div class="stat-row">
-                        <span>Butuh Revisi</span>
-                        <strong class="stat-count orange-text">2</strong>
-                    </div>
+            <div style="display: flex; align-items: center; gap: 20px; margin-top: 5px;">
+                <div style="width: 80px; height: 80px; background-color: #cbd5e1; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.8rem; color: #475569; font-weight: 600;">
+                    Chart
+                </div>
+                <div style="font-size: 0.85rem; color: #475569; line-height: 1.5;">
+                    <p>Total Tugas: <strong>10</strong></p>
+                    <p><i class="fas fa-circle" style="color: #2ecc71; font-size: 0.7rem; margin-right: 5px;"></i> Selesai: <strong>50%</strong></p>
+                    <p><i class="fas fa-circle" style="color: #f39c12; font-size: 0.7rem; margin-right: 5px;"></i> Dalam Proses: <strong>30%</strong></p>
+                    <p><i class="fas fa-circle" style="color: #e74c3c; font-size: 0.7rem; margin-right: 5px;"></i> Belum Mulai: <strong>20%</strong></p>
                 </div>
             </div>
         </div>
     </div>
 
+</div>
+
+<div class="content-box margin-top-20">
+    <div class="box-header">
+        <h3>DETAIL PROGRES PEKERJAAN</h3>
+    </div>
+    <div class="box-body no-padding">
+        <table class="amarta-table">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">NO</th>
+                    <th style="width: 50%;">TUGAS / PEKERJAAN</th>
+                    <th style="width: 20%;">STATUS</th>
+                    <th style="width: 25%;">KETERANGAN</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="background-color: #f0fdf4;"><td colspan="4" style="font-weight: 700; color: #166534; font-size: 0.75rem; padding: 6px 15px; letter-spacing: 0.5px;">SUDAH SELESAI</td></tr>
+                <tr>
+                    <td>1</td>
+                    <td>Membuat laporan bulanan divisi Produksi</td>
+                    <td><span style="color: #2ecc71; font-weight: 600;">Selesai</span></td>
+                    <td style="color: #64748b;">Dikirim 20 Jun</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Update data inventaris gudang</td>
+                    <td><span style="color: #2ecc71; font-weight: 600;">Selesai</span></td>
+                    <td style="color: #64748b;">Dikirim 18 Jun</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Revisi dokumen SOP mesin CNC</td>
+                    <td><span style="color: #2ecc71; font-weight: 600;">Selesai</span></td>
+                    <td style="color: #64748b;">Dikirim 15 Jun</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>Koordinasi jadwal shift minggu ke-4</td>
+                    <td><span style="color: #2ecc71; font-weight: 600;">Selesai</span></td>
+                    <td style="color: #64748b;">Dikirim 22 Jun</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>Pelaporan maintenance mesin A1</td>
+                    <td><span style="color: #2ecc71; font-weight: 600;">Selesai</span></td>
+                    <td style="color: #64748b;">Dikirim 21 Jun</td>
+                </tr>
+
+                <tr style="background-color: #fff7ed;"><td colspan="4" style="font-weight: 700; color: #9a3412; font-size: 0.75rem; padding: 6px 15px; letter-spacing: 0.5px;">SEDANG DIKERJAKAN</td></tr>
+                <tr>
+                    <td>6</td>
+                    <td>Menyusun rencana produksi Juli 2026</td>
+                    <td><span style="color: #f39c12; font-weight: 600;">Sedang Dikerjakan</span></td>
+                    <td style="color: #64748b;">Target 28 Jun</td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td>Training karyawan baru - batch 3</td>
+                    <td><span style="color: #f39c12; font-weight: 600;">Sedang Dikerjakan</span></td>
+                    <td style="color: #64748b;">Progres: 60%</td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td>Evaluasi performa mesin B2</td>
+                    <td><span style="color: #f39c12; font-weight: 600;">Sedang Dikerjakan</span></td>
+                    <td style="color: #64748b;">Progres: 40%</td>
+                </tr>
+
+                <tr style="background-color: #fef2f2;"><td colspan="4" style="font-weight: 700; color: #991b1b; font-size: 0.75rem; padding: 6px 15px; letter-spacing: 0.5px;">BELUM DIBUAT</td></tr>
+                <tr>
+                    <td>9</td>
+                    <td>Laporan evaluasi kinerja Q2</td>
+                    <td><span style="color: #e74c3c; font-weight: 600;">Belum Dibuat</span></td>
+                    <td style="color: #64748b;">Deadline 30 Jun</td>
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td>Proposal pengadaan alat baru</td>
+                    <td><span style="color: #e74c3c; font-weight: 600;">Belum Dibuat</span></td>
+                    <td style="color: #64748b;">Deadline 5 Jul</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

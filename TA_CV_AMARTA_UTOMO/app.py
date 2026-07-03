@@ -143,6 +143,16 @@ def karyawan_dashboard():
 def karyawan_absensi():
     return render_template('karyawan/absensi.html')
 
+@app.route('/karyawan/input-progres')
+def karyawan_input_progres():
+    # Memastikan halaman dirender menggunakan file yang sudah kita perbaiki tadi
+    return render_template('karyawan/input_progres.html')
+
+@app.route('/karyawan/slip-gaji')
+def karyawan_slip_gaji():
+    # Rute untuk halaman slip gaji karyawan
+    return render_template('karyawan/slip_gaji.html')
+
 # --- RUTE DIREKTUR ---
 @app.route('/direktur/dashboard')
 @login_required(role='direktur')
