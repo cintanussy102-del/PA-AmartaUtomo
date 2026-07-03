@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}Absensi Kehadiran Karyawan{% endblock %}
+{% block page_title %}Absensi Karyawan{% endblock %}
+
+{% block sidebar_menu %}
+<a href="{{ url_for('karyawan_dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
+<a href="{{ url_for('karyawan_absensi') }}" class="active"><i class="fas fa-calendar-check"></i> Absensi</a>
+<a href="{{ url_for('karyawan_input_progres') }}"><i class="fas fa-tasks"></i> Input Laporan Kerja</a>
+<a href="{{ url_for('karyawan_slip_gaji') }}"><i class="fas fa-wallet"></i> Slip Gaji</a>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid-two">
+    
+    <!-- KOLOM KIRI: TOMBOL ABSENSI & RIWAYAT -->
+    <div class="left-column">
+        <!-- 1. Tombol Absen Harian -->
+        <div class="content-box">
+            <div class="box-header">
+                <h3>ABSEN HARI INI</h3>
+            </div>
+            <div class="box-body">
+                <div class="absen-buttons-wrapper">
+                    <button class="btn-absen masuk">Absen Masuk - 08:00</button>
+                    <button class="btn-absen keluar">Absen Keluar - 16:00</button>
+                </div>
+                <div class="absen-status-info">
+                    <p>Status Hari Ini: <span class="status-badge aktif">Hadir</span></p>
+                    <p>Jam Masuk: <strong>07:55</strong></p>
+                    <p>Jam Keluar: <strong>--:--</strong></p>
+                    <p class="text-muted">Selamat bekerja & tetap semangat!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Tabel Riwayat Absensi -->
+        <div class="content-box">
+            <div class="box-header">
+                <h3>RIWAYAT ABSENSI</h3>
+            </div>
+            <div class="box-body no-padding">
+                <table class="amarta-table">
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Masuk</th>
+                            <th>Keluar</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>24 Juni 2026</td>
+                            <td>08:00</td>
+                            <td>16:00</td>
+                            <td><span class="status-badge aktif">Hadir</span></td>
+                        </tr>
+                        <tr>
+                            <td>23 Juni 2026</td>
+                            <td>07:58</td>
+                            <td>16:01</td>
+                            <td><span class="status-badge aktif">Hadir</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- KOLOM KANAN: DETEKSI LOKASI & FORM IZIN/CUTI -->
+    <div class="right-column">
+        <!-- 1. Kotak Deteksi Lokasi -->
+        <div class="content-box">
+            <div class="box-header">
+                <h3>DETEKSI LOKASI</h3>
+            </div>
+            <div class="box-body">
+                <div class="location-mock-map">
+                    <i class="fas fa-map-marked-alt map-icon"></i>
+                    <p>Google Maps | Lokasi Terdeteksi</p>
+                </div>
+                <p class="location-address"><i class="fas fa-map-pin"></i> Lokasi: Jl. Osamaliki No. 57, Salatiga</p>
+            </div>
+        </div>
+
+        <!-- 2. Formulir Pengajuan Izin/Cuti -->
+        <div class="content-box">
+            <div class="box-header">
+                <h3>PENGAJUAN IZIN / CUTI</h3>
+            </div>
+            <div class="box-body">
+                <form action="#" method="POST" class="amarta-form">
+                    <div class="form-group">
+                        <label for="jenis_izin">Jenis Izin:</label>
+                        <select id="jenis_izin" name="jenis_izin" class="form-control-input" required>
+                            <option value="">-- Pilih Jenis Pengajuan --</option>
+                            <option value="Cuti Tahunan">Cuti Tahunan</option>
+                            <option value="Sakit">Sakit (Dengan Surat Dokter)</option>
+                            <option value="Izin Penting">Izin Keperluan Mendesak</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pilih_tanggal">Pilih Tanggal:</label>
+                        <input type="date" id="pilih_tanggal" name="pilih_tanggal" class="form-control-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="keterangan">Keterangan / Alasan:</label>
+                        <textarea id="keterangan" name="keterangan" rows="3" placeholder="Tulis alasan pengajuan..." class="form-control-input textarea" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-primary-amarta full-width-btn">Ajukan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- RINGKASAN REKAP BULANAN DI BAGIAN BAWAH MOCKUP -->
+<div class="metrics-grid-four margin-top-20">
+    <div class="metric-card card-blue">
+        <div class="card-info">
+            <h3 class="card-value">18 HARI</h3>
+            <span class="card-label">Hadir Bulan Ini</span>
+        </div>
+    </div>
+    <div class="metric-card card-orange">
+        <div class="card-info">
+            <h3 class="card-value">1 HARI</h3>
+            <span class="card-label">Sakit</span>
+        </div>
+    </div>
+    <div class="metric-card card-purple">
+        <div class="card-info">
+            <h3 class="card-value">1 HARI</h3>
+            <span class="card-label">Cuti</span>
+        </div>
+    </div>
+    <div class="metric-card card-green">
+        <div class="card-info">
+            <h3 class="card-value">0 HARI</h3>
+            <span class="card-label">Alpha</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Karyawan{% endblock %}
+{% block page_title %}Dashboard Karyawan{% endblock %}
+
+{% block sidebar_menu %}
+<a href="{{ url_for('karyawan_dashboard') }}" class="active"><i class="fas fa-th-large"></i> Dashboard</a>
+<a href="{{ url_for('karyawan_absensi') }}"><i class="fas fa-calendar-check"></i> Absensi</a>
+<a href="{{ url_for('karyawan_input_progres') }}"><i class="fas fa-tasks"></i> Input Laporan Kerja</a>
+<a href="{{ url_for('karyawan_slip_gaji') }}"><i class="fas fa-wallet"></i> Slip Gaji</a>
+{% endblock %}
+
+{% block content %}
+<div class="metrics-grid-four">
+    <div class="metric-card card-blue">
+        <div class="card-icon"><i class="fas fa-calendar-alt"></i></div>
+        <div class="card-info">
+            <h3 class="card-value">18 HARI</h3>
+            <span class="card-label">Hadir Bulan Ini</span>
+        </div>
+    </div>
+    
+    <div class="metric-card card-orange">
+        <div class="card-icon"><i class="fas fa-user-clock"></i></div>
+        <div class="card-info">
+            <h3 class="card-value">2 HARI</h3>
+            <span class="card-label">Izin / Cuti</span>
+        </div>
+    </div>
+    
+    <div class="metric-card card-green">
+        <div class="card-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="card-info">
+            <h3 class="card-value">75%</h3>
+            <span class="card-label">Progres Kerja</span>
+        </div>
+    </div>
+
+    <div class="metric-card card-purple">
+        <div class="card-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+        <div class="card-info">
+            <h3 class="card-value">JUNI 2026</h3>
+            <span class="card-label">Slip Gaji Terbaru</span>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid-two">
+    
+    <div class="content-box">
+        <div class="box-header">
+            <h3>PROGRES KERJA MINGGU INI</h3>
+        </div>
+        <div class="box-body">
+            <div class="progress-item">
+                <div class="progress-info">
+                    <span>Laporan Bulanan</span>
+                    <span>10%</span>
+                </div>
+                <div class="progress-bar-bg"><div class="progress-fill fill-blue" style="width: 10%;"></div></div>
+            </div>
+            <div class="progress-item">
+                <div class="progress-info">
+                    <span>Input Data Klien</span>
+                    <span>80%</span>
+                </div>
+                <div class="progress-bar-bg"><div class="progress-fill fill-blue" style="width: 80%;"></div></div>
+            </div>
+            <div class="progress-item">
+                <div class="progress-info">
+                    <span>Review Dokumen</span>
+                    <span>45%</span>
+                </div>
+                <div class="progress-bar-bg"><div class="progress-fill fill-blue" style="width: 45%;"></div></div>
+            </div>
+            <div class="progress-item">
+                <div class="progress-info">
+                    <span>Meeting Divisi</span>
+                    <span>100%</span>
+                </div>
+                <div class="progress-bar-bg"><div class="progress-fill fill-blue" style="width: 100%;"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-box">
+        <div class="box-header">
+            <h3>RIWAYAT ABSENSI</h3>
+        </div>
+        <div class="box-body no-padding">
+            <table class="amarta-table">
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Masuk</th>
+                        <th>Keluar</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>24 Juni 2026</td>
+                        <td>08:00</td>
+                        <td>16:00</td>
+                        <td><span class="status-badge aktif">Hadir</span></td>
+                    </tr>
+                    <tr>
+                        <td>23 Juni 2026</td>
+                        <td>07:58</td>
+                        <td>16:01</td>
+                        <td><span class="status-badge aktif">Hadir</span></td>
+                    </tr>
+                    <tr>
+                        <td>22 Juni 2026</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td><span class="status-badge baris">Izin</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="content-box margin-top-20">
+    <div class="box-header announcement-header">
+        <h3><i class="fas fa-bullhorn"></i> PENGUMUMAN</h3>
+    </div>
+    <div class="box-body">
+        <p class="announcement-text">
+            <strong>Reminder:</strong> Pengumpulan laporan bulanan paling lambat tanggal 28 Juni 2026. Harap submit melalui menu Input Progres Kerja. [cite: 408]
+        </p>
+    </div>
+</div>
+{% endblock %}
