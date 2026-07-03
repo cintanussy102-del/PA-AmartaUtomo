@@ -43,14 +43,12 @@
     margin-top: 5px;
 }
 
-/* Kotak Konten Umum */
 .content-box {
     background: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.01);
     border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
     margin-bottom: 25px;
-    overflow: hidden;
 }
 
 .box-header {
@@ -130,29 +128,22 @@
     font-weight: 600;
 }
 
-/* Tabel Data Karyawan Amarta Utomo */
 .amarta-table {
     width: 100%;
     border-collapse: collapse;
-    text-align: left;
-    font-size: 0.9rem;
 }
 
 .amarta-table th {
-    background-color: #f7fafc;
-    padding: 14px 20px;
     font-weight: 600;
+    font-style: italic; /* Sesuai permintaanmu */
     color: #4a5568;
+    padding: 15px;
     border-bottom: 2px solid #edf2f7;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    letter-spacing: 0.5px;
 }
 
 .amarta-table td {
-    padding: 15px 20px;
+    padding: 15px;
     border-bottom: 1px solid #edf2f7;
-    color: #2d3748;
 }
 
 .amarta-table tr:last-child td {
@@ -184,7 +175,6 @@
     margin-top: 30px; 
 }
 
-/* Tambahan untuk Sidebar agar mirip image_dde579.png */
 .dashboard-wrapper {
     display: flex;
     min-height: 100vh;
@@ -193,17 +183,15 @@
 .sidebar {
     width: 250px;
     background-color: #1a252f;
-    color: #ffffff;
-    display: flex; /* Mengaktifkan flexbox */
-    flex-direction: column; /* Mengatur arah elemen ke bawah */
     min-height: 100vh;
-    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .main-content {
     flex-grow: 1;
     background-color: #f7fafc;
-    padding: 20px;
+    padding: 30px;
 }
 
 .dashboard-wrapper {
@@ -710,16 +698,16 @@
 .metrics-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    margin-bottom: 20px;
+    gap: 25px;
+    margin-bottom: 30px;
 }
 
 .metric-card {
-    background: white;
-    padding: 15px;
-    border-left: 5px solid #4b89dc; /* Border warna di sisi kiri */
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 6px solid #4b89dc; /* Border tegas sesuai mockup */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .amarta-table {

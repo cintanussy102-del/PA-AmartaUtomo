@@ -10,7 +10,7 @@
 
 body {
     /* Perpaduan warna biru langit dan krem lembut */
-    background: linear-gradient(135deg, #d10404, #d39c54, #bbdefb, #fdfbf7, #8d0378);
+    background: linear-gradient(135deg, #d10404, #d39c54, #bbdefb, #fdfbf7, #fd0ad9);
     background-size: 400% 400%; 
     animation: gradientAnimation 13s ease infinite; 
     min-height: 100vh;
