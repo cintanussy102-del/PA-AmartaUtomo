@@ -17,60 +17,47 @@
 <body>
 
     <div class="login-card">
-    <div class="back-nav">
-        <a href="{{ url_for('welcome') }}">← Kembali ke Halaman Utama</a>
-    </div>
-
-    <h2>Login Pengguna</h2>
-    <form action="{{ url_for('login') }}" method="POST">
-        <div class="input-row">
-            <span class="icon">👤</span>
-            <div class="input-field">
-                <label>Username</label>
-                <input type="text" name="username" placeholder="admin" required>
-            </div>
+        <div class="back-nav">
+            <a href="{{ url_for('welcome') }}">← Kembali ke Halaman Utama</a>
         </div>
-        
-        <div class="input-row">
-            <span class="icon">🔒</span>
-            <div class="input-field">
-                <label>Password</label>
-                <input type="password" name="password" id="password" placeholder="••••••••" required>
-                <button type="button" class="eye-toggle" onclick="togglePassword()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                    </svg>
-                </button>
-            </div>
-        </div>
-        
-        <button type="submit" class="btn-submit">Masuk Sistem</button>
-    </form>
-</div>
 
-<script>
-    function togglePassword() {
-        const x = document.getElementById("password");
-        if (x.type === "password") {
-            x.type = "text";
-        } else {
-            x.type = "password";
-        }
-    }
-</script>
+        <h2>Login Pengguna</h2>
+        <form action="{{ url_for('login') }}" method="POST">
+            <div class="input-row">
+                <span class="icon">👤</span>
+                <div class="input-field">
+                    <label>Username</label>
+                    <!-- Placeholder dihapus dan autocomplete dimatikan -->
+                    <input type="text" name="username" autocomplete="off" required>
+                </div>
+            </div>
+            
+            <div class="input-row">
+                <span class="icon">🔒</span>
+                <div class="input-field">
+                    <label>Password</label>
+                    <!-- Placeholder dihapus dan autocomplete new-password diaktifkan untuk mencegah warna kuning -->
+                    <input type="password" name="password" id="password" autocomplete="new-password" required>
+                    <button type="button" class="eye-toggle" onclick="togglePassword()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-submit">Masuk Sistem</button>
+        </form>
     </div>
 
     <script>
         function togglePassword() {
-            const passInput = document.getElementById("password");
-            const icon = document.querySelector(".eye-icon");
-            if (passInput.type === "password") {
-                passInput.type = "text";
-                icon.textContent = "🙈";
+            const x = document.getElementById("password");
+            if (x.type === "password") {
+                x.type = "text";
             } else {
-                passInput.type = "password";
-                icon.textContent = "👁️";
+                x.type = "password";
             }
         }
     </script>
