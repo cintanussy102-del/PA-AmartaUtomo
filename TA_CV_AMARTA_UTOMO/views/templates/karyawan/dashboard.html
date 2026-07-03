@@ -20,7 +20,7 @@
     <div class="metric-card card-blue">
         <div class="card-icon"><i class="fas fa-calendar-alt"></i></div>
         <div class="card-info">
-            <h3 class="card-value">18 HARI</h3>
+            <h3 class="card-value">{{ session['user']['hadir'] if session['user']['hadir'] else '0 HARI' }}</h3>
             <span class="card-label">Hadir Bulan Ini</span>
         </div>
     </div>
@@ -28,7 +28,7 @@
     <div class="metric-card card-orange">
         <div class="card-icon"><i class="fas fa-user-clock"></i></div>
         <div class="card-info">
-            <h3 class="card-value">2 HARI</h3>
+            <h3 class="card-value">{{ session['user']['izin'] if session['user']['izin'] else '0 HARI' }}</h3>
             <span class="card-label">Izin / Cuti</span>
         </div>
     </div>
@@ -36,7 +36,7 @@
     <div class="metric-card card-green">
         <div class="card-icon"><i class="fas fa-chart-line"></i></div>
         <div class="card-info">
-            <h3 class="card-value">75%</h3>
+            <h3 class="card-value">{{ session['user']['progres'] if session['user']['progres'] else '0%' }}</h3>
             <span class="card-label">Progres Kerja</span>
         </div>
     </div>
@@ -44,7 +44,7 @@
     <div class="metric-card card-purple">
         <div class="card-icon"><i class="fas fa-file-invoice-dollar"></i></div>
         <div class="card-info">
-            <h3 class="card-value">JUNI 2026</h3>
+            <h3 class="card-value">{{ session['user']['gaji'] if session['user']['gaji'] else '-' }}</h3>
             <span class="card-label">Slip Gaji Terbaru</span>
         </div>
     </div>

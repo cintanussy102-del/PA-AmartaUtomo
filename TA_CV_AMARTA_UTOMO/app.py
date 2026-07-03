@@ -36,21 +36,65 @@ def welcome():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form.get('username')
+        username = request.form.get('username').strip()
         password = request.form.get('password')
         
-        if username == 'admin' and password == 'admin':
-            session['user'] = {'username': 'admin', 'role': 'admin'}
+        # 1. DATABASE SEMENTARA (Masing-masing Karyawan Punya Data Berbeda)
+        data_karyawan = {
+            'Rony': {
+                'id': 'KRY-0042',
+                'jabatan': 'Produksi / Staff Lapangan',
+                'hadir': '18 HARI',
+                'izin': '2 HARI',
+                'progres': '75%',
+                'gaji': 'JUNI 2026'
+            },
+            'Aloy': {
+                'id': 'KRY-0015',
+                'jabatan': 'Teknik / Surveyor',
+                'hadir': '20 HARI',
+                'izin': '0 HARI',
+                'progres': '90%',
+                'gaji': 'MEI 2026'
+            },
+            'Putri': {
+                'id': 'KRY-0089',
+                'jabatan': 'Administrasi / Dokumen Kontrol',
+                'hadir': '16 HARI',
+                'izin': '4 HARI',
+                'progres': '60%',
+                'gaji': 'JUNI 2026'
+            }
+        }
+        
+        # 2. LOGIKA VALIDASI LOGIN
+        if 'admin' in username.lower():
+            session['user'] = {'username': username, 'role': 'admin'}
             return redirect(url_for('admin_dashboard'))
-        elif username == 'karyawan' and password == 'karyawan':
-            session['user'] = {'username': 'karyawan', 'role': 'karyawan'}
-            return redirect(url_for('karyawan_dashboard'))
-        elif username == 'direktur' and password == 'direktur':
-            session['user'] = {'username': 'direktur', 'role': 'direktur'}
+            
+        elif 'direktur' in username.lower():
+            session['user'] = {'username': username, 'role': 'direktur'}
             return redirect(url_for('direktur_dashboard'))
+            
+        # Jika username yang diinput ada di database karyawan kita dan password-nya benar
+        elif username in data_karyawan and password == 'karyawan':
+            # Simpan semua data spesifik karyawan tersebut ke dalam session
+            session['user'] = {
+                'username': username,
+                'role': 'karyawan',
+                'id': data_karyawan[username]['id'],
+                'jabatan': data_karyawan[username]['jabatan'],
+                'hadir': data_karyawan[username]['hadir'],
+                'izin': data_karyawan[username]['izin'],
+                'progres': data_karyawan[username]['progres'],
+                'gaji': data_karyawan[username]['gaji']
+            }
+            return redirect(url_for('karyawan_dashboard'))
+            
         else:
             flash('Username atau password salah!', 'danger')
             return redirect(url_for('login'))
+            
     return render_template('login.html')
 
 @app.route('/logout')
