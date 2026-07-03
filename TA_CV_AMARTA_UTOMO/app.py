@@ -37,11 +37,12 @@ def welcome():
 def login():
     if request.method == 'POST':
         username = request.form.get('username').strip()
-        password = request.form.get('password')
+        password = request.form.get('password').strip() # Password sekarang menyimpan nama unik
         
-        # 1. DATABASE SEMENTARA (Masing-masing Karyawan Punya Data Berbeda)
+        # 1. DATABASE SEMENTARA (Kunci pencarian diganti berdasarkan Password/Nama)
         data_karyawan = {
             'Rony': {
+                'username_tampil': 'Rony',
                 'id': 'KRY-0042',
                 'jabatan': 'Produksi / Staff Lapangan',
                 'hadir': '18 HARI',
@@ -50,6 +51,7 @@ def login():
                 'gaji': 'JUNI 2026'
             },
             'Aloy': {
+                'username_tampil': 'Aloy',
                 'id': 'KRY-0015',
                 'jabatan': 'Teknik / Surveyor',
                 'hadir': '20 HARI',
@@ -58,6 +60,7 @@ def login():
                 'gaji': 'MEI 2026'
             },
             'Putri': {
+                'username_tampil': 'Putri',
                 'id': 'KRY-0089',
                 'jabatan': 'Administrasi / Dokumen Kontrol',
                 'hadir': '16 HARI',
@@ -76,18 +79,19 @@ def login():
             session['user'] = {'username': username, 'role': 'direktur'}
             return redirect(url_for('direktur_dashboard'))
             
-        # Jika username yang diinput ada di database karyawan kita dan password-nya benar
-        elif username in data_karyawan and password == 'karyawan':
-            # Simpan semua data spesifik karyawan tersebut ke dalam session
+        # Jika username-nya 'karyawan' dan password-nya cocok dengan salah satu nama staf kita
+        elif username.lower() == 'karyawan' and password in data_karyawan:
+            # Ambil data spesifik berdasarkan password nama yang diinput
+            staf = data_karyawan[password]
             session['user'] = {
-                'username': username,
+                'username': staf['username_tampil'], # Mengambil nama lengkap/tampilan asli untuk halo pengguna
                 'role': 'karyawan',
-                'id': data_karyawan[username]['id'],
-                'jabatan': data_karyawan[username]['jabatan'],
-                'hadir': data_karyawan[username]['hadir'],
-                'izin': data_karyawan[username]['izin'],
-                'progres': data_karyawan[username]['progres'],
-                'gaji': data_karyawan[username]['gaji']
+                'id': staf['id'],
+                'jabatan': staf['jabatan'],
+                'hadir': staf['hadir'],
+                'izin': staf['izin'],
+                'progres': staf['progres'],
+                'gaji': staf['gaji']
             }
             return redirect(url_for('karyawan_dashboard'))
             
