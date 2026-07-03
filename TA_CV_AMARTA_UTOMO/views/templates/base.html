@@ -34,6 +34,8 @@
                     {% elif role == 'karyawan' %}
                         <a href="{{ url_for('karyawan_dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
                         <a href="{{ url_for('karyawan_absensi') }}"><i class="fas fa-calendar-check"></i> Absensi</a>
+                        <a href="{{ url_for('karyawan_input_progres') }}"><i class="fas fa-tasks"></i> Input Laporan Kerja</a>
+                        <a href="{{ url_for('karyawan_slip_gaji') }}"><i class="fas fa-wallet"></i> Slip Gaji</a>
                     
                     {% elif role == 'direktur' %}
                         <a href="{{ url_for('direktur_dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>

@@ -100,6 +100,16 @@ def karyawan_dashboard():
 def karyawan_absensi():
     return render_template('karyawan/absensi.html')
 
+@app.route('/karyawan/input-progres')
+@login_required(role='karyawan')
+def karyawan_input_progres():
+    return render_template('karyawan/input_progres.html')
+
+@app.route('/karyawan/slip-gaji')
+@login_required(role='karyawan')
+def karyawan_slip_gaji():
+    return render_template('karyawan/slip_gaji.html')
+
 # --- RUTE DIREKTUR ---
 @app.route('/direktur/dashboard')
 @login_required(role='direktur')
