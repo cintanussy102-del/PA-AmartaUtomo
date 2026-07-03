@@ -789,24 +789,3 @@ body {
 }
 .btn-table-action.btn-process:hover { background-color: #3572b8; }
 
-<<<<<<< HEAD
-/* --- CSS Dasar Layout (Harus ada di paling atas dashboard.css) --- */
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-body { background-color: #f4f7f6; color: #2d3748; }
-
-.dashboard-wrapper { display: flex; min-height: 100vh; }
-
-.sidebar { width: 260px; background-color: #1a252f; color: white; display: flex; flex-direction: column; }
-.sidebar-brand { padding: 20px; text-align: center; border-bottom: 1px solid #2d3748; }
-.sidebar-menu { flex: 1; padding: 20px 0; }
-.sidebar-menu a { display: block; padding: 15px 25px; color: #a0aec0; text-decoration: none; transition: 0.3s; }
-.sidebar-menu a:hover, .sidebar-menu a.active { background: #2d3748; color: white; }
-.sidebar-footer { padding: 20px; }
-.btn-logout-sidebar { color: #e53e3e; text-decoration: none; font-weight: 600; }
-
-.main-content { flex: 1; display: flex; flex-direction: column; }
-.topbar-header { background: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; }
-.content-body { padding: 30px 40px; }
-/* ----------------------------------------------------------------- */
-=======
->>>>>>> 4b3af4d4de2e9709455fa35e20418e80ea7a36e3
