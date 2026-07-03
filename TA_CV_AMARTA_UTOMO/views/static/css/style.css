@@ -10,9 +10,9 @@
 
 body {
     /* Perpaduan warna biru langit dan krem lembut */
-    background: linear-gradient(135deg, #dcf0ff, #ffd98d, #bbdefb, #fdfbf7);
-    background-size: 400% 400%; /* Membuat latar belakang lebih besar agar bisa digeser */
-    animation: gradientAnimation 15s ease infinite; /* Animasi bergerak terus menerus */
+    background: linear-gradient(135deg, #d10404, #d39c54, #bbdefb, #fdfbf7, #8d0378);
+    background-size: 400% 400%; 
+    animation: gradientAnimation 13s ease infinite; 
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -162,18 +162,18 @@ body {
 
 .login-card {
     background: white;
-    padding: 45px; /* Memberi ruang lebih di dalam */
-    border-radius: 20px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    padding: 60px; /* Diperbesar agar isi kartu lebih lega */
+    border-radius: 25px; /* Sedikit lebih membulat agar terlihat modern */
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
     width: 100%;
-    max-width: 500px; /* Lebar kartu diperbesar */
+    max-width: 550px; /* Lebar maksimum diperbesar */
     margin: 0 auto;
 }
 
 .login-card h2 {
     text-align: center;
-    margin-bottom: 25px;
-    font-size: 1.5rem;
+    margin-bottom: 35px; /* Diberi ruang antara judul dan input */
+    font-size: 1.8rem; /* Judul dibuat lebih menonjol */
     color: #1e293b;
 }
 
