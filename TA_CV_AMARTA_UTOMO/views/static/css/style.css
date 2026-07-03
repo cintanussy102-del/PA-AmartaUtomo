@@ -9,13 +9,21 @@
 }
 
 body {
-    /* Latar belakang menggunakan gradasi biru langit cerah lembut seperti di foto */
-    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    /* Perpaduan warna biru langit dan krem lembut */
+    background: linear-gradient(135deg, #e3f2fd, #fdfbf7, #bbdefb, #fdfbf7);
+    background-size: 400% 400%; /* Membuat latar belakang lebih besar agar bisa digeser */
+    animation: gradientAnimation 15s ease infinite; /* Animasi bergerak terus menerus */
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px;
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 /* ==========================================
@@ -279,7 +287,6 @@ body {
     align-items: center; 
     gap: 20px; /* Jarak antara ikon dan field */
     margin-bottom: 25px; 
-}rgin-bottom: 25px;
 }
 
 .icon {
