@@ -58,7 +58,7 @@
                     <span>10%</span>
                 </div>
                 <div class="progress-bar-bg">
-                    <div class="progress-fill" data-value="10" style="width: 10%;"></div>
+                    <div class="progress-fill" data-value="10"></div>
                 </div>
             </div>
             <div class="progress-item">
@@ -66,21 +66,27 @@
                     <span>Input Data Klien</span>
                     <span>80%</span>
                 </div>
-                <div class="progress-bar-bg"><div class="progress-fill fill-blue" style="width: 80%;"></div></div>
+                <div class="progress-bar-bg">
+                    <div class="progress-fill" data-value="80"></div>
+                </div>
             </div>
             <div class="progress-item">
                 <div class="progress-info">
                     <span>Review Dokumen</span>
                     <span>45%</span>
                 </div>
-                <div class="progress-bar-bg"><div class="progress-fill fill-blue" style="width: 45%;"></div></div>
+                <div class="progress-bar-bg">
+                    <div class="progress-fill" data-value="45"></div>
+                </div>
             </div>
             <div class="progress-item">
                 <div class="progress-info">
                     <span>Meeting Divisi</span>
                     <span>100%</span>
                 </div>
-                <div class="progress-bar-bg"><div class="progress-fill fill-blue" style="width: 100%;"></div></div>
+                <div class="progress-bar-bg">
+                    <div class="progress-fill" data-value="100"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -140,24 +146,28 @@ document.addEventListener("DOMContentLoaded", function() {
     const bars = document.querySelectorAll('.progress-fill');
     
     bars.forEach(bar => {
-        const value = parseInt(bar.getAttribute('data-value'));
-        
-        // 1. Atur lebar bar (width)
-        bar.style.width = value + '%';
-        
-        // 2. Atur warna berdasarkan nilai
-        let color = '';
-        if (value >= 1 && value <= 39) {
-            color = 'red';
-        } else if (value >= 40 && value <= 65) {
-            color = 'yellow';
-        } else if (value >= 66 && value <= 79) {
-            color = '#9ACD32';
-        } else if (value >= 80 && value <= 100) {
-            color = '#0ff007';
+        // Cek apakah ada data-value
+        if (bar.hasAttribute('data-value')) {
+            const value = parseInt(bar.getAttribute('data-value'));
+            
+            // 1. Terapkan lebar (width) yang sesuai
+            bar.style.setProperty('width', value + '%', 'important');
+            
+            // 2. Tentukan warna
+            let color = '';
+            if (value >= 1 && value <= 39) {
+                color = 'red';
+            } else if (value >= 40 && value <= 65) {
+                color = 'yellow';
+            } else if (value >= 66 && value <= 79) {
+                color = '#9ACD32';
+            } else if (value >= 80 && value <= 100) {
+                color = '#0ff007';
+            }
+            
+            // 3. Terapkan warna
+            bar.style.setProperty('background-color', color, 'important');
         }
-        
-        bar.style.backgroundColor = color;
     });
 });
 </script>
