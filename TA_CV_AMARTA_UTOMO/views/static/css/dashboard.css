@@ -105,13 +105,9 @@ body {
 .progress-bar-bg {
     background: #edf2f7;
     height: 8px;
+    width: 100%;
     border-radius: 20px;
     overflow: hidden;
-}
-
-.progress-fill {
-    background: linear-gradient(90deg, #4b89dc, #60a5fa);
-    border-radius: 20px;
 }
 
 .divisi-list {
@@ -574,6 +570,12 @@ body {
     font-weight: 600;
     color: #4a5568;
     min-width: 35px;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 20px;
+    transition: background-color 0.3s ease; /* Transisi warna halus */
 }
 
 /* Variasi Warna Progress Fill Berdasarkan Kondisi */
