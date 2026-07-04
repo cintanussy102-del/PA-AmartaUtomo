@@ -10,7 +10,7 @@
 
 body {
     /* Perpaduan warna biru langit dan krem lembut */
-    background: linear-gradient(135deg, #d10404, #d39c54, #bbdefb, #fdfbf7, #8d0378);
+    background: linear-gradient(135deg, #5cbee8, #D2B4BC, #d8ab8b, #e4dbdb);
     background-size: 400% 400%; 
     animation: gradientAnimation 13s ease infinite; 
     min-height: 100vh;
@@ -33,7 +33,7 @@ body {
 /* Kotak Pembungkus Utama (Welcome Card) */
 .welcome-wrapper {
     /* Warna putih tulang / krem lembut hangat dari dinding bangunan */
-    background: #fdfbfc; 
+    background: linear-gradient(135deg, #f4eee0, #e6dcc7, #d4b499);
     width: 100%;
     max-width: 650px;
     border-radius: 16px;
@@ -161,7 +161,7 @@ body {
 }
 
 .login-card {
-    background: white;
+    background: linear-gradient(180deg, #f7cb8d 0%, #fefefe 80%) !important;
     padding: 60px; /* Diperbesar agar isi kartu lebih lega */
     border-radius: 25px; /* Sedikit lebih membulat agar terlihat modern */
     box-shadow: 0 20px 40px rgba(0,0,0,0.1);
@@ -218,16 +218,18 @@ body {
 
 /* Tombol MASUK SISTEM utama */
 .btn-submit {
-    width: 100%;
-    padding: 18px 0; /* Menambah tinggi tombol */
-    font-size: 1.1rem; /* Memperbesar ukuran teks tombol */
-    background-color: #2563eb;
-    color: white;
+    width: 50%;
+    padding: 10px 0 !important;
+    font-size: 1.1rem; 
+    background-color: #4a5568;
+    color: rgb(254, 206, 134);
     border: none;
-    border-radius: 12px; /* Dibuat lebih membulat */
+    border-radius: 15px;
     cursor: pointer;
-    margin-top: 20px;
     font-weight: 600;
+    display: block !important;
+    margin: 35px auto 0 auto !important; 
+    text-align: center !important;
 }
 
 .btn-submit:hover {
@@ -337,11 +339,7 @@ body {
     cursor: pointer; color: #64748b; 
 }
 
-/* Tombol Masuk */
-.btn-submit { 
-    width: 100%; padding: 14px; background-color: #2563eb; /* Warna biru contoh */
-    color: white; border: none; border-radius: 50px; font-weight: 600; cursor: pointer;
-}
+
 
 .absensi-container { padding: 20px; }
 .row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
