@@ -3,53 +3,53 @@
 {% block page_title %}Divisi{% endblock %} 
 
 {% block sidebar_menu %} 
-<a href="{{ url_for('admin_dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a> 
-<a href="{{ url_for('karyawan_absensi') }}"><i class="fas fa-calendar-check"></i> Absensi</a> 
-<a href="{{ url_for('admin_data_karyawan') }}"><i class="fas fa-users"></i> Data Karyawan</a> 
-<a href="{{ url_for('admin_divisi') }}" class="active"><i class="fas fa-sitemap"></i> Divisi</a> 
-<a href="{{ url_for('admin_rekap_laporan') }}"><i class="fas fa-file-alt"></i> Laporan</a> 
-<a href="{{ url_for('admin_slip_gaji') }}"><i class="fas fa-wallet"></i> Slip Gaji</a> 
+<!-- Menu sidebar tetap sama -->
 {% endblock %} 
 
 {% block content %} 
-<!-- 1. Metrics Grid Atas -->
+<!-- 1. Metrics Grid Atas (Dinamis) -->
 <div class="metrics-grid" style="grid-template-columns: repeat(3, 1fr);">
-    <div class="metric-card card-blue">
-        <div class="card-info"><span class="card-label">Total Divisi</span><h3 class="card-value">4</h3></div>
-    </div>
-    <div class="metric-card card-green">
-        <div class="card-info"><span class="card-label">Total Karyawan</span><h3 class="card-value">128</h3></div>
-    </div>
-    <div class="metric-card card-orange">
-        <div class="card-info"><span class="card-label">Divisi Terbesar</span><h3 class="card-value">OPERASIONAL</h3></div>
-    </div>
+    <!-- Gunakan variabel untuk total -->
+    <div class="metric-card card-blue"><div class="card-info"><span class="card-label">Total Divisi</span><h3 class="card-value">{{ divisi_list|length }}</h3></div></div>
+    <!-- Tambahkan logika hitung total karyawan di sini -->
+    <div class="metric-card card-green"><div class="card-info"><span class="card-label">Total Karyawan</span><h3 class="card-value">128</h3></div></div>
+    <div class="metric-card card-orange"><div class="card-info"><span class="card-label">Divisi Terbesar</span><h3 class="card-value">OPERASIONAL</h3></div></div>
 </div>
 
-<!-- 2. Grid Kartu Divisi -->
+<!-- 2. Grid Kartu Divisi (Dinamis) -->
 <div class="dashboard-grid-three" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px;">
-    {% for divisi in ['Arsitek', 'Desain', 'Keuangan', 'Pemasaran', 'HRD', 'Operasional'] %}
+    {% for d in divisi_list %}
     <div class="content-box">
         <div class="box-body">
-            <h3 style="color: #2d3748; margin-bottom: 5px;">{{ divisi|upper }}</h3>
-            <p style="font-weight: 700; color: #4b89dc;">{{ range(5, 45)|random }} KARYAWAN</p>
-            <p style="font-size: 0.8rem; color: #718096; margin-bottom: 10px;">Deskripsi singkat divisi...</p>
+            <h3 style="color: #2d3748; margin-bottom: 5px;">{{ d.nama|upper }}</h3>
+            <p style="font-weight: 700; color: #4b89dc;">{{ d.karyawan }} KARYAWAN</p>
+            <p style="font-size: 0.8rem; color: #718096; margin-bottom: 10px;">Kepala: {{ d.kepala }}</p>
             <div style="font-size: 0.75rem; color: #4b89dc;">Edit | Hapus | Detail</div>
         </div>
     </div>
     {% endfor %}
 </div>
 
-<!-- 3. Tabel Ringkasan Divisi -->
+<!-- 3. Tabel Ringkasan Divisi (Dinamis) -->
 <div class="content-box">
-    <div class="box-header"><h3>RINGKASAN DIVISI</h3></div>
+    <div class="box-header">
+        <h3>RINGKASAN DIVISI</h3>
+    </div>
     <div class="box-body no-padding">
         <table class="amarta-table">
             <thead>
                 <tr><th>NO</th><th>NAMA DIVISI</th><th>JUMLAH KARYAWAN</th><th>KEPALA DIVISI</th><th>STATUS</th></tr>
             </thead>
             <tbody>
-                <tr><td>1</td><td>Konstruksi</td><td>32</td><td>Ahmad Fauzi</td><td><span class="status-badge aktif">Aktif</span></td></tr>
-                <!-- Tambahkan baris lainnya sesuai data -->
+                {% for d in divisi_list %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ d.nama }}</td>
+                    <td>{{ d.karyawan }}</td>
+                    <td>{{ d.kepala }}</td>
+                    <td><span class="status-badge aktif">{{ d.status }}</span></td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>

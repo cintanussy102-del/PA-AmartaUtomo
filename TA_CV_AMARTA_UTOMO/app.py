@@ -75,10 +75,18 @@ def admin_data_karyawan():
 def admin_absensi():
     return render_template('admin/kelola_absensi.html')
 
+# Contoh di app.py
 @app.route('/admin/divisi')
 @login_required(role='admin')
 def admin_divisi():
-    return render_template('admin/divisi.html')
+    # Mengambil data dari database (asumsi kamu sudah punya model Divisi)
+    # Jika belum, kamu bisa menggunakan list of dictionaries sementara
+    divisi_data = [
+        {'nama': 'Arsitek', 'karyawan': 32, 'kepala': 'Ahmad Fauzi', 'status': 'Aktif'},
+        {'nama': 'Desain', 'karyawan': 18, 'kepala': 'Agus Setiawan', 'status': 'Aktif'},
+        # ... dan seterusnya
+    ]
+    return render_template('admin/divisi.html', divisi_list=divisi_data)
 
 @app.route('/admin/rekap-laporan')
 @login_required(role='admin')
