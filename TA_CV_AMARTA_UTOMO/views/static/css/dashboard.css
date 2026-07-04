@@ -11,8 +11,9 @@ body {
 }
 
 .card-blue { border-top-color: #4b89dc; }
-.card-green { border-top-color: #2ecc71; }
 .card-orange { border-top-color: #e67e22; }
+.card-green { border-top-color: #2ecc71; }
+.card-purple { border-top-color: #9b59b6; }
 
 .metric-card {
     display: flex;
@@ -34,15 +35,16 @@ body {
 }
 
 .card-label {
-    font-size: 0.85rem;
-    color: #718096;
+    font-size: 0.8rem;
+    color: #000000;
     display: block;
 }
 
 .card-value {
-    font-size: 1.8rem;
+    font-size: 1.25rem;
     font-weight: 700;
-    color: #2d3748;
+    color: #3e7ae2;
+    margin-bottom: 5px;
 }
 
 
@@ -356,12 +358,11 @@ body {
 .card-purple { border-top-color: #9b59b6; }
 
 /* Grid Atas Khusus Empat Kolom */
-.metrics-grid {
+.metrics-grid-four {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
     margin-bottom: 25px;
-    width: 100%;
 }
 
 /* Kustomisasi Progress Fill Khusus Karyawan */
@@ -731,11 +732,11 @@ body {
 
 .metric-card {
     background: white;
-    padding: 20px;
-    border-radius: 16px;
-    border-left: 5px solid #4b89dc;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    transition: 0.3s;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    border-top: 4px solid #ddd;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
 .metric-card:hover {
