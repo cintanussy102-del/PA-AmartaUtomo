@@ -45,20 +45,33 @@
             </div>
 
             <div class="content-box">
-                <div class="box-header"><h3>PENGAJUAN IZIN / CUTI</h3></div> <div class="box-body">
+                <div class="box-header"><h3>PENGAJUAN IZIN / CUTI</h3></div>
+                <div class="box-body">
                     <form class="amarta-form" action="/submit-izin" method="POST" enctype="multipart/form-data">
                         <div class="form-group">
-                            <label>Jenis Izin</label>
-                            <input type="text" name="jenis_izin" class="form-control-input" placeholder="Sakit/Cuti">
+                            <label>Jenis Izin:</label>
+                            <select name="jenis_izin" class="form-control-input">
+                                <option>-- Pilih Jenis Pengajuan --</option>
+                                <option value="Sakit">Sakit</option>
+                                <option value="Cuti">Cuti</option>
+                            </select>
                         </div>
+
                         <div class="form-group">
-                            <label>Tanggal</label>
+                            <label>Pilih Tanggal:</label>
                             <input type="date" name="tanggal" class="form-control-input">
                         </div>
+
                         <div class="form-group">
-                            <label>Bukti Izin (Foto/Dokumen)</label>
+                            <label>Keterangan / Alasan:</label>
+                            <textarea name="alasan" class="form-control-input" placeholder="Tulis alasan pengajuan..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Bukti Izin (Foto/Dokumen):</label>
                             <input type="file" name="bukti_izin" class="form-control-input" accept="image/*,.pdf">
                         </div>
+
                         <button type="submit" class="btn-primary-amarta full-width-btn">Ajukan</button>
                     </form>
                 </div>
