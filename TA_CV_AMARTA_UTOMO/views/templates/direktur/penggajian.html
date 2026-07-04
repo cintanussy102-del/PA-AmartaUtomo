@@ -10,24 +10,53 @@
 {% endblock %}
 
 {% block content %}
-<!-- TIGA KARTU RINGKASAN PENGGAJIAN (Sesuai Mockup Page 19) -->
 <div class="content-box">
     <h3>Data Penggajian Karyawan</h3>
+    
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div style="background: #d4edda; color: #155724; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
     <table class="amarta-table">
         <thead>
             <tr>
-                <th>No</th><th>Nama Karyawan</th><th>Divisi</th><th>Total Gaji</th><th>Status</th>
+                <th>No</th>
+                <th>Nama Karyawan</th>
+                <th>Divisi</th>
+                <th>Total Gaji</th>
+                <th>Status</th>
             </tr>
         </thead>
         <tbody>
+            {% for row in data_gaji %}
             <tr>
-                <td>1</td><td>Rony Parulian</td><td>Produksi</td><td>Rp 5.800.000</td>
-                <td><span class="status-badge aktif">Terkirim</span></td>
+                <td>{{ loop.index }}</td>
+                <td>{{ row.nama }}</td>
+                <td>{{ row.divisi }}</td>
+                <td>Rp {{ "{:,.0f}".format(row.total_gaji) }}</td>
+                <td>
+                    {% if row.status == 'Terkirim' %}
+                        <span style="color: #2ecc71; font-weight: bold;">Terkirim</span>
+                    {% else %}
+                        <form action="{{ url_for('direktur_bp.kirim_slip', id=row.id) }}" method="POST">
+                            <button type="submit" style="background: #e67e22; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">
+                                Kirim Slip
+                            </button>
+                        </form>
+                    {% endif %}
+                </td>
             </tr>
+            {% else %}
             <tr>
-                <td>2</td><td>Siti Aminah</td><td>Administrasi</td><td>Rp 5.050.000</td>
-                <td><span class="status-badge baris" style="color:red">Belum</span></td>
+                <td colspan="5" style="text-align: center;">Tidak ada data penggajian.</td>
             </tr>
+            {% endfor %}
         </tbody>
     </table>
 </div>

@@ -2,6 +2,11 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from dotenv import load_dotenv
 from functools import wraps
+from controllers.direktur_controller import direktur_bp
+
+import resend
+
+resend.api_key = "re_Q7MAFYLd_7TS5p25pWLK7VQgBcBhAdCVX"
 
 load_dotenv()
 
@@ -10,6 +15,7 @@ app = Flask(
     template_folder=os.path.join('views', 'templates'),
     static_folder=os.path.join('views', 'static')
 )
+app.register_blueprint(direktur_bp)
 
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'fallback_secret_key_amarta')
 debug_mode = os.getenv('FLASK_DEBUG', 'True').lower() in ['true', '1', 't']
@@ -138,7 +144,13 @@ def direktur_absensi():
 @app.route('/direktur/penggajian')
 @login_required(role='direktur')
 def direktur_penggajian():
-    return render_template('direktur/penggajian.html')
+    return redirect(url_for('direktur_bp.direktur_penggajian'))
+
+
+@app.route('/direktur/validasi-gaji')
+@login_required(role='direktur')
+def direktur_validasi_gaji():
+    return redirect(url_for('direktur_bp.direktur_penggajian'))
 
 @app.route('/direktur/laporan')
 @login_required(role='direktur')
