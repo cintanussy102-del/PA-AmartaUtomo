@@ -56,7 +56,8 @@ def login():
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('welcome'))
+    flash('Anda telah berhasil keluar.', 'info') # Opsional: menampilkan pesan
+    return redirect(url_for('login')) # <--- Diubah ke 'login'
 
 # --- RUTE ADMIN ---
 @app.route('/admin/dashboard')
