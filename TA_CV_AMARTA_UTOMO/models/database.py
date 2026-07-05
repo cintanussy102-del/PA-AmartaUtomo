@@ -1,6 +1,7 @@
 import os
 import json
 import mysql.connector
+import certifi
 from dotenv import load_dotenv
 
 # Memuat file .env saat aplikasi berjalan
@@ -29,8 +30,8 @@ class Database:
                     password=os.getenv(db_config['password']),
                     database=os.getenv(db_config['database_name']),
                     port=int(os.getenv(db_config['port'], 4000)),
-                    ssl_verify_cert=True,
-                    ssl_mode='REQUIRED'
+                    ssl_ca=certifi.where(),
+                    ssl_verify_cert=True
                 )
                 print("[SUCCESS] Berhasil terhubung ke TiDB Cloud Online secara aman via .env.")
             except Exception as e:

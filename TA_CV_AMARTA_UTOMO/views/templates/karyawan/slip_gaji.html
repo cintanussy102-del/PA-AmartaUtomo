@@ -5,49 +5,57 @@
 {% block content %} 
 <div class="content-box" style="padding: 30px; background: white; border-radius: 20px; border: 1px solid #e2e8f0; max-width: 900px; margin: auto;">
     <h2 style="margin-bottom: 20px; color: #1a202c;">Slip Gaji Karyawan</h2>
-    
-    <!-- Informasi Perusahaan -->
+
     <div style="border-bottom: 1px solid #e2e8f0; margin-bottom: 20px; padding-bottom: 10px; color: #4a5568;">
-        <p><strong>CV Amarta Utomo</strong><br>Jl. Osamaliki No. 57, Salatiga<br>Periode Penggajian: Juni 2026</p>
+        <p><strong>CV Amarta Utomo</strong><br>Jl. Osamaliki No. 57, Salatiga<br>Periode Penggajian: {{ profil.jabatan and 'Bulan Ini' }}</p>
     </div>
 
-    <!-- Informasi Karyawan -->
     <div style="margin-bottom: 30px;">
         <h4 style="margin-bottom: 10px; color: #2d3748;">INFORMASI KARYAWAN</h4>
         <div style="display: grid; grid-template-columns: 120px 1fr; gap: 5px; color: #4a5568;">
-            <span>Nama</span><span>: Rony Parulian</span>
-            <span>ID Karyawan</span><span>: KRY-0042</span>
-            <span>Jabatan</span><span>: Staff Produksi</span>
+            <span>Nama</span><span>: {{ profil.nama_lengkap }}</span>
+            <span>ID Karyawan</span><span>: {{ profil.id_karyawan }}</span>
+            <span>Jabatan</span><span>: {{ profil.jabatan }}</span>
+            <span>Divisi</span><span>: {{ profil.divisi }}</span>
         </div>
     </div>
 
-    <!-- Tabel Penghasilan & Potongan -->
+    <div style="margin-bottom: 20px; padding: 12px 15px; background:#f8fafc; border-radius:8px; color:#4a5568; font-size:0.9rem;">
+        <strong>Rekap Kehadiran Bulan Ini:</strong>
+        Hadir {{ hasil_potongan.rekap['Hadir'] }} hari &bull;
+        Cuti Tahunan {{ hasil_potongan.rekap['Cuti Tahunan'] }} hari &bull;
+        Sakit {{ hasil_potongan.rekap['Sakit'] }} hari &bull;
+        Izin Penting {{ hasil_potongan.rekap['Izin Penting'] }} hari
+    </div>
+
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 30px;">
         <div>
             <h4 style="margin-bottom: 10px; color: #2d3748;">PENGHASILAN</h4>
             <table style="width: 100%; border-collapse: collapse;">
                 <tr style="background: #edf2f7;"><th style="padding: 8px; text-align: left;">Keterangan</th><th style="padding: 8px; text-align: right;">Jumlah</th></tr>
-                <tr><td style="padding: 5px;">Gaji Pokok</td><td style="text-align: right;">Rp 4.500.000</td></tr>
-                <tr><td style="padding: 5px;">Tunjangan</td><td style="text-align: right;">Rp 500.000</td></tr>
-                <tr style="border-top: 2px solid #cbd5e0; font-weight: bold;"><td>TOTAL PENGHASILAN</td><td style="text-align: right;">RP 5.000.000</td></tr>
+                <tr><td style="padding: 5px;">Gaji Pokok</td><td style="text-align: right;">{{ profil.gaji_pokok | rupiah }}</td></tr>
+                <tr><td style="padding: 5px;">Tunjangan</td><td style="text-align: right;">{{ profil.tunjangan | rupiah }}</td></tr>
+                <tr style="border-top: 2px solid #cbd5e0; font-weight: bold;"><td>TOTAL PENGHASILAN</td><td style="text-align: right;">{{ total_penghasilan | rupiah }}</td></tr>
             </table>
         </div>
         <div>
             <h4 style="margin-bottom: 10px; color: #2d3748;">POTONGAN</h4>
             <table style="width: 100%; border-collapse: collapse;">
                 <tr style="background: #edf2f7;"><th style="padding: 8px; text-align: left;">Keterangan</th><th style="padding: 8px; text-align: right;">Jumlah</th></tr>
-                <tr><td style="padding: 5px;">Potongan Absen/Alpa</td><td style="text-align: right;">Rp 200.000</td></tr>
-                <tr style="border-top: 2px solid #cbd5e0; font-weight: bold;"><td>TOTAL POTONGAN</td><td style="text-align: right;">RP 200.000</td></tr>
+                {% if hasil_potongan.jumlah_hari_potong > 0 %}
+                <tr><td style="padding: 5px;">Izin Penting ({{ hasil_potongan.jumlah_hari_potong }} hari)</td><td style="text-align: right;">{{ total_potongan | rupiah }}</td></tr>
+                {% else %}
+                <tr><td style="padding: 5px; color:#a0aec0;">Tidak ada potongan</td><td style="text-align: right; color:#a0aec0;">Rp 0</td></tr>
+                {% endif %}
+                <tr style="border-top: 2px solid #cbd5e0; font-weight: bold;"><td>TOTAL POTONGAN</td><td style="text-align: right;">{{ total_potongan | rupiah }}</td></tr>
             </table>
         </div>
     </div>
 
-    <!-- Total Gaji Bersih -->
     <div style="background: #3b82f6; color: white; padding: 15px; border-radius: 8px; font-weight: bold; text-align: center; margin-bottom: 40px; font-size: 1.1rem;">
-        TOTAL GAJI BERSIH: RP 4.800.000
+        TOTAL GAJI BERSIH: {{ gaji_bersih | rupiah }}
     </div>
 
-    <!-- Tanda Tangan -->
     <div style="text-align: right; margin-top: 40px;">
         <p>Mengetahui,<br>Direktur</p>
         <br><br><br>

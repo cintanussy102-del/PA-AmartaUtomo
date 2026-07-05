@@ -15,23 +15,23 @@
     <div class="metric-card card-blue">
         <div class="card-icon"><i class="fas fa-calendar-alt"></i></div>
         <div class="card-info">
-            <h3 class="card-value">18 HARI</h3>
+            <h3 class="card-value">{{ data.hari_hadir }} HARI</h3>
             <span class="card-label">Hadir Bulan Ini</span>
         </div>
     </div>
-    
+
     <div class="metric-card card-orange">
         <div class="card-icon"><i class="fas fa-user-clock"></i></div>
         <div class="card-info">
-            <h3 class="card-value">2 HARI</h3>
+            <h3 class="card-value">{{ data.izin }} HARI</h3>
             <span class="card-label">Izin / Cuti</span>
         </div>
     </div>
-    
+
     <div class="metric-card card-green">
         <div class="card-icon"><i class="fas fa-chart-line"></i></div>
         <div class="card-info">
-            <h3 class="card-value">75%</h3>
+            <h3 class="card-value">{{ data.progres }}%</h3>
             <span class="card-label">Progres Kerja</span>
         </div>
     </div>
@@ -43,10 +43,11 @@
             <span class="card-label">Slip Gaji Terbaru</span>
         </div>
     </div>
+
 </div>
 
 <div class="dashboard-grid-two">
-    
+
     <div class="content-box">
         <div class="box-header">
             <h3>PROGRES KERJA MINGGU INI</h3>
@@ -106,24 +107,22 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for row in riwayat %}
                     <tr>
-                        <td>24 Juni 2026</td>
-                        <td>08:00</td>
-                        <td>16:00</td>
-                        <td><span class="status-badge aktif">Hadir</span></td>
+                        <td>{{ row.tanggal }}</td>
+                        <td>{{ row.masuk }}</td>
+                        <td>{{ row.keluar }}</td>
+                        <td>
+                            {% if row.status == 'Hadir' %}
+                            <span class="status-badge aktif">Hadir</span>
+                            {% else %}
+                            <span class="status-badge baris">{{ row.status }}</span>
+                            {% endif %}
+                        </td>
                     </tr>
-                    <tr>
-                        <td>23 Juni 2026</td>
-                        <td>07:58</td>
-                        <td>16:01</td>
-                        <td><span class="status-badge aktif">Hadir</span></td>
-                    </tr>
-                    <tr>
-                        <td>22 Juni 2026</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td><span class="status-badge baris">Izin</span></td>
-                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" style="text-align:center; color:#a0aec0;">Belum ada riwayat absensi.</td></tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -136,24 +135,22 @@
     </div>
     <div class="box-body">
         <p class="announcement-text">
-            <strong>Reminder:</strong> Pengumpulan laporan bulanan paling lambat tanggal 28 Juni 2026. Harap submit melalui menu Input Progres Kerja. [cite: 408]
+            <strong>Reminder:</strong> Pengumpulan laporan bulanan paling lambat tanggal 28 Juni 2026. Harap submit melalui menu Input Progres Kerja.
         </p>
     </div>
 </div>
 
+
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const bars = document.querySelectorAll('.progress-fill');
-    
+
     bars.forEach(bar => {
-        // Cek apakah ada data-value
         if (bar.hasAttribute('data-value')) {
             const value = parseInt(bar.getAttribute('data-value'));
-            
-            // 1. Terapkan lebar (width) yang sesuai
+
             bar.style.setProperty('width', value + '%', 'important');
-            
-            // 2. Tentukan warna
+
             let color = '';
             if (value >= 1 && value <= 39) {
                 color = 'red';
@@ -164,8 +161,7 @@ document.addEventListener("DOMContentLoaded", function() {
             } else if (value >= 80 && value <= 100) {
                 color = '#0ff007';
             }
-            
-            // 3. Terapkan warna
+
             bar.style.setProperty('background-color', color, 'important');
         }
     });

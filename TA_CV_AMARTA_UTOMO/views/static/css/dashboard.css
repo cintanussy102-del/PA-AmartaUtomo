@@ -356,10 +356,12 @@ body {
 
 /* Grid Atas Khusus Empat Kolom */
 .metrics-grid-four {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
+    display: flex; 
+    flex-direction: row; 
+    justify-content: space-between; 
+    gap: 20px;
     margin-bottom: 25px;
+    width: 100%;
 }
 
 /* Kustomisasi Progress Fill Khusus Karyawan */
@@ -735,12 +737,22 @@ body {
     width: 100%; /* Memastikan metrik memenuhi lebar layar */
 }
 
+.metrics-container {
+    display: flex;
+    flex-direction: row; /* Mengatur agar kotak berjajar horizontal */
+    justify-content: space-between; /* Memberi jarak antar kotak secara rata */
+    gap: 20px; /* Memberi ruang antar kotak */
+    flex-wrap: wrap; /* Agar kotak pindah ke bawah jika layar mengecil */
+}
+
 .metric-card {
+    flex: 1; 
+    min-width: 200px;
     background: white;
-    padding: 15px;
+    padding: 20px;
     border-radius: 12px;
     text-align: center;
-    border-top: 4px solid #ddd;
+    border-top: 4px solid #3498db; 
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
@@ -750,14 +762,15 @@ body {
 }
 
 .amarta-table {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
+    width: 100%;
+    border-collapse: collapse;
 }
 
 .amarta-table th {
     background: #f8fafc;
     font-weight: 600;
+    padding: 15px;
+    text-align: left;
 }
 
 .sidebar {

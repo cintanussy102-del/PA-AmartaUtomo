@@ -3,6 +3,15 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from dotenv import load_dotenv
 from functools import wraps
 from controllers.direktur_controller import direktur_bp
+from models.karyawan_model import get_data_karyawan_by_name, get_profil_gaji
+from models.absensi_model import (
+    get_riwayat_absensi, get_status_hari_ini,
+    catat_absen_masuk, catat_absen_keluar, ajukan_izin,
+    hitung_potongan_gaji
+)
+from datetime import datetime
+from werkzeug.utils import secure_filename
+
 
 import resend
 
@@ -15,9 +24,22 @@ app = Flask(
     template_folder=os.path.join('views', 'templates'),
     static_folder=os.path.join('views', 'static')
 )
+
+@app.template_filter('rupiah')
+def format_rupiah(angka):
+    return f"Rp {angka:,.0f}".replace(",", ".")
+
 app.register_blueprint(direktur_bp)
 
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'fallback_secret_key_amarta')
+UPLOAD_FOLDER = os.path.join('views', 'static', 'uploads', 'bukti_izin')
+ALLOWED_EXT = {'png', 'jpg', 'jpeg', 'pdf'}
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXT
 debug_mode = os.getenv('FLASK_DEBUG', 'True').lower() in ['true', '1', 't']
 server_port = int(os.getenv('FLASK_PORT', 5000))
 
@@ -41,19 +63,26 @@ def welcome():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # Di dalam app.route('/login')
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        
+    
+    # Logika Admin & Direktur
         if username == 'admin' and password == 'admin':
             session['user'] = {'username': 'admin', 'role': 'admin'}
             return redirect(url_for('admin_dashboard'))
-        elif username == 'karyawan' and password == 'karyawan':
-            session['user'] = {'username': 'karyawan', 'role': 'karyawan'}
-            return redirect(url_for('karyawan_dashboard'))
         elif username == 'direktur' and password == 'direktur':
             session['user'] = {'username': 'direktur', 'role': 'direktur'}
             return redirect(url_for('direktur_dashboard'))
+        
+        # Logika Karyawan (Data dinamis berdasarkan nama)
+        elif username == 'karyawan' and (password == 'Rony' or password == 'Aloy' or password == 'Putri'):
+            session['user'] = {
+                'username': password, # Menggunakan nama sebagai username
+                'role': 'karyawan'
+            }
+            return redirect(url_for('karyawan_dashboard'))
         else:
             flash('Username atau password salah!', 'danger')
             return redirect(url_for('login'))
@@ -81,7 +110,6 @@ def admin_data_karyawan():
 def admin_absensi():
     return render_template('admin/kelola_absensi.html')
 
-# Contoh di app.py
 @app.route('/admin/divisi')
 @login_required(role='admin')
 def admin_divisi():
@@ -108,12 +136,62 @@ def admin_slip_gaji():
 @app.route('/karyawan/dashboard')
 @login_required(role='karyawan')
 def karyawan_dashboard():
-    return render_template('karyawan/dashboard.html')
+    nama_user = session['user']['username']
+    data = get_data_karyawan_by_name(nama_user)
+    riwayat = get_riwayat_absensi(nama_user, limit=3)
+    return render_template('karyawan/dashboard.html', data=data, riwayat=riwayat)
 
 @app.route('/karyawan/absensi')
 @login_required(role='karyawan')
 def karyawan_absensi():
-    return render_template('karyawan/absensi.html')
+    nama_user = session['user']['username']
+    riwayat = get_riwayat_absensi(nama_user)
+    status_hari_ini = get_status_hari_ini(nama_user)
+    return render_template('karyawan/absensi.html', riwayat=riwayat, status_hari_ini=status_hari_ini)
+
+@app.route('/karyawan/absen-masuk', methods=['POST'])
+@login_required(role='karyawan')
+def karyawan_absen_masuk():
+    catat_absen_masuk(session['user']['username'])
+    flash('Absen masuk berhasil dicatat!', 'success')
+    return redirect(url_for('karyawan_absensi'))
+
+
+@app.route('/karyawan/absen-keluar', methods=['POST'])
+@login_required(role='karyawan')
+def karyawan_absen_keluar():
+    catat_absen_keluar(session['user']['username'])
+    flash('Absen keluar berhasil dicatat!', 'success')
+    return redirect(url_for('karyawan_absensi'))
+
+
+@app.route('/karyawan/ajukan-izin', methods=['POST'])
+@login_required(role='karyawan')
+def karyawan_ajukan_izin():
+    nama_user = session['user']['username']
+    jenis_izin = request.form.get('jenis_izin')
+    tanggal = request.form.get('pilih_tanggal')
+    keterangan = request.form.get('keterangan')
+
+    wajib_upload = jenis_izin in ['Sakit', 'Izin Penting', 'Cuti Tahunan']
+    file_bukti_path = None
+
+    if wajib_upload:
+        file_bukti = request.files.get('file_bukti')
+        if not file_bukti or file_bukti.filename == '':
+            flash('Untuk jenis izin ini, bukti (foto/dokumen) wajib diunggah!', 'danger')
+            return redirect(url_for('karyawan_absensi'))
+        if not allowed_file(file_bukti.filename):
+            flash('Format file tidak didukung. Gunakan JPG, PNG, atau PDF.', 'danger')
+            return redirect(url_for('karyawan_absensi'))
+
+        filename = secure_filename(f"{nama_user}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{file_bukti.filename}")
+        file_bukti.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        file_bukti_path = f"uploads/bukti_izin/{filename}"
+
+    ajukan_izin(nama_user, jenis_izin, tanggal, keterangan, file_bukti_path)
+    flash('Pengajuan izin/cuti berhasil dikirim!', 'success')
+    return redirect(url_for('karyawan_absensi'))
 
 @app.route('/karyawan/input-progres')
 @login_required(role='karyawan')
@@ -123,7 +201,22 @@ def karyawan_input_progres():
 @app.route('/karyawan/slip-gaji')
 @login_required(role='karyawan')
 def karyawan_slip_gaji():
-    return render_template('karyawan/slip_gaji.html')
+    nama_user = session['user']['username']
+    profil = get_profil_gaji(nama_user)
+    hasil_potongan = hitung_potongan_gaji(nama_user, profil['gaji_pokok'])
+
+    total_penghasilan = profil['gaji_pokok'] + profil['tunjangan']
+    total_potongan = hasil_potongan['total_potongan']
+    gaji_bersih = total_penghasilan - total_potongan
+
+    return render_template(
+        'karyawan/slip_gaji.html',
+        profil=profil,
+        hasil_potongan=hasil_potongan,
+        total_penghasilan=total_penghasilan,
+        total_potongan=total_potongan,
+        gaji_bersih=gaji_bersih
+    )
 
 # --- RUTE DIREKTUR ---
 @app.route('/direktur/dashboard')
