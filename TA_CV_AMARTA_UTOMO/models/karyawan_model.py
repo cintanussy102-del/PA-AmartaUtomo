@@ -1,12 +1,26 @@
+DATA_GAJI = [
+    {"id": 1, "nama": "Rony Parulian", "divisi": "Produksi", "total_gaji": 5800000, "status": "Belum", "email": "gloriakho5@gmail.com"},
+    {"id": 2, "nama": "Aloysius Setiawan", "divisi": "Pengawas Lapangan", "total_gaji": 4500000, "status": "Belum", "email": "gloriakho5@gmail.com"},
+    {"id": 3, "nama": "Putri Ayu Lestari", "divisi": "Administrasi", "total_gaji": 3000000, "status": "Belum", "email": "gloriakho5@gmail.com"}
+]
+
+
 def get_semua_data_gaji():
-    return [
-        {"id": 1, "nama": "Rony Parulian", "divisi": "Produksi", "total_gaji": 5800000, "status": "Terkirim", "email": "gloriakho5@gmail.com"},
-        {"id": 2, "nama": "Siti Aminah", "divisi": "Administrasi", "total_gaji": 5050000, "status": "Belum", "email": "gloriakho5@gmail.com"}
-    ]
+    return DATA_GAJI
+
+
+def update_status_gaji(id, status_baru):
+    for row in DATA_GAJI:
+        if row['id'] == id:
+            row['status'] = status_baru
+            return True
+    return False
+
 
 def get_karyawan_by_id(id):
     for row in get_semua_data_gaji():
-        if row['id'] == id: return row
+        if row['id'] == id: 
+            return row
     return None
 
 def get_data_karyawan_by_name(nama):

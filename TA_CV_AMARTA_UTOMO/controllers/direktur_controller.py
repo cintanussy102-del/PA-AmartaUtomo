@@ -1,6 +1,6 @@
 import resend
 from flask import Blueprint, flash, redirect, url_for, render_template, session
-from models.karyawan_model import get_karyawan_by_id, get_semua_data_gaji
+from models.karyawan_model import get_karyawan_by_id, get_semua_data_gaji, update_status_gaji
 from functools import wraps
 
 direktur_bp = Blueprint('direktur_bp', __name__)
@@ -37,9 +37,11 @@ def kirim_slip(id):
             "html": f"<p>Halo {karyawan['nama']}, gaji Anda: Rp {karyawan['total_gaji']:,}</p>"
         }
         resend.Emails.send(params)
+        
+        update_status_gaji(id, "Terkirim")
+        
         flash(f'Slip gaji berhasil dikirim ke {karyawan["nama"]}!')
     except Exception as e:
-        print(f"Error detail: {e}")
         flash(f'Gagal mengirim email: {str(e)}')
     
     return redirect(url_for('direktur_bp.direktur_penggajian'))
