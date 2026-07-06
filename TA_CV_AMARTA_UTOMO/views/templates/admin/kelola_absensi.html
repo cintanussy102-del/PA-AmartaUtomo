@@ -20,13 +20,25 @@
             <div class="content-box">
                 <div class="box-header"><h3>RIWAYAT ABSENSI</h3></div>
                 <div class="box-body no-padding">
-                    <table class="amarta-table"> <thead>
-                            <tr><th>TANGGAL</th><th>MASUK</th><th>KELUAR</th><th>STATUS</th></tr>
+                    <table class="amarta-table">
+                        <thead>
+                            <tr>
+                                <th>TANGGAL</th>
+                                <th>MASUK</th>
+                                <th>KELUAR</th>
+                                <th>STATUS</th>
+                            </tr>
                         </thead>
                         <tbody>
-                            <tr><td>23 Jun 2026</td><td>07:55</td><td>17:02</td><td><span class="status-badge aktif">Hadir</span></td></tr>
-                            <tr><td>22 Jun 2026</td><td>08:10</td><td>17:15</td><td><span class="status-badge aktif">Hadir</span></td></tr>
-                        </tbody>
+                            {% for row in riwayat %}
+                            <tr>
+                                <td>{{ row.tanggal }}</td>
+                                <td>{{ row.masuk }}</td>
+                                <td>{{ row.keluar }}</td>
+                                <td><span class="status-badge aktif">{{ row.status }}</span></td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
                     </table>
                 </div>
             </div>
@@ -52,11 +64,18 @@
                     <form class="amarta-form" action="/submit-izin" method="POST" enctype="multipart/form-data">
                         <div class="form-group">
                             <label>Jenis Izin:</label>
-                            <select name="jenis_izin" class="form-control-input">
-                                <option>-- Pilih Jenis Pengajuan --</option>
+                            <select name="jenis_izin" class="form-control-input" onchange="toggleFormulir(this.value)">
+                                <option value="">-- Pilih Jenis Pengajuan --</option>
                                 <option value="Sakit">Sakit</option>
                                 <option value="Cuti">Cuti</option>
                             </select>
+
+                            <div id="wrapper-download-cuti" style="display: none; margin-top: 10px;">
+                                <a href="{{ url_for('static', filename='form/Formulir_Cuti.pdf') }}" 
+                                target="_blank" class="btn-primary-amarta" style="display:inline-block; padding: 5px 10px; font-size: 0.8rem;">
+                                <i class="fas fa-download"></i> Download Formulir Cuti
+                                </a>
+                            </div>
                         </div>
 
                         <div class="form-group">
