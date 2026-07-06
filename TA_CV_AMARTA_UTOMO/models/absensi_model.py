@@ -1,4 +1,5 @@
 import datetime
+import calendar
 from models.database import Database
 
 
@@ -40,30 +41,38 @@ def get_status_hari_ini(nama):
     return None
 
 
-def catat_absen_masuk(nama, lat, lon, alamat):
-    hari_ini = datetime.date.today()
-    jam = datetime.datetime.now().strftime("%H:%M")
-
-    # SQL ini akan memasukkan data termasuk koordinat dan alamat
-    query = """
-        INSERT INTO absensi (nama_karyawan, tanggal, jam_masuk, status, status_approval, lat, lon, alamat)
-        VALUES (%s, %s, %s, 'Hadir', 'Approved', %s, %s, %s)
-    """
-    Database.execute_query(query, (nama, hari_ini, jam, lat, lon, alamat))
-    return get_status_hari_ini(nama)
-
-
-def catat_absen_keluar(nama, lat=None, lon=None, alamat=None):
+def catat_absen_masuk(nama):
     hari_ini = datetime.date.today()
     jam = datetime.datetime.now().strftime("%H:%M")
 
     existing = get_status_hari_ini(nama)
-    if existing:        
-        query = "UPDATE absensi SET jam_keluar = %s, lat = %s, lon = %s, alamat = %s WHERE nama_karyawan = %s AND tanggal = %s"
-        Database.execute_query(query, (jam, lat, lon, alamat, nama, hari_ini))
+    if existing:
+        query = "UPDATE absensi SET jam_masuk = %s, status = 'Hadir' WHERE nama_karyawan = %s AND tanggal = %s"
+        Database.execute_query(query, (jam, nama, hari_ini))
     else:
-        query = "INSERT INTO absensi (nama_karyawan, tanggal, jam_keluar, status, status_approval, lat, lon, alamat) VALUES (%s, %s, %s, 'Hadir', 'Approved', %s, %s, %s)"
-        Database.execute_query(query, (nama, hari_ini, jam, lat, lon, alamat))
+        query = """
+            INSERT INTO absensi (nama_karyawan, tanggal, jam_masuk, status, status_approval)
+            VALUES (%s, %s, %s, 'Hadir', 'Approved')
+        """
+        Database.execute_query(query, (nama, hari_ini, jam))
+
+    return get_status_hari_ini(nama)
+
+
+def catat_absen_keluar(nama):
+    hari_ini = datetime.date.today()
+    jam = datetime.datetime.now().strftime("%H:%M")
+
+    existing = get_status_hari_ini(nama)
+    if existing:
+        query = "UPDATE absensi SET jam_keluar = %s WHERE nama_karyawan = %s AND tanggal = %s"
+        Database.execute_query(query, (jam, nama, hari_ini))
+    else:
+        query = """
+            INSERT INTO absensi (nama_karyawan, tanggal, jam_keluar, status, status_approval)
+            VALUES (%s, %s, %s, 'Hadir', 'Approved')
+        """
+        Database.execute_query(query, (nama, hari_ini, jam))
 
     return get_status_hari_ini(nama)
 
@@ -93,13 +102,6 @@ def get_semua_pengajuan_izin():
     return Database.fetch_all(query)
 
 
-def format_tanggal_indonesia(tgl):
-    bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli",
-             "Agustus","September","Oktober","November","Desember"]
-    if isinstance(tgl, str):
-        tgl = datetime.datetime.strptime(tgl, "%Y-%m-%d").date()
-    return f"{tgl.day} {bulan[tgl.month - 1]} {tgl.year}"
-
 def get_rekap_bulanan(nama, bulan=None, tahun=None):
     if bulan is None or tahun is None:
         now = datetime.date.today()
@@ -114,16 +116,60 @@ def get_rekap_bulanan(nama, bulan=None, tahun=None):
     """
     rows = Database.fetch_all(query, (nama, bulan, tahun))
 
-    rekap = {"Hadir": 0, "Cuti Tahunan": 0, "Sakit": 0, "Izin Penting": 0}
+    rekap = {"Hadir": 0, "Cuti": 0, "Sakit": 0, "Izin Lainnya": 0}
     for row in rows:
         if row['status'] in rekap:
             rekap[row['status']] = row['jumlah']
+
+    rekap["Alpha"] = hitung_hari_alpha(nama, bulan, tahun)
     return rekap
+
+
+def hitung_hari_alpha(nama, bulan=None, tahun=None):
+    """
+    Menghitung hari kerja (Senin-Sabtu) yang SAMA SEKALI tidak ada
+    record-nya di database (tidak absen & tidak mengajukan izin/cuti/sakit).
+    Hanya menghitung sampai hari ini (hari di masa depan tidak dihitung).
+    """
+    if bulan is None or tahun is None:
+        now = datetime.date.today()
+        bulan = now.month
+        tahun = now.year
+
+    query = """
+        SELECT tanggal FROM absensi
+        WHERE nama_karyawan = %s AND MONTH(tanggal) = %s AND YEAR(tanggal) = %s
+    """
+    rows = Database.fetch_all(query, (nama, bulan, tahun))
+    tanggal_tercatat = set()
+    for row in rows:
+        t = row['tanggal']
+        if isinstance(t, str):
+            t = datetime.datetime.strptime(t, "%Y-%m-%d").date()
+        tanggal_tercatat.add(t)
+
+    today = datetime.date.today()
+    if tahun == today.year and bulan == today.month:
+        hari_terakhir = today.day
+    else:
+        hari_terakhir = calendar.monthrange(tahun, bulan)[1]
+
+    jumlah_alpha = 0
+    for hari in range(1, hari_terakhir + 1):
+        tgl = datetime.date(tahun, bulan, hari)
+        if tgl.weekday() == 6:  # Minggu = libur, skip
+            continue
+        if tgl > today:  # hari di masa depan, skip
+            continue
+        if tgl not in tanggal_tercatat:
+            jumlah_alpha += 1
+
+    return jumlah_alpha
 
 
 def hitung_potongan_gaji(nama, gaji_pokok, hari_kerja_per_bulan=25):
     rekap = get_rekap_bulanan(nama)
-    jumlah_hari_potong = rekap['Izin Penting']  # hanya Izin Penting yang dipotong
+    jumlah_hari_potong = rekap['Alpha']  # hanya hari Alpha (tanpa keterangan) yang dipotong
     potongan_per_hari = gaji_pokok / hari_kerja_per_bulan
     total_potongan = round(potongan_per_hari * jumlah_hari_potong)
 
@@ -133,3 +179,11 @@ def hitung_potongan_gaji(nama, gaji_pokok, hari_kerja_per_bulan=25):
         "jumlah_hari_potong": jumlah_hari_potong,
         "total_potongan": total_potongan,
     }
+
+
+def format_tanggal_indonesia(tgl):
+    bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli",
+             "Agustus","September","Oktober","November","Desember"]
+    if isinstance(tgl, str):
+        tgl = datetime.datetime.strptime(tgl, "%Y-%m-%d").date()
+    return f"{tgl.day} {bulan[tgl.month - 1]} {tgl.year}"

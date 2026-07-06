@@ -23,9 +23,10 @@
     <div style="margin-bottom: 20px; padding: 12px 15px; background:#f8fafc; border-radius:8px; color:#4a5568; font-size:0.9rem;">
         <strong>Rekap Kehadiran Bulan Ini:</strong>
         Hadir {{ hasil_potongan.rekap['Hadir'] }} hari &bull;
-        Cuti Tahunan {{ hasil_potongan.rekap['Cuti Tahunan'] }} hari &bull;
+        Cuti {{ hasil_potongan.rekap['Cuti'] }} hari &bull;
         Sakit {{ hasil_potongan.rekap['Sakit'] }} hari &bull;
-        Izin Penting {{ hasil_potongan.rekap['Izin Penting'] }} hari
+        Izin Lainnya {{ hasil_potongan.rekap['Izin Lainnya'] }} hari &bull;
+        <span style="color:#e53e3e; font-weight:600;">Tanpa Keterangan (Alpha) {{ hasil_potongan.rekap['Alpha'] }} hari</span>
     </div>
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 30px;">
@@ -43,7 +44,7 @@
             <table style="width: 100%; border-collapse: collapse;">
                 <tr style="background: #edf2f7;"><th style="padding: 8px; text-align: left;">Keterangan</th><th style="padding: 8px; text-align: right;">Jumlah</th></tr>
                 {% if hasil_potongan.jumlah_hari_potong > 0 %}
-                <tr><td style="padding: 5px;">Izin Penting ({{ hasil_potongan.jumlah_hari_potong }} hari)</td><td style="text-align: right;">{{ total_potongan | rupiah }}</td></tr>
+                <tr><td style="padding: 5px;">Tanpa Keterangan / Alpha ({{ hasil_potongan.jumlah_hari_potong }} hari)</td><td style="text-align: right;">{{ total_potongan | rupiah }}</td></tr>
                 {% else %}
                 <tr><td style="padding: 5px; color:#a0aec0;">Tidak ada potongan</td><td style="text-align: right; color:#a0aec0;">Rp 0</td></tr>
                 {% endif %}
