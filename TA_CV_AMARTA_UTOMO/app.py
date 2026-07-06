@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from dotenv import load_dotenv
 from functools import wraps
 from controllers.direktur_controller import direktur_bp
@@ -249,6 +249,15 @@ def direktur_validasi_gaji():
 @login_required(role='direktur')
 def direktur_laporan():
     return render_template('direktur/laporan.html')
+
+@app.route('/proses-absen-masuk', methods=['POST'])
+@login_required(role='karyawan')
+def proses_absen_masuk():
+    data = request.json
+    nama = session['user']['username']
+    catat_absen_masuk(nama, data.get('lat'), data.get('lon'), data.get('alamat'))
+    
+    return jsonify({"status": "sukses", "message": "Absen berhasil!"})
 
 if __name__ == '__main__':
     app.run(debug=debug_mode, port=server_port)

@@ -40,38 +40,30 @@ def get_status_hari_ini(nama):
     return None
 
 
-def catat_absen_masuk(nama):
+def catat_absen_masuk(nama, lat, lon, alamat):
     hari_ini = datetime.date.today()
     jam = datetime.datetime.now().strftime("%H:%M")
 
-    existing = get_status_hari_ini(nama)
-    if existing:
-        query = "UPDATE absensi SET jam_masuk = %s, status = 'Hadir' WHERE nama_karyawan = %s AND tanggal = %s"
-        Database.execute_query(query, (jam, nama, hari_ini))
-    else:
-        query = """
-            INSERT INTO absensi (nama_karyawan, tanggal, jam_masuk, status, status_approval)
-            VALUES (%s, %s, %s, 'Hadir', 'Approved')
-        """
-        Database.execute_query(query, (nama, hari_ini, jam))
-
+    # SQL ini akan memasukkan data termasuk koordinat dan alamat
+    query = """
+        INSERT INTO absensi (nama_karyawan, tanggal, jam_masuk, status, status_approval, lat, lon, alamat)
+        VALUES (%s, %s, %s, 'Hadir', 'Approved', %s, %s, %s)
+    """
+    Database.execute_query(query, (nama, hari_ini, jam, lat, lon, alamat))
     return get_status_hari_ini(nama)
 
 
-def catat_absen_keluar(nama):
+def catat_absen_keluar(nama, lat=None, lon=None, alamat=None):
     hari_ini = datetime.date.today()
     jam = datetime.datetime.now().strftime("%H:%M")
 
     existing = get_status_hari_ini(nama)
-    if existing:
-        query = "UPDATE absensi SET jam_keluar = %s WHERE nama_karyawan = %s AND tanggal = %s"
-        Database.execute_query(query, (jam, nama, hari_ini))
+    if existing:        
+        query = "UPDATE absensi SET jam_keluar = %s, lat = %s, lon = %s, alamat = %s WHERE nama_karyawan = %s AND tanggal = %s"
+        Database.execute_query(query, (jam, lat, lon, alamat, nama, hari_ini))
     else:
-        query = """
-            INSERT INTO absensi (nama_karyawan, tanggal, jam_keluar, status, status_approval)
-            VALUES (%s, %s, %s, 'Hadir', 'Approved')
-        """
-        Database.execute_query(query, (nama, hari_ini, jam))
+        query = "INSERT INTO absensi (nama_karyawan, tanggal, jam_keluar, status, status_approval, lat, lon, alamat) VALUES (%s, %s, %s, 'Hadir', 'Approved', %s, %s, %s)"
+        Database.execute_query(query, (nama, hari_ini, jam, lat, lon, alamat))
 
     return get_status_hari_ini(nama)
 

@@ -22,12 +22,10 @@
             </div>
             <div class="box-body">
                 <div class="absen-buttons-wrapper">
-                    <form action="{{ url_for('karyawan_absen_masuk') }}" method="POST" style="flex:1;">
-                        <button type="submit" class="btn-absen masuk"
-                            {% if status_hari_ini and status_hari_ini.masuk != '-' %}disabled{% endif %}>
-                            Absen Masuk{% if status_hari_ini and status_hari_ini.masuk != '-' %} - {{ status_hari_ini.masuk }}{% endif %}
-                        </button>
-                    </form>
+                    <!-- Kita ganti jadi tombol biasa agar bisa memanggil JavaScript -->
+                    <button type="button" class="btn-absen masuk" onclick="kirimAbsen()">
+                        Absen Masuk
+                    </button>
                     <form action="{{ url_for('karyawan_absen_keluar') }}" method="POST" style="flex:1;">
                         <button type="submit" class="btn-absen keluar"
                             {% if not status_hari_ini or status_hari_ini.masuk == '-' or status_hari_ini.keluar != '-' %}disabled{% endif %}>
@@ -103,7 +101,8 @@
                     <i class="fas fa-map-marked-alt map-icon"></i>
                     <p>Google Maps | Lokasi Terdeteksi</p>
                 </div>
-                <p class="location-address"><i class="fas fa-map-pin"></i> Lokasi: Jl. Osamaliki No. 57, Salatiga</p>
+                <!-- ID "lokasi-teks" ini adalah kuncinya agar alamat bisa berubah otomatis -->
+                <p id="lokasi-teks" class="location-address"><i class="fas fa-map-pin"></i> Menunggu deteksi...</p>
             </div>
         </div>
 
@@ -225,4 +224,7 @@
         </div>
     </div>
 </div>
+
+<script src="{{ url_for('static', filename='js/absensi.js') }}"></script>
+
 {% endblock %}

@@ -7,8 +7,8 @@
                 <div class="box-body">
                     <p>Selasa, 24 Juni 2026</p>
                     <div class="absen-buttons-wrapper">
-                        <button class="btn-absen masuk">Masuk - 08:00</button>
-                        <button class="btn-absen keluar">Keluar - 17:00</button>
+                        <button class="btn-absen masuk" onclick="kirimAbsen()">Masuk - 08:00</button>
+                        <button class="btn-absen keluar">Keluar - 16:00</button>
                     </div>
                     <div class="absen-status-info">
                         <p>Status: <span class="status-badge aktif">Hadir</span></p>
@@ -38,9 +38,11 @@
                 <div class="box-body">
                     <div class="location-mock-map">
                         <i class="fas fa-map-marker-alt map-icon"></i>
-                        <span class="location-address">Jl. Raya Amarta No. 12, Surabaya</span>
+                        <span id="lokasi-teks" class="location-address">Menunggu lokasi...</span>
                     </div>
-                    <button class="btn-primary-amarta full-width-btn">Refresh Lokasi</button>
+                    <button type="button" class="btn-primary-amarta full-width-btn" onclick="kirimAbsen()">
+                        Refresh Lokasi
+                    </button>
                 </div>
             </div>
 
@@ -102,4 +104,7 @@
     </div>
 </div>
 </div>
+
+<script src="{{ url_for('static', filename='js/absensi.js') }}"></script>
+
 {% endblock %}
