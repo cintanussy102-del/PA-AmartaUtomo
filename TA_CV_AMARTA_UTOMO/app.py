@@ -173,7 +173,7 @@ def karyawan_ajukan_izin():
     tanggal = request.form.get('pilih_tanggal')
     keterangan = request.form.get('keterangan')
 
-    wajib_upload = jenis_izin in ['Sakit', 'Izin Penting', 'Cuti Tahunan']
+    wajib_upload = jenis_izin in ['Sakit', 'Izin Lainnya', 'Cuti']
     file_bukti_path = None
 
     if wajib_upload:
