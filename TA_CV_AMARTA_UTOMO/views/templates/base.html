@@ -53,12 +53,17 @@
                 </a>
             </div>
         </aside>
+        
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
         <!-- KONTEN KANAN (Main Content Area) -->
         <main class="main-content">
             <!-- Topbar Header -->
             <header class="topbar-header">
-                <div class="page-info">
+                <div class="page-info" style="display:flex; align-items:center; gap:15px;">
+                    <button id="btnToggleSidebar" class="hamburger-btn">
+                        <i class="fas fa-bars"></i>
+                    </button>
                     <h1 class="current-page-title">{% block page_title %}Dashboard{% endblock %}</h1>
                 </div>
                 <div class="user-profile-nav">
@@ -75,6 +80,20 @@
             </section>
         </main>
     </div>
+<script>
+    const sidebar = document.querySelector('.sidebar');
+    const btnToggle = document.getElementById('btnToggleSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
 
+    btnToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('sidebar-open');
+        overlay.classList.toggle('overlay-active');
+    });
+
+    overlay.addEventListener('click', function() {
+        sidebar.classList.remove('sidebar-open');
+        overlay.classList.remove('overlay-active');
+    });
+</script>
 </body>
 </html>

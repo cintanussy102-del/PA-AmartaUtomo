@@ -787,3 +787,126 @@ body {
     padding: 20px;
     border-top: 1px solid #334155; 
 }
+
+/* ==========================================
+   HAMBURGER BUTTON (disembunyikan di desktop)
+   ========================================== */
+.hamburger-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    color: #334155;
+    cursor: pointer;
+    padding: 5px 8px;
+}
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 998;
+}
+
+.sidebar-overlay.overlay-active {
+    display: block;
+}
+
+/* ==========================================
+   RESPONSIVE - TABLET (≤ 992px)
+   ========================================== */
+@media (max-width: 992px) {
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    .metrics-grid-four,
+    .row-grid,
+    .dashboard-grid-two {
+        grid-template-columns: 1fr !important;
+        flex-direction: column !important;
+    }
+}
+
+/* ==========================================
+   RESPONSIVE - MOBILE (≤ 768px)
+   ========================================== */
+@media (max-width: 768px) {
+    .hamburger-btn {
+        display: inline-block;
+    }
+
+    .sidebar {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        height: 100vh;
+        z-index: 999;
+        transition: left 0.3s ease;
+    }
+
+    .sidebar.sidebar-open {
+        left: 0;
+    }
+
+    .main-content {
+        padding: 15px;
+        width: 100%;
+    }
+
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px;
+    }
+
+    .metric-card {
+        min-width: 0;
+        padding: 15px;
+    }
+
+    .card-value {
+        font-size: 1.05rem;
+    }
+
+    .topbar-header {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 12px 15px;
+    }
+
+    .current-page-title {
+        font-size: 1.1rem;
+    }
+
+    .user-profile-nav span {
+        font-size: 0.8rem;
+    }
+
+    /* Bikin tabel bisa di-scroll ke samping tanpa geser seluruh halaman */
+    .content-box .box-body.no-padding {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .amarta-table {
+        min-width: 700px; /* Tabel tetap lebar aslinya, tapi bisa discroll di dalam kotak */
+    }
+
+    .absen-buttons-wrapper {
+        flex-direction: column;
+    }
+
+    .header-action-buttons {
+        flex-wrap: wrap;
+    }
+}
+
+/* ==========================================
+   RESPONSIVE - MOBILE KECIL (≤ 480px)
+   ========================================== */
+@media (max-width: 480px) {
+    .metrics-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
