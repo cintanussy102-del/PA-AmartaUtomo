@@ -910,3 +910,46 @@ body {
         grid-template-columns: 1fr !important;
     }
 }
+
+/* ==========================================
+   PILL TANGGAL & PAGINATION - DIREKTUR ABSENSI
+   ========================================== */
+.tanggal-pill {
+    padding: 8px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    background: #f1f5f9;
+    color: #4a5568;
+}
+
+.tanggal-pill.active {
+    background: #4b89dc;
+    color: white;
+    font-weight: 600;
+}
+
+.page-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    background: #f1f5f9;
+    color: #4a5568;
+}
+
+.page-btn.active {
+    background: #4b89dc;
+    color: white;
+    font-weight: 600;
+}
+
+.nav-btn-disabled {
+    padding: 8px 14px;
+    opacity: 0.4;
+    cursor: not-allowed;
+}

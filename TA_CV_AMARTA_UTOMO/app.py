@@ -10,15 +10,17 @@ from models.karyawan_model import (
     get_karyawan_by_username, get_karyawan_by_divisi_dan_username
 )
 from models.absensi_model import (
-    get_riwayat_absensi, get_status_hari_ini,
+    get_absensi_hari_ini_semua, get_riwayat_absensi, get_status_hari_ini,
     catat_absen_masuk, catat_absen_keluar, ajukan_izin,
     hitung_potongan_gaji, get_rekap_absensi_hari_ini,
     hitung_durasi_kerja, get_rekap_bulanan,
-    get_absensi_hari_ini_semua, reset_absensi_hari_ini
+    get_absensi_tanggal, get_daftar_tanggal_bulan, reset_absensi_hari_ini
 )
+
 from models.progres_model import ajukan_laporan, get_ringkasan_laporan
 from datetime import datetime
 from werkzeug.utils import secure_filename
+from datetime import datetime, timedelta
 
 import resend
 
@@ -412,12 +414,34 @@ def direktur_monitoring():
 @app.route('/direktur/absensi')
 @login_required(role='direktur')
 def direktur_absensi():
-    data_absensi = get_absensi_hari_ini_semua()
+    tanggal_str = request.args.get('tanggal')
+    if tanggal_str:
+        tanggal_pilih = datetime.strptime(tanggal_str, '%Y-%m-%d').date()
+    else:
+        tanggal_pilih = datetime.now().date()
+
+    bulan_pilih = int(request.args.get('bulan', tanggal_pilih.month))
+    tahun_pilih = int(request.args.get('tahun', tanggal_pilih.year))
+    page = int(request.args.get('page', 1))
+
+    data_absensi = get_absensi_tanggal(tanggal_pilih)
     total_karyawan = len(data_absensi)
     hadir = len([d for d in data_absensi if d['status'] == 'Hadir'])
-    izin_cuti = len([d for d in data_absensi if d['status'] == 'Cuti'])
+    izin_cuti = len([d for d in data_absensi if d['status'] in ('Cuti', 'Izin Lainnya')])
     sakit = len([d for d in data_absensi if d['status'] == 'Sakit'])
     alpha = len([d for d in data_absensi if d['status'] == 'Alpha'])
+
+    daftar_tanggal_bulan = get_daftar_tanggal_bulan(bulan_pilih, tahun_pilih)
+    per_page = 10
+    total_pages = max(1, (len(daftar_tanggal_bulan) + per_page - 1) // per_page)
+    page = min(max(page, 1), total_pages)
+    start = (page - 1) * per_page
+    tanggal_halaman = daftar_tanggal_bulan[start:start + per_page]
+
+    tanggal_kemarin = tanggal_pilih - timedelta(days=1)
+    tanggal_besok = tanggal_pilih + timedelta(days=1)
+    bisa_maju = tanggal_besok <= datetime.now().date()
+
     return render_template(
         'direktur/absensi.html',
         data_absensi=data_absensi,
@@ -425,7 +449,17 @@ def direktur_absensi():
         hadir=hadir,
         izin_cuti=izin_cuti,
         sakit=sakit,
-        alpha=alpha
+        alpha=alpha,
+        tanggal_pilih=tanggal_pilih,
+        tanggal_pilih_str=tanggal_pilih.strftime('%Y-%m-%d'),
+        tanggal_kemarin=tanggal_kemarin.strftime('%Y-%m-%d'),
+        tanggal_besok=tanggal_besok.strftime('%Y-%m-%d'),
+        bisa_maju=bisa_maju,
+        bulan_pilih=bulan_pilih,
+        tahun_pilih=tahun_pilih,
+        tanggal_halaman=tanggal_halaman,
+        page=page,
+        total_pages=total_pages,
     )
 
 @app.route('/direktur/reset-absensi', methods=['POST'])

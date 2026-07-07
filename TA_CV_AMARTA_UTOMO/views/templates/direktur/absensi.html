@@ -10,6 +10,54 @@
     <div class="metric-card" style="border-top-color: #e74c3c;"><div class="card-info"><span class="card-label">Tanpa Keterangan</span><h3 class="card-value">{{ alpha }}</h3></div></div>
 </div>
 
+<!-- Navigasi Tanggal -->
+<div class="content-box" style="padding:20px; margin-bottom:20px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <a href="{{ url_for('direktur_absensi', tanggal=tanggal_kemarin, bulan=bulan_pilih, tahun=tahun_pilih) }}"
+               class="btn-primary-amarta" style="text-decoration:none; padding:8px 14px;">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            <div>
+                <strong style="font-size:1.1rem;">{{ data_absensi[0].tanggal if data_absensi else '' }}</strong>
+                <form method="GET" style="display:inline-block; margin-left:10px;">
+                    <input type="hidden" name="bulan" value="{{ bulan_pilih }}">
+                    <input type="hidden" name="tahun" value="{{ tahun_pilih }}">
+                    <input type="date" name="tanggal" value="{{ tanggal_pilih_str }}"
+                           onchange="this.form.submit()"
+                           style="padding:6px 10px; border:1px solid #cbd5e0; border-radius:6px; font-size:0.85rem;">
+                </form>
+            </div>
+            {% if bisa_maju %}
+            <a href="{{ url_for('direktur_absensi', tanggal=tanggal_besok, bulan=bulan_pilih, tahun=tahun_pilih) }}"
+               class="btn-primary-amarta" style="text-decoration:none; padding:8px 14px;">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            {% else %}
+            <span class="btn-primary-amarta nav-btn-disabled">
+                <i class="fas fa-chevron-right"></i>
+            </span>
+            {% endif %}
+        </div>
+
+        <form method="GET" style="display:flex; gap:8px;">
+            <input type="hidden" name="tanggal" value="{{ tanggal_pilih_str }}">
+            <select name="bulan" onchange="this.form.submit()" class="form-control-input" style="width:auto; padding:8px;">
+                {% set nama_bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'] %}
+                {% for i in range(1, 13) %}
+                <option value="{{ i }}" {% if i == bulan_pilih %}selected{% endif %}>{{ nama_bulan[i-1] }}</option>
+                {% endfor %}
+            </select>
+            <select name="tahun" onchange="this.form.submit()" class="form-control-input" style="width:auto; padding:8px;">
+                {% for y in range(2024, 2031) %}
+                <option value="{{ y }}" {% if y == tahun_pilih %}selected{% endif %}>{{ y }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+</div>
+
+<!-- Reset Absensi -->
 <div class="content-box" style="padding:20px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
     <div>
         <strong>Reset Absensi Hari Ini</strong>
@@ -93,6 +141,31 @@
     </div>
 </div>
 
+<!-- Pilihan Tanggal Lain + Pagination -->
+<div class="content-box" style="padding:20px; margin-top:20px;">
+    <strong style="display:block; margin-bottom:15px;">Lihat Tanggal Lain di Bulan Ini</strong>
+    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:15px;">
+        {% for tgl in tanggal_halaman %}
+        {% set tgl_str = tgl.strftime('%Y-%m-%d') %}
+        <a href="{{ url_for('direktur_absensi', tanggal=tgl_str, bulan=bulan_pilih, tahun=tahun_pilih) }}"
+           class="tanggal-pill{% if tgl_str == tanggal_pilih_str %} active{% endif %}">
+            {{ tgl.day }} {{ ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][tgl.month-1] }}
+        </a>
+        {% endfor %}
+    </div>
+
+    {% if total_pages > 1 %}
+    <div style="display:flex; gap:6px; justify-content:center; border-top:1px solid #edf2f7; padding-top:15px;">
+        {% for p in range(1, total_pages + 1) %}
+        <a href="{{ url_for('direktur_absensi', tanggal=tanggal_pilih_str, bulan=bulan_pilih, tahun=tahun_pilih, page=p) }}"
+           class="page-btn{% if p == page %} active{% endif %}">
+            {{ p }}
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
 <!-- Modal Lihat Bukti Sakit -->
 <div id="modalBukti" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
     <div style="background:white; border-radius:10px; padding:20px; max-width:600px; width:90%; max-height:85vh; overflow-y:auto;">
@@ -101,6 +174,18 @@
             <button onclick="tutupModalBukti()" style="background:none; border:none; font-size:1.3rem; cursor:pointer; color:#888;">&times;</button>
         </div>
         <div id="modalBuktiIsi" style="text-align:center;"></div>
+    </div>
+</div>
+
+<!-- Modal Lihat Lokasi Absen -->
+<div id="modalLokasi" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:10px; padding:20px; max-width:600px; width:90%; max-height:85vh; overflow-y:auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <strong id="modalLokasiNama">Lokasi Absen</strong>
+            <button onclick="tutupModalLokasi()" style="background:none; border:none; font-size:1.3rem; cursor:pointer; color:#888;">&times;</button>
+        </div>
+        <p id="modalLokasiAlamat" style="font-size:0.85rem; color:#4a5568; margin-bottom:12px;"></p>
+        <div id="peta-lokasi-direktur" style="height:300px; border-radius:8px;"></div>
     </div>
 </div>
 
@@ -126,21 +211,7 @@ document.querySelectorAll('.lihat-bukti').forEach(function(el) {
 function tutupModalBukti() {
     document.getElementById('modalBukti').style.display = 'none';
 }
-</script>
 
-<!-- Modal Lihat Lokasi Absen -->
-<div id="modalLokasi" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
-    <div style="background:white; border-radius:10px; padding:20px; max-width:600px; width:90%; max-height:85vh; overflow-y:auto;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <strong id="modalLokasiNama">Lokasi Absen</strong>
-            <button onclick="tutupModalLokasi()" style="background:none; border:none; font-size:1.3rem; cursor:pointer; color:#888;">&times;</button>
-        </div>
-        <p id="modalLokasiAlamat" style="font-size:0.85rem; color:#4a5568; margin-bottom:12px;"></p>
-        <div id="peta-lokasi-direktur" style="height:300px; border-radius:8px;"></div>
-    </div>
-</div>
-
-<script>
 let petaDirektur = null;
 let markerDirektur = null;
 
@@ -177,5 +248,4 @@ function tutupModalLokasi() {
     document.getElementById('modalLokasi').style.display = 'none';
 }
 </script>
-
 {% endblock %}

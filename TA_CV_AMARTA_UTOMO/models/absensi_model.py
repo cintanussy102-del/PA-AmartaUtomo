@@ -254,8 +254,8 @@ def hitung_durasi_kerja(masuk, keluar):
     except Exception:
         return '-'
     
-def get_absensi_hari_ini_semua():
-    """Untuk halaman Direktur - Absensi. Menggabungkan admin + semua karyawan (kecuali Direktur)."""
+def get_absensi_tanggal(tanggal):
+    """Untuk halaman Direktur - Absensi. Bisa untuk tanggal apapun, bukan cuma hari ini."""
     from models.karyawan_model import get_semua_karyawan
 
     daftar = [{"username": "admin", "nama_lengkap": "Admin", "divisi": "Manajemen"}]
@@ -264,18 +264,17 @@ def get_absensi_hari_ini_semua():
             continue
         daftar.append({"username": k['username'], "nama_lengkap": k['nama_lengkap'], "divisi": k['divisi']})
 
-    hari_ini = waktu_sekarang().date()
     hasil = []
     for orang in daftar:
         query = "SELECT * FROM absensi WHERE nama_karyawan = %s AND tanggal = %s"
-        rows = Database.fetch_all(query, (orang['username'], hari_ini))
+        rows = Database.fetch_all(query, (orang['username'], tanggal))
         if rows:
             row = rows[0]
             hasil.append({
                 "nama_lengkap": orang['nama_lengkap'],
                 "divisi": orang['divisi'],
                 "username": orang['username'],
-                "tanggal": format_tanggal_indonesia(hari_ini),
+                "tanggal": format_tanggal_indonesia(tanggal),
                 "masuk": row['jam_masuk'] or '-',
                 "keluar": row['jam_keluar'] or '-',
                 "status": row['status'],
@@ -290,7 +289,7 @@ def get_absensi_hari_ini_semua():
                 "nama_lengkap": orang['nama_lengkap'],
                 "divisi": orang['divisi'],
                 "username": orang['username'],
-                "tanggal": format_tanggal_indonesia(hari_ini),
+                "tanggal": format_tanggal_indonesia(tanggal),
                 "masuk": '-',
                 "keluar": '-',
                 "status": 'Alpha',
@@ -301,6 +300,25 @@ def get_absensi_hari_ini_semua():
                 "alamat_absen": None,
             })
     return hasil
+
+
+def get_absensi_hari_ini_semua():
+    """Tetap ada supaya kode lama yang manggil ini tidak error."""
+    return get_absensi_tanggal(waktu_sekarang().date())
+
+
+def get_daftar_tanggal_bulan(bulan, tahun):
+    """Daftar semua tanggal di bulan tsb, terbaru duluan, tidak melebihi hari ini."""
+    hari_terakhir = calendar.monthrange(tahun, bulan)[1]
+    today = waktu_sekarang().date()
+    tanggal_list = []
+    for hari in range(1, hari_terakhir + 1):
+        tgl = datetime.date(tahun, bulan, hari)
+        if tgl > today:
+            break
+        tanggal_list.append(tgl)
+    tanggal_list.reverse()
+    return tanggal_list
 
 
 def reset_absensi_hari_ini(nama=None):
