@@ -1,8 +1,32 @@
+let petaLokasi = null;
+let markerLokasi = null;
+
+function tampilkanPeta(lat, lon) {
+    const placeholder = document.getElementById('peta-placeholder');
+    if (placeholder) placeholder.style.display = 'none';
+
+    if (!petaLokasi) {
+        petaLokasi = L.map('peta-lokasi').setView([lat, lon], 17);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(petaLokasi);
+        markerLokasi = L.marker([lat, lon]).addTo(petaLokasi);
+    } else {
+        petaLokasi.setView([lat, lon], 17);
+        markerLokasi.setLatLng([lat, lon]);
+    }
+
+    setTimeout(() => petaLokasi.invalidateSize(), 200);
+}
+
 async function kirimAbsen() {
     alert("Mendeteksi lokasi...");
     navigator.geolocation.getCurrentPosition(async (position) => {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
+
+        tampilkanPeta(lat, lon);
 
         const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
         const data = await response.json();

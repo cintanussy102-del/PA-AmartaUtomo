@@ -70,10 +70,13 @@
             <div class="content-box">
                 <div class="box-header"><h3>DETEKSI LOKASI</h3></div>
                 <div class="box-body">
-                    <div class="location-mock-map">
-                        <i class="fas fa-map-marker-alt map-icon"></i>
-                        <span id="lokasi-teks" class="location-address">Menunggu lokasi...</span>
+                    <div id="peta-lokasi" class="location-mock-map" style="height:180px; padding:0; overflow:hidden; position:relative;">
+                        <div id="peta-placeholder" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; width:100%;">
+                            <i class="fas fa-map-marked-alt map-icon"></i>
+                            <p>Peta akan muncul setelah lokasi terdeteksi</p>
+                        </div>
                     </div>
+                    <p id="lokasi-teks" class="location-address"><i class="fas fa-map-pin"></i> Menunggu deteksi...</p>
                     <button type="button" class="btn-primary-amarta full-width-btn" onclick="kirimAbsen()">
                         Refresh Lokasi
                     </button>
