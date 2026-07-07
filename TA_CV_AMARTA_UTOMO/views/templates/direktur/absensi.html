@@ -1,16 +1,14 @@
 {% extends 'base.html' %} 
 {% block title %}Absensi Karyawan{% endblock %} 
 {% block content %} 
-
 <!-- Kartu Ringkasan Statistik Absensi -->
 <div class="metrics-grid" style="grid-template-columns: repeat(5, 1fr);">
-    <div class="metric-card card-blue"><div class="card-info"><span class="card-label">Total Karyawan</span><h3 class="card-value">48</h3></div></div>
-    <div class="metric-card card-green"><div class="card-info"><span class="card-label">Hadir Hari Ini</span><h3 class="card-value">42</h3></div></div>
-    <div class="metric-card card-orange"><div class="card-info"><span class="card-label">Izin/Cuti</span><h3 class="card-value">3</h3></div></div>
-    <div class="metric-card card-purple"><div class="card-info"><span class="card-label">Sakit</span><h3 class="card-value">2</h3></div></div>
-    <div class="metric-card" style="border-top-color: #e74c3c;"><div class="card-info"><span class="card-label">Tanpa Keterangan</span><h3 class="card-value">1</h3></div></div>
+    <div class="metric-card card-blue"><div class="card-info"><span class="card-label">Total Karyawan</span><h3 class="card-value">{{ total_karyawan }}</h3></div></div>
+    <div class="metric-card card-green"><div class="card-info"><span class="card-label">Hadir Hari Ini</span><h3 class="card-value">{{ hadir }}</h3></div></div>
+    <div class="metric-card card-orange"><div class="card-info"><span class="card-label">Izin/Cuti</span><h3 class="card-value">{{ izin_cuti }}</h3></div></div>
+    <div class="metric-card card-purple"><div class="card-info"><span class="card-label">Sakit</span><h3 class="card-value">{{ sakit }}</h3></div></div>
+    <div class="metric-card" style="border-top-color: #e74c3c;"><div class="card-info"><span class="card-label">Tanpa Keterangan</span><h3 class="card-value">{{ alpha }}</h3></div></div>
 </div>
-
 <!-- Tabel Utama Absensi -->
 <div class="content-box">
     <div class="box-body no-padding">
@@ -19,11 +17,28 @@
                 <tr><th>NO</th><th>NAMA KARYAWAN</th><th>DIVISI</th><th>TANGGAL</th><th>JAM MASUK</th><th>JAM KELUAR</th><th>STATUS</th><th>KETERANGAN</th></tr>
             </thead>
             <tbody>
-                <tr><td>1</td><td>Rony Parulian</td><td>Produksi</td><td>24 Jun 2026</td><td>07:45</td><td>17:00</td><td><span class="status-badge aktif">Hadir</span></td><td>-</td></tr>
-                <tr><td>2</td><td>Andi Wijaya</td><td>Teknik</td><td>24 Jun 2026</td><td>07:50</td><td>17:05</td><td><span class="status-badge aktif">Hadir</span></td><td>-</td></tr>
-                <tr><td>3</td><td>Hendra Kusuma</td><td>Teknik</td><td>24 Jun 2026</td><td>-</td><td>-</td><td><span class="status-badge baris" style="background:#feebc8; color:#dd6b20;">Izin</span></td><td>Keperluan keluarga</td></tr>
-                <tr><td>4</td><td>Budi Prasetyo</td><td>Teknik</td><td>24 Jun 2026</td><td>-</td><td>-</td><td><span class="status-badge" style="background:#e9d8fd; color:#6b46c1;">Sakit</span></td><td>Demam</td></tr>
-                <tr><td>5</td><td>Doni Pratama</td><td>Teknik</td><td>24 Jun 2026</td><td>-</td><td>-</td><td><span class="status-badge" style="background:#fed7d7; color:#c53030;">Alpha</span></td><td>Tanpa keterangan</td></tr>
+                {% for d in data_absensi %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ d.nama_lengkap }}</td>
+                    <td>{{ d.divisi }}</td>
+                    <td>{{ d.tanggal }}</td>
+                    <td>{{ d.masuk }}</td>
+                    <td>{{ d.keluar }}</td>
+                    <td>
+                        {% if d.status == 'Hadir' %}
+                            <span class="status-badge aktif">Hadir</span>
+                        {% elif d.status == 'Izin' or d.status == 'Cuti' or d.status == 'Izin Lainnya' %}
+                            <span class="status-badge baris" style="background:#feebc8; color:#dd6b20;">{{ d.status }}</span>
+                        {% elif d.status == 'Sakit' %}
+                            <span class="status-badge" style="background:#e9d8fd; color:#6b46c1;">Sakit</span>
+                        {% else %}
+                            <span class="status-badge" style="background:#fed7d7; color:#c53030;">Alpha</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ d.keterangan }}</td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>

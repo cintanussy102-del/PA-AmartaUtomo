@@ -31,7 +31,13 @@
             </div>
             <div class="form-group">
                 <label>Divisi:</label>
-                <input type="text" name="divisi" class="form-control-input" value="{{ karyawan.divisi }}" required>
+                <select name="divisi" class="form-control-input" required>
+                    <option value="">-- Pilih Divisi --</option>
+                    <option value="Arsitektur" {% if karyawan.divisi == 'Arsitektur' %}selected{% endif %}>Arsitektur</option>
+                    <option value="Marketing" {% if karyawan.divisi == 'Marketing' %}selected{% endif %}>Marketing</option>
+                    <option value="Logistik" {% if karyawan.divisi == 'Logistik' %}selected{% endif %}>Logistik</option>
+                    <option value="Pengawas Lapangan" {% if karyawan.divisi == 'Pengawas Lapangan' %}selected{% endif %}>Pengawas Lapangan</option>
+                </select>
             </div>
             <div class="form-group">
                 <label>Jabatan:</label>

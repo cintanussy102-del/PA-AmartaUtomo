@@ -1,21 +1,16 @@
 {% extends 'base.html' %} 
 {% block title %}Manajemen Divisi{% endblock %} 
 {% block page_title %}Divisi{% endblock %} 
-
 {% block sidebar_menu %} 
 <!-- Menu sidebar tetap sama -->
 {% endblock %} 
-
 {% block content %} 
 <!-- 1. Metrics Grid Atas (Dinamis) -->
 <div class="metrics-grid" style="grid-template-columns: repeat(3, 1fr);">
-    <!-- Gunakan variabel untuk total -->
     <div class="metric-card card-blue"><div class="card-info"><span class="card-label">Total Divisi</span><h3 class="card-value">{{ divisi_list|length }}</h3></div></div>
-    <!-- Tambahkan logika hitung total karyawan di sini -->
-    <div class="metric-card card-green"><div class="card-info"><span class="card-label">Total Karyawan</span><h3 class="card-value">128</h3></div></div>
-    <div class="metric-card card-orange"><div class="card-info"><span class="card-label">Divisi Terbesar</span><h3 class="card-value">OPERASIONAL</h3></div></div>
+    <div class="metric-card card-green"><div class="card-info"><span class="card-label">Total Karyawan</span><h3 class="card-value">{{ divisi_list|sum(attribute='karyawan') }}</h3></div></div>
+    <div class="metric-card card-orange"><div class="card-info"><span class="card-label">Divisi Terbesar</span><h3 class="card-value">{{ divisi_list|sort(attribute='karyawan', reverse=True)|first|attr('nama')|upper }}</h3></div></div>
 </div>
-
 <!-- 2. Grid Kartu Divisi (Dinamis) -->
 <div class="dashboard-grid-three" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px;">
     {% for d in divisi_list %}
@@ -29,7 +24,6 @@
     </div>
     {% endfor %}
 </div>
-
 <!-- 3. Tabel Ringkasan Divisi (Dinamis) -->
 <div class="content-box">
     <div class="box-header">

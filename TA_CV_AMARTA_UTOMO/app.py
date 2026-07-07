@@ -6,7 +6,8 @@ from controllers.direktur_controller import direktur_bp
 from models.karyawan_model import (
     get_data_karyawan_by_name, get_profil_gaji,
     get_semua_karyawan, get_karyawan_by_id,
-    tambah_karyawan, update_karyawan, hapus_karyawan
+    tambah_karyawan, update_karyawan, hapus_karyawan,
+    get_karyawan_by_username, get_karyawan_by_divisi_dan_username
 )
 from models.absensi_model import (
     get_riwayat_absensi, get_status_hari_ini,
@@ -73,27 +74,45 @@ def login_required(role=None):
 def welcome():
     return render_template('welcome.html')
 
+DIVISI_LOGIN_MAP = {
+    'Arsitektur': 'Arsitektur',
+    'Marketing': 'Marketing',
+    'Logistik': 'Logistik',
+    'Pengawas': 'Pengawas Lapangan',
+}
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
 
-        if username == 'admin' and password == 'admin':
+        if username == 'Admin' and password == 'Glory':
             session['user'] = {'username': 'admin', 'role': 'admin'}
             return redirect(url_for('admin_dashboard'))
-        elif username == 'direktur' and password == 'direktur':
+
+        elif username == 'Direktur' and password == 'Gloria':
             session['user'] = {'username': 'direktur', 'role': 'direktur'}
             return redirect(url_for('direktur_dashboard'))
-        elif username == 'karyawan' and (password == 'Rony' or password == 'Aloy' or password == 'Putri'):
-            session['user'] = {
-                'username': password,
-                'role': 'karyawan'
-            }
-            return redirect(url_for('karyawan_dashboard'))
+
+        elif username in DIVISI_LOGIN_MAP:
+            divisi_asli = DIVISI_LOGIN_MAP[username]
+            karyawan = get_karyawan_by_divisi_dan_username(divisi_asli, password)
+            if karyawan:
+                session['user'] = {
+                    'username': karyawan['username'],
+                    'nama_lengkap': karyawan['nama_lengkap'],
+                    'role': 'karyawan'
+                }
+                return redirect(url_for('karyawan_dashboard'))
+            else:
+                flash('Username atau password salah!', 'danger')
+                return redirect(url_for('login'))
+
         else:
             flash('Username atau password salah!', 'danger')
             return redirect(url_for('login'))
+
     return render_template('login.html')
 
 @app.route('/logout')
@@ -102,7 +121,10 @@ def logout():
     flash('Anda telah berhasil keluar.', 'info')
     return redirect(url_for('login'))
 
-# --- RUTE ADMIN ---
+# ============================================================
+# RUTE ADMIN
+# ============================================================
+
 @app.route('/admin/dashboard')
 @login_required(role='admin')
 def admin_dashboard():
@@ -137,7 +159,6 @@ def admin_tambah_karyawan():
     flash('Karyawan baru berhasil ditambahkan!', 'success')
     return redirect(url_for('admin_data_karyawan'))
 
-
 @app.route('/admin/data-karyawan/edit/<int:id>', methods=['GET', 'POST'])
 @login_required(role='admin')
 def admin_edit_karyawan(id):
@@ -164,7 +185,6 @@ def admin_edit_karyawan(id):
         flash('Data karyawan tidak ditemukan!', 'danger')
         return redirect(url_for('admin_data_karyawan'))
     return render_template('admin/edit_karyawan.html', karyawan=karyawan)
-
 
 @app.route('/admin/data-karyawan/hapus/<int:id>', methods=['POST'])
 @login_required(role='admin')
@@ -195,10 +215,19 @@ def admin_absensi():
 @app.route('/admin/divisi')
 @login_required(role='admin')
 def admin_divisi():
-    divisi_data = [
-        {'nama': 'Arsitek', 'karyawan': 32, 'kepala': 'Ahmad Fauzi', 'status': 'Aktif'},
-        {'nama': 'Desain', 'karyawan': 18, 'kepala': 'Agus Setiawan', 'status': 'Aktif'},
-    ]
+    # Ambil semua karyawan dari database lalu kelompokkan per divisi
+    semua_karyawan = get_semua_karyawan()
+    divisi_names = ['Arsitektur', 'Marketing', 'Logistik', 'Pengawas Lapangan']
+    divisi_data = []
+    for nama_divisi in divisi_names:
+        anggota = [k for k in semua_karyawan if k['divisi'] == nama_divisi]
+        kepala = anggota[0]['nama_lengkap'] if anggota else '-'
+        divisi_data.append({
+            'nama': nama_divisi,
+            'karyawan': len(anggota),
+            'kepala': kepala,
+            'status': 'Aktif'
+        })
     return render_template('admin/divisi.html', divisi_list=divisi_data)
 
 @app.route('/admin/rekap-laporan')
@@ -211,7 +240,10 @@ def admin_rekap_laporan():
 def admin_slip_gaji():
     return render_template('admin/slip_gaji.html')
 
-# --- RUTE KARYAWAN ---
+# ============================================================
+# RUTE KARYAWAN
+# ============================================================
+
 @app.route('/karyawan/dashboard')
 @login_required(role='karyawan')
 def karyawan_dashboard():
@@ -335,7 +367,10 @@ def karyawan_slip_gaji():
         gaji_bersih=gaji_bersih
     )
 
-# --- RUTE DIREKTUR ---
+# ============================================================
+# RUTE DIREKTUR
+# ============================================================
+
 @app.route('/direktur/dashboard')
 @login_required(role='direktur')
 def direktur_dashboard():
@@ -392,6 +427,10 @@ def direktur_validasi_gaji():
 def direktur_laporan():
     return render_template('direktur/laporan.html')
 
+# ============================================================
+# RUTE API ABSENSI (JSON)
+# ============================================================
+
 @app.route('/proses-absen-masuk', methods=['POST'])
 def proses_absen_masuk():
     if 'user' not in session:
@@ -400,7 +439,6 @@ def proses_absen_masuk():
     nama = session['user']['username']
     hasil = catat_absen_masuk(nama, data.get('lat'), data.get('lon'), data.get('alamat'))
     return jsonify(hasil)
-
 
 @app.route('/proses-absen-keluar', methods=['POST'])
 def proses_absen_keluar():
