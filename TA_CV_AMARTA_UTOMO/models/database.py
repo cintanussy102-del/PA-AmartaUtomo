@@ -12,30 +12,22 @@ class Database:
 
     @classmethod
     def get_connection(cls):
-        """Membuat koneksi tunggal ke TiDB Cloud dengan membaca Environment Variables."""
+        """Membuat koneksi tunggal ke TiDB Cloud dengan membaca Railway Variables langsung."""
         if cls._connection is None or not cls._connection.is_connected():
             try:
-                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                config_path = os.path.join(base_dir, 'config', 'config.json')
-                
-                with open(config_path, 'r') as config_file:
-                    config = json.load(config_file)
-                
-                db_config = config['database']
-                
-                # Mengambil nilai asli dari file .env menggunakan os.getenv()
+                # Kita langsung ambil dari os.getenv() dengan nama variabel yang konsisten
                 cls._connection = mysql.connector.connect(
-                    host=os.getenv(db_config['host']),
-                    user=os.getenv(db_config['user']),
-                    password=os.getenv(db_config['password']),
-                    database=os.getenv(db_config['database_name']),
-                    port=int(os.getenv(db_config['port'], 4000)),
+                    host=os.getenv('DB_HOST'),      # Pastikan di Railway Variables namanya DB_HOST
+                    user=os.getenv('DB_USER'),      # Pastikan di Railway Variables namanya DB_USER
+                    password=os.getenv('DB_PASSWORD'),
+                    database=os.getenv('DB_NAME'),
+                    port=int(os.getenv('DB_PORT', 4000)),
                     ssl_ca=certifi.where(),
                     ssl_verify_cert=True
                 )
-                print("[SUCCESS] Berhasil terhubung ke TiDB Cloud Online secara aman via .env.")
+                print("[SUCCESS] Berhasil terhubung ke database!")
             except Exception as e:
-                print(f"[ERROR] Gagal menyambungkan ke TiDB Cloud: {str(e)}")
+                print(f"[ERROR] Gagal menyambungkan: {str(e)}")
                 cls._connection = None
         return cls._connection
 
