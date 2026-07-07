@@ -9,12 +9,28 @@
     <div class="metric-card card-purple"><div class="card-info"><span class="card-label">Sakit</span><h3 class="card-value">{{ sakit }}</h3></div></div>
     <div class="metric-card" style="border-top-color: #e74c3c;"><div class="card-info"><span class="card-label">Tanpa Keterangan</span><h3 class="card-value">{{ alpha }}</h3></div></div>
 </div>
+
+<div class="content-box" style="padding:20px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+    <div>
+        <strong>Reset Absensi Hari Ini</strong>
+        <p class="text-muted" style="font-size:0.85rem; margin-top:4px;">Berguna untuk demo/presentasi — menghapus data absen hari ini agar bisa dicoba ulang dari awal.</p>
+    </div>
+    <div style="display:flex; gap:10px;">
+        <form action="{{ url_for('direktur_reset_absensi') }}" method="POST" onsubmit="return confirm('Reset absensi hari ini untuk SEMUA orang?');">
+            <input type="hidden" name="nama" value="semua">
+            <button type="submit" style="background:#e74c3c; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600;">
+                Reset Semua
+            </button>
+        </form>
+    </div>
+</div>
+
 <!-- Tabel Utama Absensi -->
 <div class="content-box">
     <div class="box-body no-padding">
         <table class="amarta-table">
             <thead>
-                <tr><th>NO</th><th>NAMA KARYAWAN</th><th>DIVISI</th><th>TANGGAL</th><th>JAM MASUK</th><th>JAM KELUAR</th><th>STATUS</th><th>KETERANGAN</th></tr>
+                <tr><th>NO</th><th>NAMA KARYAWAN</th><th>DIVISI</th><th>TANGGAL</th><th>JAM MASUK</th><th>JAM KELUAR</th><th>STATUS</th><th>KETERANGAN</th><th>AKSI</th></tr>
             </thead>
             <tbody>
                 {% for d in data_absensi %}
@@ -37,6 +53,14 @@
                         {% endif %}
                     </td>
                     <td>{{ d.keterangan }}</td>
+                    <td>
+                        <form action="{{ url_for('direktur_reset_absensi') }}" method="POST" onsubmit="return confirm('Reset absensi {{ d.nama_lengkap }} hari ini?');">
+                            <input type="hidden" name="nama" value="{{ d.username }}">
+                            <button type="submit" style="background:none; border:none; color:#e53e3e; cursor:pointer; font-size:0.85rem; text-decoration:underline;">
+                                Reset
+                            </button>
+                        </form>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
