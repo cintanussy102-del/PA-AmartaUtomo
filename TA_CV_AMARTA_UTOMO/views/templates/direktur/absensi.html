@@ -36,7 +36,19 @@
                 {% for d in data_absensi %}
                 <tr>
                     <td>{{ loop.index }}</td>
-                    <td>{{ d.nama_lengkap }}</td>
+                    <td>
+                        {% if d.latitude and d.longitude %}
+                            <a href="#" class="lihat-lokasi" 
+                            data-lat="{{ d.latitude }}" data-lon="{{ d.longitude }}"
+                            data-alamat="{{ d.alamat_absen or 'Alamat tidak tersedia' }}"
+                            data-nama="{{ d.nama_lengkap }}"
+                            style="color:#2b6cb0; text-decoration:underline; cursor:pointer;">
+                                {{ d.nama_lengkap }} <i class="fas fa-map-marker-alt" style="font-size:0.75rem;"></i>
+                            </a>
+                        {% else %}
+                            {{ d.nama_lengkap }}
+                        {% endif %}
+                    </td>
                     <td>{{ d.divisi }}</td>
                     <td>{{ d.tanggal }}</td>
                     <td>{{ d.masuk }}</td>
@@ -115,4 +127,55 @@ function tutupModalBukti() {
     document.getElementById('modalBukti').style.display = 'none';
 }
 </script>
+
+<!-- Modal Lihat Lokasi Absen -->
+<div id="modalLokasi" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:10px; padding:20px; max-width:600px; width:90%; max-height:85vh; overflow-y:auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <strong id="modalLokasiNama">Lokasi Absen</strong>
+            <button onclick="tutupModalLokasi()" style="background:none; border:none; font-size:1.3rem; cursor:pointer; color:#888;">&times;</button>
+        </div>
+        <p id="modalLokasiAlamat" style="font-size:0.85rem; color:#4a5568; margin-bottom:12px;"></p>
+        <div id="peta-lokasi-direktur" style="height:300px; border-radius:8px;"></div>
+    </div>
+</div>
+
+<script>
+let petaDirektur = null;
+let markerDirektur = null;
+
+document.querySelectorAll('.lihat-lokasi').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+        e.preventDefault();
+        const lat = parseFloat(this.dataset.lat);
+        const lon = parseFloat(this.dataset.lon);
+        const alamat = this.dataset.alamat;
+        const nama = this.dataset.nama;
+
+        document.getElementById('modalLokasiNama').textContent = 'Lokasi Absen - ' + nama;
+        document.getElementById('modalLokasiAlamat').innerHTML = '<i class="fas fa-map-pin"></i> ' + alamat;
+        document.getElementById('modalLokasi').style.display = 'flex';
+
+        setTimeout(function() {
+            if (!petaDirektur) {
+                petaDirektur = L.map('peta-lokasi-direktur').setView([lat, lon], 17);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors',
+                    maxZoom: 19
+                }).addTo(petaDirektur);
+                markerDirektur = L.marker([lat, lon]).addTo(petaDirektur);
+            } else {
+                petaDirektur.setView([lat, lon], 17);
+                markerDirektur.setLatLng([lat, lon]);
+            }
+            petaDirektur.invalidateSize();
+        }, 150);
+    });
+});
+
+function tutupModalLokasi() {
+    document.getElementById('modalLokasi').style.display = 'none';
+}
+</script>
+
 {% endblock %}

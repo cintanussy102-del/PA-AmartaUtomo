@@ -255,11 +255,13 @@ def hitung_durasi_kerja(masuk, keluar):
         return '-'
     
 def get_absensi_hari_ini_semua():
-    """Untuk halaman Direktur - Absensi. Menggabungkan admin + semua karyawan."""
+    """Untuk halaman Direktur - Absensi. Menggabungkan admin + semua karyawan (kecuali Direktur)."""
     from models.karyawan_model import get_semua_karyawan
 
     daftar = [{"username": "admin", "nama_lengkap": "Admin", "divisi": "Manajemen"}]
     for k in get_semua_karyawan():
+        if k['divisi'] == 'Direktur':
+            continue
         daftar.append({"username": k['username'], "nama_lengkap": k['nama_lengkap'], "divisi": k['divisi']})
 
     hari_ini = waktu_sekarang().date()
@@ -279,6 +281,9 @@ def get_absensi_hari_ini_semua():
                 "status": row['status'],
                 "keterangan": row['keterangan'] or '-',
                 "file_bukti": row['file_bukti'],
+                "latitude": row.get('latitude'),
+                "longitude": row.get('longitude'),
+                "alamat_absen": row.get('alamat_absen'),
             })
         else:
             hasil.append({
@@ -291,6 +296,9 @@ def get_absensi_hari_ini_semua():
                 "status": 'Alpha',
                 "keterangan": 'Tanpa keterangan',
                 "file_bukti": None,
+                "latitude": None,
+                "longitude": None,
+                "alamat_absen": None,
             })
     return hasil
 
