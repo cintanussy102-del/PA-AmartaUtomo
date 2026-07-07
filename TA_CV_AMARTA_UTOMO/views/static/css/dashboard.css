@@ -185,7 +185,7 @@ body {
 
 .sidebar {
     width: 250px;
-    background: linear-gradient(180deg, #035652);
+    background: linear-gradient(180deg, #251253, #425b7b, #190219);
     min-height: 100vh; /* Pastikan tinggi minimal 100% layar */
     display: flex;
     flex-direction: column;
@@ -205,7 +205,7 @@ body {
 
 .main-content {
     flex: 1; /* Memaksa main-content mengisi sisa ruang */
-    background: #ebdab2;
+    background: #dbe5e8;
     padding: 25px;
     min-width: 0; /* Mencegah elemen grid melebar melebihi layar */
     width: 100%;
