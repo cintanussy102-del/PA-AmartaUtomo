@@ -212,6 +212,34 @@ def admin_absensi():
         rekap=rekap
     )
 
+@app.route('/admin/ajukan-izin', methods=['POST'])
+@login_required(role='admin')
+def admin_ajukan_izin():
+    nama_user = session['user']['username']
+    jenis_izin = request.form.get('jenis_izin')
+    tanggal = request.form.get('pilih_tanggal')
+    keterangan = request.form.get('keterangan')
+
+    wajib_upload = jenis_izin in ['Sakit', 'Izin Lainnya', 'Cuti']
+    file_bukti_path = None
+
+    if wajib_upload:
+        file_bukti = request.files.get('file_bukti')
+        if not file_bukti or file_bukti.filename == '':
+            flash('Untuk jenis izin ini, bukti (foto/dokumen) wajib diunggah!', 'danger')
+            return redirect(url_for('admin_absensi'))
+        if not allowed_file(file_bukti.filename):
+            flash('Format file tidak didukung. Gunakan JPG, PNG, atau PDF.', 'danger')
+            return redirect(url_for('admin_absensi'))
+
+        filename = secure_filename(f"{nama_user}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{file_bukti.filename}")
+        file_bukti.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        file_bukti_path = f"uploads/bukti_izin/{filename}"
+
+    ajukan_izin(nama_user, jenis_izin, tanggal, keterangan, file_bukti_path)
+    flash('Pengajuan izin/cuti berhasil dikirim!', 'success')
+    return redirect(url_for('admin_absensi'))
+    
 @app.route('/admin/divisi')
 @login_required(role='admin')
 def admin_divisi():
