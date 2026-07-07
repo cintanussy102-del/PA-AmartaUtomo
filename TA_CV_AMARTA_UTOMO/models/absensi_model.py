@@ -1,7 +1,14 @@
 import datetime
 import calendar
-from models.database import Database
 
+from arrow import now
+from models.database import Database
+from zoneinfo import ZoneInfo
+
+WIB = ZoneInfo("Asia/Jakarta")
+
+def waktu_sekarang():
+    return datetime.datetime.now(WIB)
 
 def get_riwayat_absensi(nama, limit=None):
     query = """
@@ -31,7 +38,7 @@ def get_status_hari_ini(nama):
         FROM absensi
         WHERE nama_karyawan = %s AND tanggal = %s
     """
-    hari_ini = datetime.date.today()
+    hari_ini = waktu_sekarang().date()
     rows = Database.fetch_all(query, (nama, hari_ini))
     if rows:
         row = rows[0]
@@ -42,8 +49,8 @@ def get_status_hari_ini(nama):
 
 
 def catat_absen_masuk(nama, lat=None, lon=None, alamat=None):
-    hari_ini = datetime.date.today()
-    jam = datetime.datetime.now().strftime("%H:%M")
+    hari_ini = waktu_sekarang().date()
+    jam = waktu_sekarang().strftime("%H:%M")
 
     existing = get_status_hari_ini(nama)
     if existing:
@@ -68,8 +75,8 @@ def catat_absen_masuk(nama, lat=None, lon=None, alamat=None):
 
 
 def catat_absen_keluar(nama):
-    hari_ini = datetime.date.today()
-    jam = datetime.datetime.now().strftime("%H:%M")
+    hari_ini = waktu_sekarang().date()
+    jam = waktu_sekarang().strftime("%H:%M")
 
     existing = get_status_hari_ini(nama)
     if existing:
@@ -140,7 +147,7 @@ def hitung_hari_alpha(nama, bulan=None, tahun=None):
     Hanya menghitung sampai hari ini (hari di masa depan tidak dihitung).
     """
     if bulan is None or tahun is None:
-        now = datetime.date.today()
+        today = waktu_sekarang().date()
         bulan = now.month
         tahun = now.year
 
@@ -192,7 +199,7 @@ DAFTAR_KARYAWAN = ["Rony", "Aloy", "Putri"]
 
 
 def get_rekap_absensi_hari_ini():
-    hari_ini = datetime.date.today()
+    hari_ini = waktu_sekarang().date()
     hadir = 0
     izin_cuti = 0
     sakit = 0
@@ -255,7 +262,7 @@ def get_absensi_hari_ini_semua():
     for k in get_semua_karyawan():
         daftar.append({"username": k['username'], "nama_lengkap": k['nama_lengkap'], "divisi": k['divisi']})
 
-    hari_ini = datetime.date.today()
+    hari_ini = waktu_sekarang().date()
     hasil = []
     for orang in daftar:
         query = "SELECT * FROM absensi WHERE nama_karyawan = %s AND tanggal = %s"
@@ -288,7 +295,7 @@ def get_absensi_hari_ini_semua():
 
 def reset_absensi_hari_ini(nama=None):
     """Hapus data absensi hari ini. Kalau nama=None, hapus untuk SEMUA orang (dipakai sebelum demo/presentasi)."""
-    hari_ini = datetime.date.today()
+    hari_ini = waktu_sekarang().date()
     if nama:
         query = "DELETE FROM absensi WHERE nama_karyawan = %s AND tanggal = %s"
         Database.execute_query(query, (nama, hari_ini))
