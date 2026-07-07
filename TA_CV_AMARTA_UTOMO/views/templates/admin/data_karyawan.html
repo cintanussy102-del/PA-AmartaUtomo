@@ -13,46 +13,110 @@
 {% endblock %}
 
 {% block content %}
-<!-- RINGKASAN METRIK KARYAWAN -->
 <div class="metrics-grid">
     <div class="metric-card card-blue">
         <div class="card-icon"><i class="fas fa-users"></i></div>
         <div class="card-info">
             <span class="card-label">Total Karyawan</span>
-            <h3 class="card-value">128</h3>
+            <h3 class="card-value">{{ total }}</h3>
         </div>
     </div>
-    
+
     <div class="metric-card card-green">
         <div class="card-icon"><i class="fas fa-user-check"></i></div>
         <div class="card-info">
             <span class="card-label">Aktif</span>
-            <h3 class="card-value">115</h3>
+            <h3 class="card-value">{{ aktif }}</h3>
         </div>
     </div>
-    
+
     <div class="metric-card card-orange">
         <div class="card-icon"><i class="fas fa-user-clock"></i></div>
         <div class="card-info">
             <span class="card-label">Izin / Cuti</span>
-            <h3 class="card-value">13</h3>
+            <h3 class="card-value">{{ izin_cuti }}</h3>
         </div>
     </div>
 </div>
 
-<!-- BAR KONTROL (PENCARIAN DAN TOMBOL TAMBAH) -->
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for message in messages %}
+      <div style="background: #d4edda; color: #155724; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
 <div class="table-control-bar">
     <div class="search-wrapper">
         <i class="fas fa-search search-icon"></i>
-        <input type="text" placeholder="Cari karyawan..." class="search-input">
+        <input type="text" id="search-karyawan" placeholder="Cari karyawan..." class="search-input" onkeyup="filterTabel()">
     </div>
-    <button class="btn-primary-amarta"><i class="fas fa-plus"></i> Tambah</button>
+    <button class="btn-primary-amarta" onclick="toggleFormTambah()"><i class="fas fa-plus"></i> Tambah</button>
 </div>
 
-<!-- TABEL UTAMA MASTER DATA -->
+<div class="content-box" id="form-tambah-wrapper" style="display:none; padding:20px; margin-bottom:20px;">
+    <h3 style="margin-bottom:15px;">Tambah Karyawan Baru</h3>
+    <form action="{{ url_for('admin_tambah_karyawan') }}" method="POST" class="amarta-form">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+            <div class="form-group">
+                <label>Username Login:</label>
+                <input type="text" name="username" class="form-control-input" required>
+            </div>
+            <div class="form-group">
+                <label>Nama Lengkap:</label>
+                <input type="text" name="nama_lengkap" class="form-control-input" required>
+            </div>
+            <div class="form-group">
+                <label>ID Karyawan:</label>
+                <input type="text" name="id_karyawan" class="form-control-input" placeholder="KRY-0045" required>
+            </div>
+            <div class="form-group">
+                <label>Divisi:</label>
+                <input type="text" name="divisi" class="form-control-input" required>
+            </div>
+            <div class="form-group">
+                <label>Jabatan:</label>
+                <input type="text" name="jabatan" class="form-control-input" required>
+            </div>
+            <div class="form-group">
+                <label>Status:</label>
+                <select name="status" class="form-control-input">
+                    <option value="Aktif">Aktif</option>
+                    <option value="Cuti">Cuti</option>
+                    <option value="Nonaktif">Nonaktif</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Gaji Pokok:</label>
+                <input type="number" name="gaji_pokok" class="form-control-input" required>
+            </div>
+            <div class="form-group">
+                <label>Tunjangan:</label>
+                <input type="number" name="tunjangan" class="form-control-input" required>
+            </div>
+            <div class="form-group">
+                <label>Kontak:</label>
+                <input type="text" name="kontak" class="form-control-input" placeholder="0812-xxxx-xxxx">
+            </div>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" name="email" class="form-control-input">
+            </div>
+            <div class="form-group">
+                <label>Tanggal Bergabung:</label>
+                <input type="date" name="tanggal_bergabung" class="form-control-input">
+            </div>
+        </div>
+        <button type="submit" class="btn-primary-amarta full-width-btn" style="margin-top:10px;">Simpan Karyawan</button>
+    </form>
+</div>
+
 <div class="content-box">
     <div class="box-body no-padding">
-        <table class="amarta-table">
+        <table class="amarta-table" id="tabel-karyawan">
             <thead>
                 <tr>
                     <th>No</th>
@@ -65,55 +129,49 @@
                 </tr>
             </thead>
             <tbody>
+                {% for k in daftar_karyawan %}
                 <tr>
-                    <td>1</td>
-                    <td><strong>Ahmad Fauzi</strong></td>
-                    <td>2201010021</td>
-                    <td>Konstruksi</td>
-                    <td>Site Manager</td>
-                    <td><span class="status-badge aktif">Aktif</span></td>
+                    <td>{{ loop.index }}</td>
+                    <td><strong>{{ k.nama_lengkap }}</strong></td>
+                    <td>{{ k.id_karyawan }}</td>
+                    <td>{{ k.divisi }}</td>
+                    <td>{{ k.jabatan }}</td>
+                    <td>
+                        {% if k.status == 'Aktif' %}
+                        <span class="status-badge aktif">Aktif</span>
+                        {% else %}
+                        <span class="status-badge baris">{{ k.status }}</span>
+                        {% endif %}
+                    </td>
                     <td>
                         <div class="action-buttons">
-                            <a href="#" class="btn-action edit">Edit</a>
-                            <a href="#" class="btn-action hapus">Hapus</a>
+                            <a href="{{ url_for('admin_edit_karyawan', id=k.id) }}" class="btn-action edit">Edit</a>
+                            <form action="{{ url_for('admin_hapus_karyawan', id=k.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Yakin hapus karyawan ini?');">
+                                <button type="submit" class="btn-action hapus" style="background:none; border:none; cursor:pointer; padding:0;">Hapus</button>
+                            </form>
                         </div>
                     </td>
                 </tr>
-                <tr>
-                    <td>2</td>
-                    <td><strong>Siti Rahayu</strong></td>
-                    <td>2201010042</td>
-                    <td>Keuangan</td>
-                    <td>Akuntan</td>
-                    <td><span class="status-badge aktif">Aktif</span></td>
-                    <td>
-                        <div class="action-buttons">
-                            <a href="#" class="btn-action edit">Edit</a>
-                            <a href="#" class="btn-action hapus">Hapus</a>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td><strong>Budi Santoso</strong></td>
-                    <td>2201010015</td>
-                    <td>Desain</td>
-                    <td>Arsitek</td>
-                    <td><span class="status-badge baris">Baru</span></td>
-                    <td>
-                        <div class="action-buttons">
-                            <a href="#" class="btn-action edit">Edit</a>
-                            <a href="#" class="btn-action hapus">Hapus</a>
-                        </div>
-                    </td>
-                </tr>
+                {% else %}
+                <tr><td colspan="7" style="text-align:center; color:#a0aec0;">Belum ada data karyawan.</td></tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
 
-<!-- NAVIGASI PAGINATION DI BAWAH TABEL -->
-<div class="pagination-wrapper">
-    <span>&lt; 1 2 3 4 5 &gt;</span>
-</div>
+<script>
+function toggleFormTambah() {
+    const wrapper = document.getElementById('form-tambah-wrapper');
+    wrapper.style.display = wrapper.style.display === 'none' ? 'block' : 'none';
+}
+
+function filterTabel() {
+    const input = document.getElementById('search-karyawan').value.toLowerCase();
+    const rows = document.querySelectorAll('#tabel-karyawan tbody tr');
+    rows.forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(input) ? '' : 'none';
+    });
+}
+</script>
 {% endblock %}

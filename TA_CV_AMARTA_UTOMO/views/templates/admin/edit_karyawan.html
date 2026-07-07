@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Karyawan{% endblock %}
+{% block page_title %}Edit Data Karyawan{% endblock %}
+
+{% block sidebar_menu %}
+<a href="{{ url_for('admin_dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
+<a href="{{ url_for('karyawan_absensi') }}"><i class="fas fa-calendar-check"></i> Absensi</a>
+<a href="{{ url_for('admin_data_karyawan') }}" class="active"><i class="fas fa-users"></i> Data Karyawan</a>
+<a href="#"><i class="fas fa-sitemap"></i> Divisi</a>
+<a href="{{ url_for('admin_rekap_laporan') }}"><i class="fas fa-file-alt"></i> Laporan</a>
+<a href="{{ url_for('karyawan_slip_gaji') }}"><i class="fas fa-wallet"></i> Slip Gaji</a>
+{% endblock %}
+
+{% block content %}
+<div class="content-box" style="max-width:700px; margin:auto; padding:25px;">
+    <h3 style="margin-bottom:20px;">Edit Data: {{ karyawan.nama_lengkap }}</h3>
+    <form action="{{ url_for('admin_edit_karyawan', id=karyawan.id) }}" method="POST" class="amarta-form">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+            <div class="form-group">
+                <label>Username Login:</label>
+                <input type="text" name="username" class="form-control-input" value="{{ karyawan.username }}" required>
+            </div>
+            <div class="form-group">
+                <label>Nama Lengkap:</label>
+                <input type="text" name="nama_lengkap" class="form-control-input" value="{{ karyawan.nama_lengkap }}" required>
+            </div>
+            <div class="form-group">
+                <label>ID Karyawan:</label>
+                <input type="text" name="id_karyawan" class="form-control-input" value="{{ karyawan.id_karyawan }}" required>
+            </div>
+            <div class="form-group">
+                <label>Divisi:</label>
+                <input type="text" name="divisi" class="form-control-input" value="{{ karyawan.divisi }}" required>
+            </div>
+            <div class="form-group">
+                <label>Jabatan:</label>
+                <input type="text" name="jabatan" class="form-control-input" value="{{ karyawan.jabatan }}" required>
+            </div>
+            <div class="form-group">
+                <label>Status:</label>
+                <select name="status" class="form-control-input">
+                    <option value="Aktif" {% if karyawan.status == 'Aktif' %}selected{% endif %}>Aktif</option>
+                    <option value="Cuti" {% if karyawan.status == 'Cuti' %}selected{% endif %}>Cuti</option>
+                    <option value="Nonaktif" {% if karyawan.status == 'Nonaktif' %}selected{% endif %}>Nonaktif</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Gaji Pokok:</label>
+                <input type="number" name="gaji_pokok" class="form-control-input" value="{{ karyawan.gaji_pokok|int }}" required>
+            </div>
+            <div class="form-group">
+                <label>Tunjangan:</label>
+                <input type="number" name="tunjangan" class="form-control-input" value="{{ karyawan.tunjangan|int }}" required>
+            </div>
+            <div class="form-group">
+                <label>Kontak:</label>
+                <input type="text" name="kontak" class="form-control-input" value="{{ karyawan.kontak or '' }}">
+            </div>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" name="email" class="form-control-input" value="{{ karyawan.email or '' }}">
+            </div>
+            <div class="form-group">
+                <label>Tanggal Bergabung:</label>
+                <input type="date" name="tanggal_bergabung" class="form-control-input" value="{{ karyawan.tanggal_bergabung }}">
+            </div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <button type="submit" class="btn-primary-amarta full-width-btn">Simpan Perubahan</button>
+            <a href="{{ url_for('admin_data_karyawan') }}" class="btn-action" style="padding:10px 20px; text-align:center; white-space:nowrap;">Batal</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

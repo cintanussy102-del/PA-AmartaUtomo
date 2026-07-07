@@ -10,54 +10,134 @@
 {% endblock %}
 
 {% block content %}
-<div class="content-box">
-    <h3>Data Penggajian Karyawan</h3>
-    
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        {% for message in messages %}
-          <div style="background: #d4edda; color: #155724; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
-            {{ message }}
-          </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
 
-    <table class="amarta-table">
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Nama Karyawan</th>
-                <th>Divisi</th>
-                <th>Total Gaji</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in data_gaji %}
-            <tr>
-                <td>{{ loop.index }}</td>
-                <td>{{ row.nama }}</td>
-                <td>{{ row.divisi }}</td>
-                <td>Rp {{ "{:,.0f}".format(row.total_gaji) }}</td>
-                <td>
-                    {% if row.status == 'Terkirim' %}
-                        <span style="color: #2ecc71; font-weight: bold;">Terkirim</span>
-                    {% else %}
-                        <form action="{{ url_for('direktur_bp.kirim_slip', id=row.id) }}" method="POST">
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for message in messages %}
+      <div style="background: #d4edda; color: #155724; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<div class="metrics-grid-four">
+    <div class="metric-card card-blue">
+        <div class="card-info">
+            <h3 class="card-value">Rp {{ "{:,.0f}".format(total_gaji_bulan_ini) }}</h3>
+            <span class="card-label">Total Gaji Bersih Bulan Ini</span>
+        </div>
+    </div>
+    <div class="metric-card card-orange">
+        <div class="card-info">
+            <h3 class="card-value">Rp {{ "{:,.0f}".format(total_potongan_bulan_ini) }}</h3>
+            <span class="card-label">Total Potongan Bulan Ini</span>
+        </div>
+    </div>
+    <div class="metric-card card-green">
+        <div class="card-info">
+            <h3 class="card-value">{{ sudah_terkirim }}</h3>
+            <span class="card-label">Slip Sudah Terkirim</span>
+        </div>
+    </div>
+    <div class="metric-card card-purple">
+        <div class="card-info">
+            <h3 class="card-value">{{ belum_terkirim }}</h3>
+            <span class="card-label">Slip Belum Terkirim</span>
+        </div>
+    </div>
+</div>
+
+<div class="content-box margin-top-20">
+    <div class="box-header">
+        <h3>RINCIAN PERHITUNGAN GAJI (Kenapa Gajinya Segini)</h3>
+    </div>
+    <div class="box-body no-padding">
+        <table class="amarta-table">
+            <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>Gaji Pokok</th>
+                    <th>Tunjangan</th>
+                    <th>Hari Alpha</th>
+                    <th>Potongan</th>
+                    <th>Gaji Bersih</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data_gaji %}
+                <tr>
+                    <td>{{ row.nama_lengkap }}</td>
+                    <td>Rp {{ "{:,.0f}".format(row.gaji_pokok) }}</td>
+                    <td>Rp {{ "{:,.0f}".format(row.tunjangan) }}</td>
+                    <td>
+                        {% if row.jumlah_hari_potong > 0 %}
+                        <span style="color:#e53e3e; font-weight:600;">{{ row.jumlah_hari_potong }} hari</span>
+                        {% else %}
+                        <span style="color:#a0aec0;">Tidak ada</span>
+                        {% endif %}
+                    </td>
+                    <td>Rp {{ "{:,.0f}".format(row.total_potongan) }}</td>
+                    <td><strong>Rp {{ "{:,.0f}".format(row.gaji_bersih) }}</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="content-box margin-top-20">
+    <div class="box-header">
+        <h3>DATA PENGGAJIAN KARYAWAN</h3>
+    </div>
+    <div class="box-body no-padding">
+        <table class="amarta-table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nama Karyawan</th>
+                    <th>Divisi</th>
+                    <th>Gaji Bersih</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data_gaji %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>
+                        <a href="{{ url_for('direktur_bp.direktur_slip_detail', id=row.id) }}" style="color:#4b89dc; font-weight:600; text-decoration:none;">
+                            {{ row.nama_lengkap }}
+                        </a>
+                    </td>
+                    <td>{{ row.divisi }}</td>
+                    <td>Rp {{ "{:,.0f}".format(row.gaji_bersih) }}</td>
+                    <td>
+                        {% if row.status_gaji == 'Terkirim' %}
+                            <span style="color: #2ecc71; font-weight: bold;">Terkirim</span>
+                        {% else %}
+                            <span style="color: #e67e22; font-weight: bold;">Belum</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('direktur_bp.direktur_slip_detail', id=row.id) }}" class="btn-action edit" style="margin-right:10px;">Lihat Slip</a>
+                        {% if row.status_gaji != 'Terkirim' %}
+                        <form action="{{ url_for('direktur_bp.kirim_slip', id=row.id) }}" method="POST" style="display:inline;">
                             <button type="submit" style="background: #e67e22; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">
                                 Kirim Slip
                             </button>
                         </form>
-                    {% endif %}
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="5" style="text-align: center;">Tidak ada data penggajian.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" style="text-align: center;">Tidak ada data penggajian.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

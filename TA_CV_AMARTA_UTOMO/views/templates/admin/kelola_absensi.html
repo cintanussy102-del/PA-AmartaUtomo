@@ -2,17 +2,31 @@
 
 {% block content %}
 <div class="absensi-container">
-    <div class="dashboard-grid-two"> <div class="col-left">
-            <div class="content-box"> <div class="box-header"><h3>ABSEN HARI INI</h3></div>
+    <div class="dashboard-grid-two">
+        <div class="col-left">
+            <div class="content-box">
+                <div class="box-header"><h3>ABSEN HARI INI</h3></div>
                 <div class="box-body">
-                    <p>Selasa, 24 Juni 2026</p>
+                    <p id="tanggal-hari-ini"></p>
                     <div class="absen-buttons-wrapper">
-                        <button class="btn-absen masuk" onclick="kirimAbsen()">Masuk - 08:00</button>
-                        <button class="btn-absen keluar">Keluar - 16:00</button>
+                        <button class="btn-absen masuk" onclick="kirimAbsen()"
+                            {% if status_hari_ini and status_hari_ini.masuk != '-' %}disabled{% endif %}>
+                            {% if status_hari_ini and status_hari_ini.masuk != '-' %}Masuk - {{ status_hari_ini.masuk }}{% else %}Masuk{% endif %}
+                        </button>
+                        <button class="btn-absen keluar" onclick="kirimAbsenKeluar()"
+                            {% if not status_hari_ini or status_hari_ini.masuk == '-' or status_hari_ini.keluar != '-' %}disabled{% endif %}>
+                            {% if status_hari_ini and status_hari_ini.keluar != '-' %}Keluar - {{ status_hari_ini.keluar }}{% else %}Keluar{% endif %}
+                        </button>
                     </div>
                     <div class="absen-status-info">
-                        <p>Status: <span class="status-badge aktif">Hadir</span></p>
-                        <p>Durasi Kerja: 8 jam 5 menit</p>
+                        <p>Status:
+                            {% if status_hari_ini %}
+                            <span class="status-badge aktif">{{ status_hari_ini.status }}</span>
+                            {% else %}
+                            <span class="status-badge baris">Belum Absen</span>
+                            {% endif %}
+                        </p>
+                        <p id="durasi-kerja-teks">Durasi Kerja: {{ durasi_kerja }}</p>
                     </div>
                 </div>
             </div>
@@ -35,10 +49,18 @@
                                 <td>{{ row.tanggal }}</td>
                                 <td>{{ row.masuk }}</td>
                                 <td>{{ row.keluar }}</td>
-                                <td><span class="status-badge aktif">{{ row.status }}</span></td>
+                                <td>
+                                    {% if row.status == 'Hadir' %}
+                                    <span class="status-badge aktif">Hadir</span>
+                                    {% else %}
+                                    <span class="status-badge baris">{{ row.status }}</span>
+                                    {% endif %}
+                                </td>
                             </tr>
+                            {% else %}
+                            <tr><td colspan="4" style="text-align:center; color:#a0aec0;">Belum ada riwayat absensi.</td></tr>
                             {% endfor %}
-                            </tbody>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -63,34 +85,41 @@
                 <div class="box-body">
                     <form class="amarta-form" action="/submit-izin" method="POST" enctype="multipart/form-data">
                         <div class="form-group">
-                            <label>Jenis Izin:</label>
-                            <select name="jenis_izin" class="form-control-input" onchange="toggleFormulir(this.value)">
+                            <label for="jenis_izin">Jenis Izin:</label>
+                            <select id="jenis_izin" name="jenis_izin" class="form-control-input" required onchange="toggleUploadBukti()">
                                 <option value="">-- Pilih Jenis Pengajuan --</option>
-                                <option value="Sakit">Sakit</option>
                                 <option value="Cuti">Cuti</option>
+                                <option value="Sakit">Sakit (Dengan Surat Dokter)</option>
+                                <option value="Izin Lainnya">Izin Lainnya</option>
                             </select>
+                        </div>
 
-                            <div id="wrapper-download-cuti" style="display: none; margin-top: 10px;">
-                                <a href="{{ url_for('static', filename='form/Formulir_Cuti.pdf') }}" 
-                                target="_blank" class="btn-primary-amarta" style="display:inline-block; padding: 5px 10px; font-size: 0.8rem;">
-                                <i class="fas fa-download"></i> Download Formulir Cuti
-                                </a>
-                            </div>
+                        <div class="form-group" id="download_form_cuti_wrapper" style="display:none;">
+                            <a href="{{ url_for('static', filename='form/Formulir_Cuti_Tahunan.pdf') }}"
+                            target="_blank"
+                            class="btn-primary-amarta"
+                            style="display:inline-flex; text-decoration:none; font-size:0.85rem;">
+                                <i class="fas fa-download"></i> Unduh Formulir Cuti
+                            </a>
+                            <small class="text-muted" style="display:block; margin-top:6px;">
+                                Isi kolom pada PDF secara digital, simpan, lalu unggah kembali di bawah.
+                            </small>
                         </div>
 
                         <div class="form-group">
-                            <label>Pilih Tanggal:</label>
-                            <input type="date" name="tanggal" class="form-control-input">
+                            <label for="tanggal">Pilih Tanggal:</label>
+                            <input type="date" id="tanggal" name="tanggal" class="form-control-input" required>
                         </div>
 
                         <div class="form-group">
-                            <label>Keterangan / Alasan:</label>
-                            <textarea name="alasan" class="form-control-input" placeholder="Tulis alasan pengajuan..."></textarea>
+                            <label for="alasan">Keterangan / Alasan:</label>
+                            <textarea id="alasan" name="alasan" rows="3" placeholder="Tulis alasan pengajuan..." class="form-control-input textarea" required></textarea>
                         </div>
 
-                        <div class="form-group">
-                            <label>Bukti Izin (Foto/Dokumen):</label>
-                            <input type="file" name="bukti_izin" class="form-control-input" accept="image/*,.pdf">
+                        <div class="form-group" id="upload_bukti_wrapper" style="display:none;">
+                            <label for="bukti_izin" id="label_file_bukti">Unggah Berkas:</label>
+                            <input type="file" id="bukti_izin" name="bukti_izin" class="form-control-input" accept=".jpg,.jpeg,.png,.pdf">
+                            <small class="text-muted" id="hint_file_bukti"></small>
                         </div>
 
                         <button type="submit" class="btn-primary-amarta full-width-btn">Ajukan</button>
@@ -101,29 +130,81 @@
     </div>
 
     <div class="metrics-grid-four" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 20px;">
-    
-    <div class="content-box" style="padding: 20px; text-align: center;">
-        <strong class="card-value" style="display: block; font-size: 1.5rem; color: #319795;">18</strong>
-        <span class="card-label">Hadir Bulan Ini</span>
-    </div>
-    
-    <div class="content-box" style="padding: 20px; text-align: center;">
-        <strong class="card-value" style="display: block; font-size: 1.5rem; color: #e67e22;">1</strong>
-        <span class="card-label">Sakit</span>
-    </div>
-    
-    <div class="content-box" style="padding: 20px; text-align: center;">
-        <strong class="card-value" style="display: block; font-size: 1.5rem; color: #9b59b6;">1</strong>
-        <span class="card-label">Cuti</span>
-    </div>
-    
-    <div class="content-box" style="padding: 20px; text-align: center;">
-        <strong class="card-value" style="display: block; font-size: 1.5rem; color: #e53e3e;">0</strong>
-        <span class="card-label">Alpha</span>
+        <div class="content-box" style="padding: 20px; text-align: center;">
+            <strong class="card-value" style="display: block; font-size: 1.5rem; color: #319795;">{{ rekap.Hadir }}</strong>
+            <span class="card-label">Hadir Bulan Ini</span>
+        </div>
+        <div class="content-box" style="padding: 20px; text-align: center;">
+            <strong class="card-value" style="display: block; font-size: 1.5rem; color: #e67e22;">{{ rekap.Sakit }}</strong>
+            <span class="card-label">Sakit</span>
+        </div>
+        <div class="content-box" style="padding: 20px; text-align: center;">
+            <strong class="card-value" style="display: block; font-size: 1.5rem; color: #9b59b6;">{{ rekap.Cuti }}</strong>
+            <span class="card-label">Cuti</span>
+        </div>
+        <div class="content-box" style="padding: 20px; text-align: center;">
+            <strong class="card-value" style="display: block; font-size: 1.5rem; color: #e53e3e;">{{ rekap.Alpha }}</strong>
+            <span class="card-label">Alpha</span>
+        </div>
     </div>
 </div>
-</div>
+
+<script>
+function updateTanggalHariIni() {
+    const now = new Date();
+    const hariList = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const bulanList = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    const teks = `${hariList[now.getDay()]}, ${now.getDate()} ${bulanList[now.getMonth()]} ${now.getFullYear()}`;
+    document.getElementById('tanggal-hari-ini').textContent = teks;
+}
+updateTanggalHariIni();
+
+async function kirimAbsenKeluar() {
+    const res = await fetch('/proses-absen-keluar', { method: 'POST' });
+    if (res.ok) {
+        const result = await res.json();
+        document.getElementById('durasi-kerja-teks').textContent = 'Durasi Kerja: ' + result.durasi_kerja;
+        alert('Berhasil absen keluar pada: ' + result.jam_keluar);
+        location.reload();
+    }
+}
+
+function toggleUploadBukti() {
+    const jenis = document.getElementById('jenis_izin').value;
+    const wrapper = document.getElementById('upload_bukti_wrapper');
+    const downloadWrapper = document.getElementById('download_form_cuti_wrapper');
+    const fileInput = document.getElementById('bukti_izin');
+    const label = document.getElementById('label_file_bukti');
+    const hint = document.getElementById('hint_file_bukti');
+
+    const perluUpload = ['Sakit', 'Izin Lainnya', 'Cuti'];
+
+    if (perluUpload.includes(jenis)) {
+        wrapper.style.display = 'block';
+        fileInput.setAttribute('required', 'required');
+    } else {
+        wrapper.style.display = 'none';
+        fileInput.removeAttribute('required');
+    }
+
+    if (jenis === 'Cuti') {
+        downloadWrapper.style.display = 'block';
+        label.textContent = 'Unggah Formulir Cuti yang Sudah Diisi:';
+        hint.textContent = 'Wajib unggah PDF formulir cuti yang sudah diisi.';
+    } else if (jenis === 'Sakit') {
+        downloadWrapper.style.display = 'none';
+        label.textContent = 'Unggah Surat Dokter:';
+        hint.textContent = 'Wajib unggah foto/scan surat keterangan dokter. Format JPG/PNG/PDF, maks 2MB.';
+    } else if (jenis === 'Izin Lainnya') {
+        downloadWrapper.style.display = 'none';
+        label.textContent = 'Unggah Bukti Pendukung:';
+        hint.textContent = 'Wajib unggah bukti pendukung izin. Format JPG/PNG/PDF, maks 2MB.';
+    } else {
+        downloadWrapper.style.display = 'none';
+        hint.textContent = '';
+    }
+}
+</script>
 
 <script src="{{ url_for('static', filename='js/absensi.js') }}"></script>
-
 {% endblock %}

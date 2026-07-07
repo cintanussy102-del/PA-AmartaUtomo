@@ -13,25 +13,22 @@
 {% block content %}
 <div class="dashboard-grid-two">
 
-    <!-- KOLOM KIRI: TOMBOL ABSENSI & RIWAYAT -->
     <div class="left-column">
-        <!-- 1. Tombol Absen Harian -->
         <div class="content-box">
             <div class="box-header">
                 <h3>ABSEN HARI INI</h3>
             </div>
             <div class="box-body">
+                <p id="tanggal-hari-ini" style="margin-bottom:10px; color:#4a5568; font-weight:600;"></p>
                 <div class="absen-buttons-wrapper">
-                    <!-- Kita ganti jadi tombol biasa agar bisa memanggil JavaScript -->
-                    <button type="button" class="btn-absen masuk" onclick="kirimAbsen()">
-                        Absen Masuk
+                    <button type="button" class="btn-absen masuk" onclick="kirimAbsen()"
+                        {% if status_hari_ini and status_hari_ini.masuk != '-' %}disabled{% endif %}>
+                        {% if status_hari_ini and status_hari_ini.masuk != '-' %}Absen Masuk - {{ status_hari_ini.masuk }}{% else %}Absen Masuk{% endif %}
                     </button>
-                    <form action="{{ url_for('karyawan_absen_keluar') }}" method="POST" style="flex:1;">
-                        <button type="submit" class="btn-absen keluar"
-                            {% if not status_hari_ini or status_hari_ini.masuk == '-' or status_hari_ini.keluar != '-' %}disabled{% endif %}>
-                            Absen Keluar{% if status_hari_ini and status_hari_ini.keluar != '-' %} - {{ status_hari_ini.keluar }}{% endif %}
-                        </button>
-                    </form>
+                    <button type="button" class="btn-absen keluar" onclick="kirimAbsenKeluar()"
+                        {% if not status_hari_ini or status_hari_ini.masuk == '-' or status_hari_ini.keluar != '-' %}disabled{% endif %}>
+                        {% if status_hari_ini and status_hari_ini.keluar != '-' %}Absen Keluar - {{ status_hari_ini.keluar }}{% else %}Absen Keluar{% endif %}
+                    </button>
                 </div>
                 <div class="absen-status-info">
                     <p>Status Hari Ini:
@@ -43,12 +40,12 @@
                     </p>
                     <p>Jam Masuk: <strong>{{ status_hari_ini.masuk if status_hari_ini else '--:--' }}</strong></p>
                     <p>Jam Keluar: <strong>{{ status_hari_ini.keluar if status_hari_ini else '--:--' }}</strong></p>
+                    <p id="durasi-kerja-teks">Durasi Kerja: {{ durasi_kerja }}</p>
                     <p class="text-muted">Selamat bekerja & tetap semangat!</p>
                 </div>
             </div>
         </div>
 
-        <!-- 2. Tabel Riwayat Absensi -->
         <div class="content-box">
             <div class="box-header">
                 <h3>RIWAYAT ABSENSI</h3>
@@ -89,9 +86,7 @@
         </div>
     </div>
 
-    <!-- KOLOM KANAN: DETEKSI LOKASI & FORM IZIN/CUTI -->
     <div class="right-column">
-        <!-- 1. Kotak Deteksi Lokasi -->
         <div class="content-box">
             <div class="box-header">
                 <h3>DETEKSI LOKASI</h3>
@@ -101,12 +96,10 @@
                     <i class="fas fa-map-marked-alt map-icon"></i>
                     <p>Google Maps | Lokasi Terdeteksi</p>
                 </div>
-                <!-- ID "lokasi-teks" ini adalah kuncinya agar alamat bisa berubah otomatis -->
                 <p id="lokasi-teks" class="location-address"><i class="fas fa-map-pin"></i> Menunggu deteksi...</p>
             </div>
         </div>
 
-        <!-- 2. Formulir Pengajuan Izin/Cuti -->
         <div class="content-box">
             <div class="box-header">
                 <h3>PENGAJUAN IZIN / CUTI</h3>
@@ -117,9 +110,9 @@
                         <label for="jenis_izin">Jenis Izin:</label>
                         <select id="jenis_izin" name="jenis_izin" class="form-control-input" required onchange="toggleUploadBukti()">
                             <option value="">-- Pilih Jenis Pengajuan --</option>
-                            <option value="Cuti Tahunan">Cuti Tahunan</option>
+                            <option value="Cuti">Cuti</option>
                             <option value="Sakit">Sakit (Dengan Surat Dokter)</option>
-                            <option value="Izin Penting">Izin Keperluan Mendesak</option>
+                            <option value="Izin Lainnya">Izin Lainnya</option>
                         </select>
                     </div>
 
@@ -128,7 +121,7 @@
                         target="_blank"
                         class="btn-primary-amarta"
                         style="display:inline-flex; text-decoration:none; font-size:0.85rem;">
-                            <i class="fas fa-download"></i> Download Formulir Cuti Tahunan
+                            <i class="fas fa-download"></i> Unduh Formulir Cuti
                         </a>
                         <small class="text-muted" style="display:block; margin-top:6px;">
                             Isi kolom pada PDF secara digital, simpan, lalu unggah kembali di bawah.
@@ -153,78 +146,95 @@
 
                     <button type="submit" class="btn-primary-amarta full-width-btn">Ajukan</button>
                 </form>
-
-                <script>
-                function toggleUploadBukti() {
-                    const jenis = document.getElementById('jenis_izin').value;
-                    const wrapper = document.getElementById('upload_bukti_wrapper');
-                    const downloadWrapper = document.getElementById('download_form_cuti_wrapper');
-                    const fileInput = document.getElementById('file_bukti');
-                    const label = document.getElementById('label_file_bukti');
-                    const hint = document.getElementById('hint_file_bukti');
-
-                    const perluUpload = ['Sakit', 'Izin Penting', 'Cuti Tahunan'];
-
-                    if (perluUpload.includes(jenis)) {
-                        wrapper.style.display = 'block';
-                        fileInput.setAttribute('required', 'required');
-                    } else {
-                        wrapper.style.display = 'none';
-                        fileInput.removeAttribute('required');
-                    }
-
-                    if (jenis === 'Cuti Tahunan') {
-                        downloadWrapper.style.display = 'block';
-                        label.textContent = 'Upload Formulir Cuti yang Sudah Diisi:';
-                        hint.textContent = 'Wajib upload PDF formulir cuti tahunan yang sudah diisi.';
-                    } else if (jenis === 'Sakit') {
-                        downloadWrapper.style.display = 'none';
-                        label.textContent = 'Upload Surat Dokter:';
-                        hint.textContent = 'Wajib upload foto/scan surat keterangan dokter. Format JPG/PNG/PDF, maks 2MB.';
-                    } else if (jenis === 'Izin Penting') {
-                        downloadWrapper.style.display = 'none';
-                        label.textContent = 'Upload Bukti Pendukung:';
-                        hint.textContent = 'Wajib upload bukti pendukung keperluan mendesak. Format JPG/PNG/PDF, maks 2MB.';
-                    } else {
-                        downloadWrapper.style.display = 'none';
-                        hint.textContent = '';
-                    }
-                }
-                </script>
             </div>
         </div>
     </div>
 
 </div>
 
-<!-- RINGKASAN REKAP BULANAN DI BAGIAN BAWAH MOCKUP -->
 <div class="metrics-grid-four margin-top-20">
     <div class="metric-card card-blue">
         <div class="card-info">
-            <h3 class="card-value">18 HARI</h3>
+            <h3 class="card-value">{{ rekap.Hadir }} HARI</h3>
             <span class="card-label">Hadir Bulan Ini</span>
         </div>
     </div>
     <div class="metric-card card-orange">
         <div class="card-info">
-            <h3 class="card-value">1 HARI</h3>
+            <h3 class="card-value">{{ rekap.Sakit }} HARI</h3>
             <span class="card-label">Sakit</span>
         </div>
     </div>
     <div class="metric-card card-purple">
         <div class="card-info">
-            <h3 class="card-value">1 HARI</h3>
+            <h3 class="card-value">{{ rekap.Cuti }} HARI</h3>
             <span class="card-label">Cuti</span>
         </div>
     </div>
     <div class="metric-card card-green">
         <div class="card-info">
-            <h3 class="card-value">0 HARI</h3>
+            <h3 class="card-value">{{ rekap.Alpha }} HARI</h3>
             <span class="card-label">Alpha</span>
         </div>
     </div>
 </div>
 
-<script src="{{ url_for('static', filename='js/absensi.js') }}"></script>
+<script>
+function updateTanggalHariIni() {
+    const now = new Date();
+    const hariList = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const bulanList = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    const teks = `${hariList[now.getDay()]}, ${now.getDate()} ${bulanList[now.getMonth()]} ${now.getFullYear()}`;
+    document.getElementById('tanggal-hari-ini').textContent = teks;
+}
+updateTanggalHariIni();
 
+async function kirimAbsenKeluar() {
+    const res = await fetch('/proses-absen-keluar', { method: 'POST' });
+    if (res.ok) {
+        const result = await res.json();
+        document.getElementById('durasi-kerja-teks').textContent = 'Durasi Kerja: ' + result.durasi_kerja;
+        alert('Berhasil absen keluar pada: ' + result.jam_keluar);
+        location.reload();
+    }
+}
+
+function toggleUploadBukti() {
+    const jenis = document.getElementById('jenis_izin').value;
+    const wrapper = document.getElementById('upload_bukti_wrapper');
+    const downloadWrapper = document.getElementById('download_form_cuti_wrapper');
+    const fileInput = document.getElementById('file_bukti');
+    const label = document.getElementById('label_file_bukti');
+    const hint = document.getElementById('hint_file_bukti');
+
+    const perluUpload = ['Sakit', 'Izin Lainnya', 'Cuti'];
+
+    if (perluUpload.includes(jenis)) {
+        wrapper.style.display = 'block';
+        fileInput.setAttribute('required', 'required');
+    } else {
+        wrapper.style.display = 'none';
+        fileInput.removeAttribute('required');
+    }
+
+    if (jenis === 'Cuti') {
+        downloadWrapper.style.display = 'block';
+        label.textContent = 'Upload Formulir Cuti yang Sudah Diisi:';
+        hint.textContent = 'Wajib upload PDF formulir cuti yang sudah diisi.';
+    } else if (jenis === 'Sakit') {
+        downloadWrapper.style.display = 'none';
+        label.textContent = 'Upload Surat Dokter:';
+        hint.textContent = 'Wajib upload foto/scan surat keterangan dokter. Format JPG/PNG/PDF, maks 2MB.';
+    } else if (jenis === 'Izin Lainnya') {
+        downloadWrapper.style.display = 'none';
+        label.textContent = 'Upload Bukti Pendukung:';
+        hint.textContent = 'Wajib upload bukti pendukung izin. Format JPG/PNG/PDF, maks 2MB.';
+    } else {
+        downloadWrapper.style.display = 'none';
+        hint.textContent = '';
+    }
+}
+</script>
+
+<script src="{{ url_for('static', filename='js/absensi.js') }}"></script>
 {% endblock %}

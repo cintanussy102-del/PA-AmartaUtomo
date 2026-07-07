@@ -12,28 +12,23 @@
 
 {% block content %}
 <div class="dashboard-grid-two">
-    
+
     <div class="left-column">
         <div class="content-box">
             <div class="box-header">
                 <h3>DETAIL PROGRES PEKERJAAN</h3>
             </div>
             <div class="box-body">
-                <form action="#" method="POST" class="amarta-form">
-                    
+                <form action="{{ url_for('karyawan_kirim_laporan') }}" method="POST" enctype="multipart/form-data" class="amarta-form">
+
                     <div class="form-group">
                         <label for="pilih_proyek">Pilih Proyek / Tugas:</label>
                         <select id="pilih_proyek" name="id_pekerjaan" class="form-control-input" required>
                             <option value="">-- Pilih Proyek Aktif --</option>
-                            <option value="1">Pembangunan Gudang B</option>
-                            <option value="2">Renovasi Kantor Pusat</option>
-                            <option value="3">Proyek Jalan Tol Sec. 3</option>
+                            <option value="Pembangunan Gudang B">Pembangunan Gudang B</option>
+                            <option value="Renovasi Kantor Pusat">Renovasi Kantor Pusat</option>
+                            <option value="Proyek Jalan Tol Sec. 3">Proyek Jalan Tol Sec. 3</option>
                         </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="persentase_progres">Progres Capaian (%):</label>
-                        <input type="number" id="persentase_progres" name="progres" min="0" max="100" placeholder="Contoh: 75" class="form-control-input" required>
                     </div>
 
                     <div class="form-group">
@@ -43,11 +38,23 @@
 
                     <div class="form-group">
                         <label for="status_tugas">Status Tugas Saat Ini:</label>
-                        <select id="status_tugas" name="status_tugas" class="form-control-input" required>
-                            <option value="On Track">On Track</option>
-                            <option value="Delayed">Delayed</option>
+                        <select id="status_tugas" name="status_tugas" class="form-control-input" required onchange="toggleProgresManual()">
+                            <option value="Sedang Dikerjakan">Sedang Dikerjakan</option>
                             <option value="Selesai">Selesai (Butuh Validasi)</option>
+                            <option value="Butuh Revisi">Butuh Revisi</option>
                         </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="file_laporan">Upload Laporan (PDF):</label>
+                        <input type="file" id="file_laporan" name="file_laporan" class="form-control-input" accept=".pdf" required>
+                        <small class="text-muted">Wajib upload laporan dalam format PDF.</small>
+                    </div>
+
+                    <div class="form-group" id="wrapper_progres_manual">
+                        <label for="progres_manual">Perkiraan Progres Saat Ini (%):</label>
+                        <input type="number" id="progres_manual" name="progres_manual" min="0" max="100" placeholder="Contoh: 60" class="form-control-input">
+                        <small class="text-muted">Isi perkiraan persentase pekerjaan yang sudah dikerjakan sejauh ini.</small>
                     </div>
 
                     <button type="submit" class="btn-primary-amarta full-width-btn">
@@ -65,9 +72,9 @@
             </div>
             <div class="box-body">
                 <div class="sender-profile-info">
-                    <p>ID Karyawan: <strong class="text-blue">KRY-0042</strong></p>
-                    <p>Nama Staf: <strong>Rony Parulian</strong></p>
-                    <p>Divisi / Jabatan: <span>Produksi / Staff Produksi</span></p>
+                    <p>ID Karyawan: <strong class="text-blue">{{ profil.id_karyawan }}</strong></p>
+                    <p>Nama Staf: <strong>{{ profil.nama_lengkap }}</strong></p>
+                    <p>Divisi / Jabatan: <span>{{ profil.divisi }} / {{ profil.jabatan }}</span></p>
                 </div>
             </div>
         </div>
@@ -78,22 +85,93 @@
             </div>
             <div class="box-body">
                 <div class="summary-progress-stats">
-                    <div class="stat-row">
+                    <div class="stat-row stat-clickable" onclick="togglePanel('panel_total')">
                         <span>Total Laporan Dikirim</span>
-                        <strong class="stat-count blue-text">5</strong>
+                        <strong class="stat-count blue-text">{{ ringkasan.total }}</strong>
                     </div>
-                    <div class="stat-row">
+                    <div class="stat-row stat-clickable" onclick="togglePanel('panel_selesai')">
                         <span>Disetujui / Selesai</span>
-                        <strong class="stat-count green-text">3</strong>
+                        <strong class="stat-count green-text">{{ ringkasan.selesai | length }}</strong>
                     </div>
-                    <div class="stat-row">
+                    <div class="stat-row stat-clickable" onclick="togglePanel('panel_revisi')">
                         <span>Butuh Revisi</span>
-                        <strong class="stat-count orange-text">2</strong>
+                        <strong class="stat-count orange-text">{{ ringkasan.revisi | length }}</strong>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="content-box laporan-panel" id="panel_total" style="display:none;">
+            <div class="box-header"><h3>Semua Laporan Dikirim</h3></div>
+            <div class="box-body">
+                {% for row in ringkasan.semua %}
+                <div class="laporan-item">
+                    <strong>{{ row.nama_proyek }}</strong> — {{ row.status }} ({{ row.progres }}%)
+                    <br><small class="text-muted">{{ row.tanggal_kirim }}</small>
+                    {% if row.file_laporan %}
+                    <br><a href="{{ url_for('static', filename=row.file_laporan) }}" target="_blank">Lihat PDF</a>
+                    {% endif %}
+                </div>
+                <hr>
+                {% else %}
+                <p class="text-muted">Belum ada laporan dikirim.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="content-box laporan-panel" id="panel_selesai" style="display:none;">
+            <div class="box-header"><h3>Laporan Disetujui / Selesai</h3></div>
+            <div class="box-body">
+                {% for row in ringkasan.selesai %}
+                <div class="laporan-item">
+                    <strong>{{ row.nama_proyek }}</strong>
+                    <br><small class="text-muted">{{ row.tanggal_kirim }}</small>
+                    {% if row.file_laporan %}
+                    <br><a href="{{ url_for('static', filename=row.file_laporan) }}" target="_blank">Lihat PDF</a>
+                    {% endif %}
+                </div>
+                <hr>
+                {% else %}
+                <p class="text-muted">Belum ada laporan yang selesai.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="content-box laporan-panel" id="panel_revisi" style="display:none;">
+            <div class="box-header"><h3>Laporan Butuh Revisi</h3></div>
+            <div class="box-body">
+                {% for row in ringkasan.revisi %}
+                <div class="laporan-item">
+                    <strong>{{ row.nama_proyek }}</strong>
+                    <br><small class="text-muted">{{ row.tanggal_kirim }}</small>
+                    {% if row.file_laporan %}
+                    <br><a href="{{ url_for('static', filename=row.file_laporan) }}" target="_blank">Lihat PDF</a>
+                    {% endif %}
+                </div>
+                <hr>
+                {% else %}
+                <p class="text-muted">Tidak ada laporan yang butuh revisi.</p>
+                {% endfor %}
             </div>
         </div>
     </div>
 
 </div>
+
+<script>
+function toggleProgresManual() {
+    const status = document.getElementById('status_tugas').value;
+    const wrapper = document.getElementById('wrapper_progres_manual');
+    wrapper.style.display = (status === 'Sedang Dikerjakan') ? 'block' : 'none';
+}
+
+function togglePanel(id) {
+    const panel = document.getElementById(id);
+    const isVisible = panel.style.display === 'block';
+    document.querySelectorAll('.laporan-panel').forEach(p => p.style.display = 'none');
+    panel.style.display = isVisible ? 'none' : 'block';
+}
+
+document.addEventListener('DOMContentLoaded', toggleProgresManual);
+</script>
 {% endblock %}

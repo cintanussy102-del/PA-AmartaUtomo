@@ -1,13 +1,19 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from dotenv import load_dotenv
 from functools import wraps
 from controllers.direktur_controller import direktur_bp
-from models.karyawan_model import get_data_karyawan_by_name, get_profil_gaji
+from models.karyawan_model import (
+    get_data_karyawan_by_name, get_profil_gaji,
+    get_semua_karyawan, get_karyawan_by_id,
+    tambah_karyawan, update_karyawan, hapus_karyawan
+)
 from models.absensi_model import (
     get_riwayat_absensi, get_status_hari_ini,
     catat_absen_masuk, catat_absen_keluar, ajukan_izin,
-    hitung_potongan_gaji
+    hitung_potongan_gaji, get_rekap_absensi_hari_ini,
+    hitung_durasi_kerja, get_rekap_bulanan,
+    get_absensi_hari_ini_semua, reset_absensi_hari_ini
 )
 from models.progres_model import ajukan_laporan, get_ringkasan_laporan
 from datetime import datetime
@@ -100,17 +106,91 @@ def logout():
 @app.route('/admin/dashboard')
 @login_required(role='admin')
 def admin_dashboard():
-    return render_template('admin/dashboard.html')
+    rekap_hari_ini = get_rekap_absensi_hari_ini()
+    return render_template('admin/dashboard.html', rekap_hari_ini=rekap_hari_ini)
 
 @app.route('/admin/data-karyawan')
 @login_required(role='admin')
 def admin_data_karyawan():
-    return render_template('admin/data_karyawan.html')
+    daftar_karyawan = get_semua_karyawan()
+    total = len(daftar_karyawan)
+    aktif = len([k for k in daftar_karyawan if k['status'] == 'Aktif'])
+    izin_cuti = len([k for k in daftar_karyawan if k['status'] != 'Aktif'])
+    return render_template('admin/data_karyawan.html', daftar_karyawan=daftar_karyawan, total=total, aktif=aktif, izin_cuti=izin_cuti)
+
+@app.route('/admin/data-karyawan/tambah', methods=['POST'])
+@login_required(role='admin')
+def admin_tambah_karyawan():
+    tambah_karyawan(
+        username=request.form.get('username'),
+        nama_lengkap=request.form.get('nama_lengkap'),
+        id_karyawan=request.form.get('id_karyawan'),
+        divisi=request.form.get('divisi'),
+        jabatan=request.form.get('jabatan'),
+        gaji_pokok=request.form.get('gaji_pokok'),
+        tunjangan=request.form.get('tunjangan'),
+        kontak=request.form.get('kontak'),
+        tanggal_bergabung=request.form.get('tanggal_bergabung'),
+        status=request.form.get('status', 'Aktif'),
+        email=request.form.get('email')
+    )
+    flash('Karyawan baru berhasil ditambahkan!', 'success')
+    return redirect(url_for('admin_data_karyawan'))
+
+
+@app.route('/admin/data-karyawan/edit/<int:id>', methods=['GET', 'POST'])
+@login_required(role='admin')
+def admin_edit_karyawan(id):
+    if request.method == 'POST':
+        update_karyawan(
+            id=id,
+            username=request.form.get('username'),
+            nama_lengkap=request.form.get('nama_lengkap'),
+            id_karyawan=request.form.get('id_karyawan'),
+            divisi=request.form.get('divisi'),
+            jabatan=request.form.get('jabatan'),
+            gaji_pokok=request.form.get('gaji_pokok'),
+            tunjangan=request.form.get('tunjangan'),
+            kontak=request.form.get('kontak'),
+            tanggal_bergabung=request.form.get('tanggal_bergabung'),
+            status=request.form.get('status'),
+            email=request.form.get('email')
+        )
+        flash('Data karyawan berhasil diperbarui!', 'success')
+        return redirect(url_for('admin_data_karyawan'))
+
+    karyawan = get_karyawan_by_id(id)
+    if not karyawan:
+        flash('Data karyawan tidak ditemukan!', 'danger')
+        return redirect(url_for('admin_data_karyawan'))
+    return render_template('admin/edit_karyawan.html', karyawan=karyawan)
+
+
+@app.route('/admin/data-karyawan/hapus/<int:id>', methods=['POST'])
+@login_required(role='admin')
+def admin_hapus_karyawan(id):
+    hapus_karyawan(id)
+    flash('Data karyawan berhasil dihapus!', 'success')
+    return redirect(url_for('admin_data_karyawan'))
 
 @app.route('/admin/absensi')
 @login_required(role='admin')
 def admin_absensi():
-    return render_template('admin/kelola_absensi.html')
+    nama_user = session['user']['username']
+    riwayat = get_riwayat_absensi(nama_user)
+    status_hari_ini = get_status_hari_ini(nama_user)
+    durasi_kerja = hitung_durasi_kerja(
+        status_hari_ini['masuk'] if status_hari_ini else None,
+        status_hari_ini['keluar'] if status_hari_ini else None
+    )
+    rekap = get_rekap_bulanan(nama_user)
+    return render_template(
+        'admin/kelola_absensi.html',
+        riwayat=riwayat,
+        status_hari_ini=status_hari_ini,
+        durasi_kerja=durasi_kerja,
+        rekap=rekap
+    )
 
 @app.route('/admin/divisi')
 @login_required(role='admin')
@@ -146,7 +226,18 @@ def karyawan_absensi():
     nama_user = session['user']['username']
     riwayat = get_riwayat_absensi(nama_user)
     status_hari_ini = get_status_hari_ini(nama_user)
-    return render_template('karyawan/absensi.html', riwayat=riwayat, status_hari_ini=status_hari_ini)
+    durasi_kerja = hitung_durasi_kerja(
+        status_hari_ini['masuk'] if status_hari_ini else None,
+        status_hari_ini['keluar'] if status_hari_ini else None
+    )
+    rekap = get_rekap_bulanan(nama_user)
+    return render_template(
+        'karyawan/absensi.html',
+        riwayat=riwayat,
+        status_hari_ini=status_hari_ini,
+        durasi_kerja=durasi_kerja,
+        rekap=rekap
+    )
 
 @app.route('/karyawan/absen-masuk', methods=['POST'])
 @login_required(role='karyawan')
@@ -258,7 +349,33 @@ def direktur_monitoring():
 @app.route('/direktur/absensi')
 @login_required(role='direktur')
 def direktur_absensi():
-    return render_template('direktur/absensi.html')
+    data_absensi = get_absensi_hari_ini_semua()
+    total_karyawan = len(data_absensi)
+    hadir = len([d for d in data_absensi if d['status'] == 'Hadir'])
+    izin_cuti = len([d for d in data_absensi if d['status'] == 'Cuti'])
+    sakit = len([d for d in data_absensi if d['status'] == 'Sakit'])
+    alpha = len([d for d in data_absensi if d['status'] == 'Alpha'])
+    return render_template(
+        'direktur/absensi.html',
+        data_absensi=data_absensi,
+        total_karyawan=total_karyawan,
+        hadir=hadir,
+        izin_cuti=izin_cuti,
+        sakit=sakit,
+        alpha=alpha
+    )
+
+@app.route('/direktur/reset-absensi', methods=['POST'])
+@login_required(role='direktur')
+def direktur_reset_absensi():
+    nama = request.form.get('nama')
+    if nama == 'semua':
+        reset_absensi_hari_ini()
+        flash('Absensi hari ini untuk SEMUA orang berhasil direset!', 'success')
+    else:
+        reset_absensi_hari_ini(nama)
+        flash(f'Absensi hari ini untuk {nama} berhasil direset!', 'success')
+    return redirect(url_for('direktur_absensi'))
 
 @app.route('/direktur/penggajian')
 @login_required(role='direktur')
@@ -274,6 +391,29 @@ def direktur_validasi_gaji():
 @login_required(role='direktur')
 def direktur_laporan():
     return render_template('direktur/laporan.html')
+
+@app.route('/proses-absen-masuk', methods=['POST'])
+def proses_absen_masuk():
+    if 'user' not in session:
+        return jsonify({"error": "unauthorized"}), 401
+    data = request.json or {}
+    nama = session['user']['username']
+    hasil = catat_absen_masuk(nama, data.get('lat'), data.get('lon'), data.get('alamat'))
+    return jsonify(hasil)
+
+
+@app.route('/proses-absen-keluar', methods=['POST'])
+def proses_absen_keluar():
+    if 'user' not in session:
+        return jsonify({"error": "unauthorized"}), 401
+    nama = session['user']['username']
+    catat_absen_keluar(nama)
+    status = get_status_hari_ini(nama)
+    durasi = hitung_durasi_kerja(status['masuk'], status['keluar']) if status else '-'
+    return jsonify({
+        "jam_keluar": status['keluar'] if status else '-',
+        "durasi_kerja": durasi
+    })
 
 if __name__ == '__main__':
     app.run(debug=debug_mode, port=server_port)

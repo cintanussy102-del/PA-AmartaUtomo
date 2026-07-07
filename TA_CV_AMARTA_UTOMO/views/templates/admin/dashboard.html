@@ -41,6 +41,40 @@
     </div>
 </div>
 
+<div class="metrics-grid-four margin-top-20">
+    <div class="metric-card card-blue">
+        <div class="card-icon"><i class="fas fa-user-check"></i></div>
+        <div class="card-info">
+            <h3 class="card-value">{{ rekap_hari_ini.hadir }} / {{ rekap_hari_ini.total_karyawan }}</h3>
+            <span class="card-label">Hadir Hari Ini</span>
+        </div>
+    </div>
+
+    <div class="metric-card card-purple">
+        <div class="card-icon"><i class="fas fa-user-clock"></i></div>
+        <div class="card-info">
+            <h3 class="card-value">{{ rekap_hari_ini.izin_cuti }} HARI</h3>
+            <span class="card-label">Izin / Cuti Hari Ini</span>
+        </div>
+    </div>
+
+    <div class="metric-card card-orange">
+        <div class="card-icon"><i class="fas fa-briefcase-medical"></i></div>
+        <div class="card-info">
+            <h3 class="card-value">{{ rekap_hari_ini.sakit }} HARI</h3>
+            <span class="card-label">Sakit Hari Ini</span>
+        </div>
+    </div>
+
+    <div class="metric-card card-red">
+        <div class="card-icon"><i class="fas fa-user-times"></i></div>
+        <div class="card-info">
+            <h3 class="card-value">{{ rekap_hari_ini.alpha }} HARI</h3>
+            <span class="card-label">Alpha / Tanpa Keterangan</span>
+        </div>
+    </div>
+</div>
+
 <div class="dashboard-grid-two">
     
     <div class="content-box">
@@ -53,28 +87,28 @@
                     <span>Proyek A - Konstruksi Hotel</span>
                     <span>90%</span>
                 </div>
-                <div class="progress-bar-bg"><div class="progress-fill" style="width: 90%;"></div></div>
+                <div class="progress-bar-bg"><div class="progress-fill" data-value="90"></div></div>
             </div>
             <div class="progress-item">
                 <div class="progress-info">
                     <span>Proyek B - Renovasi Ruko</span>
                     <span>60%</span>
                 </div>
-                <div class="progress-bar-bg"><div class="progress-fill" style="width: 60%;"></div></div>
+                <div class="progress-bar-bg"><div class="progress-fill" data-value="60"></div></div>
             </div>
             <div class="progress-item">
                 <div class="progress-info">
                     <span>Proyek C - Desain Rumah</span>
                     <span>45%</span>
                 </div>
-                <div class="progress-bar-bg"><div class="progress-fill" style="width: 45%;"></div></div>
+                <div class="progress-bar-bg"><div class="progress-fill" data-value="45"></div></div>
             </div>
             <div class="progress-item">
                 <div class="progress-info">
                     <span>Proyek D - Pemasaran Unit</span>
                     <span>30%</span>
                 </div>
-                <div class="progress-bar-bg"><div class="progress-fill" style="width: 30%;"></div></div>
+                <div class="progress-bar-bg"><div class="progress-fill" data-value="30"></div></div>
             </div>
         </div>
     </div>
@@ -133,4 +167,32 @@
         </table>
     </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const bars = document.querySelectorAll('.progress-fill');
+
+    bars.forEach(bar => {
+        if (bar.hasAttribute('data-value')) {
+            const value = parseInt(bar.getAttribute('data-value'));
+
+            bar.style.setProperty('width', value + '%', 'important');
+
+            let color = '';
+            if (value >= 1 && value <= 39) {
+                color = 'red';
+            } else if (value >= 40 && value <= 65) {
+                color = 'yellow';
+            } else if (value >= 66 && value <= 79) {
+                color = '#9ACD32';
+            } else if (value >= 80 && value <= 100) {
+                color = '#0ff007';
+            }
+
+            bar.style.setProperty('background-color', color, 'important');
+        }
+    });
+});
+</script>
+
 {% endblock %}

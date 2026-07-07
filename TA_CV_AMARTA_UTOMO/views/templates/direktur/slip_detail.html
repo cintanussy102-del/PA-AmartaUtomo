@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Detail Slip Gaji{% endblock %}
+{% block page_title %}Detail Slip Gaji{% endblock %}
+
+{% block sidebar_menu %}
+<a href="{{ url_for('direktur_dashboard') }}"><i class="fas fa-chart-line"></i> Dashboard</a>
+<a href="{{ url_for('direktur_monitoring') }}"><i class="fas fa-eye"></i> Monitoring Pekerjaan</a>
+<a href="{{ url_for('direktur_validasi_gaji') }}" class="active"><i class="fas fa-check-double"></i> Validasi Gaji</a>
+{% endblock %}
+
+{% block content %}
+<div class="content-box" style="padding: 30px; max-width: 900px; margin: auto;">
+    <a href="{{ url_for('direktur_bp.direktur_penggajian') }}" style="display:inline-block; margin-bottom:15px; color:#4b89dc; text-decoration:none;">&larr; Kembali ke Data Penggajian</a>
+
+    <h2 style="margin-bottom: 20px; color: #1a202c;">Preview Slip Gaji</h2>
+
+    <div style="border-bottom: 1px solid #e2e8f0; margin-bottom: 20px; padding-bottom: 10px; color: #4a5568;">
+        <p><strong>CV Amarta Utomo</strong><br>Jl. Osamaliki No. 57, Salatiga<br>Periode Penggajian: Bulan Ini</p>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        <h4 style="margin-bottom: 10px; color: #2d3748;">INFORMASI KARYAWAN</h4>
+        <div style="display: grid; grid-template-columns: 120px 1fr; gap: 5px; color: #4a5568;">
+            <span>Nama</span><span>: {{ k.nama_lengkap }}</span>
+            <span>ID Karyawan</span><span>: {{ k.id_karyawan }}</span>
+            <span>Jabatan</span><span>: {{ k.jabatan }}</span>
+            <span>Divisi</span><span>: {{ k.divisi }}</span>
+        </div>
+    </div>
+
+    <div style="margin-bottom: 20px; padding: 12px 15px; background:#f8fafc; border-radius:8px; color:#4a5568; font-size:0.9rem;">
+        <strong>Rekap Kehadiran Bulan Ini:</strong>
+        Hadir {{ k.rekap['Hadir'] }} hari &bull;
+        Cuti {{ k.rekap['Cuti'] }} hari &bull;
+        Sakit {{ k.rekap['Sakit'] }} hari &bull;
+        Izin Lainnya {{ k.rekap['Izin Lainnya'] }} hari &bull;
+        <span style="color:#e53e3e; font-weight:600;">Alpha {{ k.rekap['Alpha'] }} hari</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 30px;">
+        <div>
+            <h4 style="margin-bottom: 10px; color: #2d3748;">PENGHASILAN</h4>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr style="background: #edf2f7;"><th style="padding: 8px; text-align: left;">Keterangan</th><th style="padding: 8px; text-align: right;">Jumlah</th></tr>
+                <tr><td style="padding: 5px;">Gaji Pokok</td><td style="text-align: right;">Rp {{ "{:,.0f}".format(k.gaji_pokok) }}</td></tr>
+                <tr><td style="padding: 5px;">Tunjangan</td><td style="text-align: right;">Rp {{ "{:,.0f}".format(k.tunjangan) }}</td></tr>
+                <tr style="border-top: 2px solid #cbd5e0; font-weight: bold;"><td>TOTAL PENGHASILAN</td><td style="text-align: right;">Rp {{ "{:,.0f}".format(k.total_penghasilan) }}</td></tr>
+            </table>
+        </div>
+        <div>
+            <h4 style="margin-bottom: 10px; color: #2d3748;">POTONGAN</h4>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr style="background: #edf2f7;"><th style="padding: 8px; text-align: left;">Keterangan</th><th style="padding: 8px; text-align: right;">Jumlah</th></tr>
+                {% if k.jumlah_hari_potong > 0 %}
+                <tr><td style="padding: 5px;">Tanpa Keterangan / Alpha ({{ k.jumlah_hari_potong }} hari)</td><td style="text-align: right;">Rp {{ "{:,.0f}".format(k.total_potongan) }}</td></tr>
+                {% else %}
+                <tr><td style="padding: 5px; color:#a0aec0;">Tidak ada potongan</td><td style="text-align: right; color:#a0aec0;">Rp 0</td></tr>
+                {% endif %}
+                <tr style="border-top: 2px solid #cbd5e0; font-weight: bold;"><td>TOTAL POTONGAN</td><td style="text-align: right;">Rp {{ "{:,.0f}".format(k.total_potongan) }}</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <div style="background: #3b82f6; color: white; padding: 15px; border-radius: 8px; font-weight: bold; text-align: center; margin-bottom: 30px; font-size: 1.1rem;">
+        TOTAL GAJI BERSIH: Rp {{ "{:,.0f}".format(k.gaji_bersih) }}
+    </div>
+
+    {% if k.status_gaji != 'Terkirim' %}
+    <form action="{{ url_for('direktur_bp.kirim_slip', id=k.id) }}" method="POST">
+        <button type="submit" class="btn-primary-amarta full-width-btn">
+            <i class="fas fa-paper-plane"></i> Kirim Slip Gaji ke Karyawan
+        </button>
+    </form>
+    {% else %}
+    <div style="text-align:center; color:#2ecc71; font-weight:600;">
+        <i class="fas fa-check-circle"></i> Slip gaji ini sudah terkirim ke karyawan.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
