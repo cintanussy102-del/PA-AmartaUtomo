@@ -52,7 +52,20 @@
                             <span class="status-badge" style="background:#fed7d7; color:#c53030;">Alpha</span>
                         {% endif %}
                     </td>
-                    <td>{{ d.keterangan }}</td>
+                    <td>
+                        {% if d.status == 'Sakit' and d.file_bukti %}
+                            {{ d.keterangan }}
+                            <span style="color:#cbd5e0;"> | </span>
+                            <a href="#" class="lihat-bukti"
+                               data-file="{{ url_for('static', filename=d.file_bukti) }}"
+                               data-nama="{{ d.nama_lengkap }}"
+                               style="color:#3182ce; text-decoration:underline; cursor:pointer; font-size:0.85rem;">
+                                📎 Lihat bukti
+                            </a>
+                        {% else %}
+                            {{ d.keterangan }}
+                        {% endif %}
+                    </td>
                     <td>
                         <form action="{{ url_for('direktur_reset_absensi') }}" method="POST" onsubmit="return confirm('Reset absensi {{ d.nama_lengkap }} hari ini?');">
                             <input type="hidden" name="nama" value="{{ d.username }}">
@@ -67,4 +80,39 @@
         </table>
     </div>
 </div>
+
+<!-- Modal Lihat Bukti Sakit -->
+<div id="modalBukti" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:10px; padding:20px; max-width:600px; width:90%; max-height:85vh; overflow-y:auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <strong id="modalBuktiNama">Bukti Sakit</strong>
+            <button onclick="tutupModalBukti()" style="background:none; border:none; font-size:1.3rem; cursor:pointer; color:#888;">&times;</button>
+        </div>
+        <div id="modalBuktiIsi" style="text-align:center;"></div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.lihat-bukti').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+        e.preventDefault();
+        const fileUrl = this.dataset.file;
+        const nama = this.dataset.nama;
+        document.getElementById('modalBuktiNama').textContent = 'Bukti Sakit - ' + nama;
+
+        const isi = document.getElementById('modalBuktiIsi');
+        if (fileUrl.toLowerCase().endsWith('.pdf')) {
+            isi.innerHTML = '<iframe src="' + fileUrl + '" style="width:100%; height:500px; border:none;"></iframe>';
+        } else {
+            isi.innerHTML = '<img src="' + fileUrl + '" style="max-width:100%; border-radius:6px;">';
+        }
+
+        document.getElementById('modalBukti').style.display = 'flex';
+    });
+});
+
+function tutupModalBukti() {
+    document.getElementById('modalBukti').style.display = 'none';
+}
+</script>
 {% endblock %}

@@ -278,6 +278,7 @@ def get_absensi_hari_ini_semua():
                 "keluar": row['jam_keluar'] or '-',
                 "status": row['status'],
                 "keterangan": row['keterangan'] or '-',
+                "file_bukti": row['file_bukti'],
             })
         else:
             hasil.append({
@@ -289,6 +290,7 @@ def get_absensi_hari_ini_semua():
                 "keluar": '-',
                 "status": 'Alpha',
                 "keterangan": 'Tanpa keterangan',
+                "file_bukti": None,
             })
     return hasil
 
