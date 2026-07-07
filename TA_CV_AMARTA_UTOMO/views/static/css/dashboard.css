@@ -953,3 +953,29 @@ body {
     opacity: 0.4;
     cursor: not-allowed;
 }
+
+.content-box, .metric-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.content-box::after, .metric-card::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    right: -15px;
+    width: 160px;      /* diperbesar dari 90px */
+    height: 160px;      /* diperbesar dari 90px */
+    background-image: url('/static/images/floral-deco.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: bottom right;
+    opacity: 0.35;      /* dinaikkan dari 0.12, biar lebih keliatan */
+    pointer-events: none;
+    z-index: 0;
+}
+
+.content-box > *, .metric-card > * {
+    position: relative;
+    z-index: 1;
+}
