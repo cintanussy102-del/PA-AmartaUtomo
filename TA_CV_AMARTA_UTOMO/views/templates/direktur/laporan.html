@@ -1,36 +1,116 @@
-{% extends 'base.html' %} 
-{% block title %}Laporan Pekerjaan{% endblock %} 
-{% block page_title %}Laporan Pekerjaan{% endblock %} 
+{% extends 'base.html' %}
+{% block title %}Laporan Pekerjaan{% endblock %}
+{% block page_title %}Laporan Pekerjaan{% endblock %}
 
-{% block content %} 
-<!-- Tabel Laporan Utama -->
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for message in messages %}
+      <div style="background: #d4edda; color: #155724; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<div class="metrics-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+    <div class="metric-card" style="border-top-color: #f39c12;">
+        <div class="card-info"><span class="card-label">Menunggu Validasi</span><h3 class="card-value">{{ total_proses }}</h3></div>
+    </div>
+    <div class="metric-card" style="border-top-color: #2ecc71;">
+        <div class="card-info"><span class="card-label">Disetujui</span><h3 class="card-value">{{ total_selesai }}</h3></div>
+    </div>
+    <div class="metric-card" style="border-top-color: #e74c3c;">
+        <div class="card-info"><span class="card-label">Butuh Revisi</span><h3 class="card-value">{{ total_revisi }}</h3></div>
+    </div>
+</div>
+
 <div class="content-box">
     <div class="box-body no-padding">
         <table class="amarta-table">
             <thead>
-                <tr><th>NO</th><th>PENGIRIM</th><th>ROLE</th><th>DIVISI</th><th>TANGGAL</th><th>DESKRIPSI PEKERJAAN</th><th>STATUS</th><th>REVISI</th></tr>
+                <tr>
+                    <th>Pengirim</th>
+                    <th>Divisi</th>
+                    <th>Proyek</th>
+                    <th>Tanggal</th>
+                    <th>Deskripsi</th>
+                    <th>File</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
             </thead>
             <tbody>
-                <tr><td>1</td><td>Rony Parulian</td><td>Karyawan</td><td>Produksi</td><td>20 Jun 2026</td><td>Pemasangan rangka atap gudang B</td><td><span class="status-badge aktif">Selesai</span></td><td>-</td></tr>
-                <tr><td>2</td><td>Paul Aro</td><td>Karyawan</td><td>Teknik</td><td>19 Jun 2026</td><td>Instalasi panel listrik lantai 3</td><td><span class="status-badge" style="background:#fed7d7; color:#c53030;">Revisi</span></td><td>Ya</td></tr>
-                <tr><td>3</td><td>Siti Badriah</td><td>Admin</td><td>Administrasi</td><td>21 Jun 2026</td><td>Rekap data absensi bulan Juni</td><td><span class="status-badge aktif">Selesai</span></td><td>-</td></tr>
-                <tr><td>4</td><td>Fildan Rahayu</td><td>Karyawan</td><td>Teknik</td><td>18 Jun 2026</td><td>Pengelasan struktur baja tower C</td><td><span class="status-badge" style="background:#fed7d7; color:#c53030;">Revisi</span></td><td>Ya</td></tr>
-                <tr><td>5</td><td>Rara Lida</td><td>Karyawan</td><td>Produksi</td><td>22 Jun 2026</td><td>Pengecoran pondasi area parkir</td><td><span class="status-badge baris" style="background:#feebc8; color:#dd6b20;">Proses</span></td><td>-</td></tr>
+                {% for row in daftar_laporan %}
+                <tr>
+                    <td>{{ row.nama_lengkap or row.nama_karyawan }}</td>
+                    <td>{{ row.divisi or '-' }}</td>
+                    <td>{{ row.nama_proyek }}</td>
+                    <td>{{ row.tanggal_kirim }}</td>
+                    <td style="max-width:250px;">{{ row.deskripsi_tugas }}</td>
+                    <td>
+                        {% if row.file_laporan %}
+                        <a href="{{ url_for('static', filename=row.file_laporan) }}" target="_blank">Lihat</a>
+                        &bull;
+                        <a href="{{ url_for('static', filename=row.file_laporan) }}" download>Download</a>
+                        {% else %}
+                        <span style="color:#a0aec0;">Tidak ada file</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if row.status_validasi == 'Disetujui' %}
+                        <span class="status-badge aktif">Disetujui</span>
+                        {% elif row.status_validasi == 'Revisi' %}
+                        <span class="status-badge" style="background:#fed7d7; color:#c53030;">Revisi</span>
+                        {% if row.catatan_revisi %}
+                        <br><small style="color:#c53030;">Catatan: {{ row.catatan_revisi }}</small>
+                        {% endif %}
+                        {% else %}
+                        <span class="status-badge" style="background:#feebc8; color:#dd6b20;">Menunggu Validasi</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if row.status_validasi != 'Disetujui' %}
+                        <form action="{{ url_for('direktur_validasi_laporan', id=row.id) }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="aksi" value="setuju">
+                            <button type="submit" style="background:#2ecc71; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-bottom:5px;">
+                                Setujui
+                            </button>
+                        </form>
+                        <br>
+                        <button type="button" class="btn-revisi" data-id="{{ row.id }}" style="background:#e67e22; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">
+                            Minta Revisi
+                        </button>
+                        <div id="revisi-form-{{ row.id }}" style="display:none; margin-top:8px;">
+                            <form action="{{ url_for('direktur_validasi_laporan', id=row.id) }}" method="POST">
+                                <input type="hidden" name="aksi" value="revisi">
+                                <textarea name="catatan_revisi" rows="2" placeholder="Tulis bagian mana yang perlu direvisi..." style="width:100%; margin-bottom:5px;" required></textarea>
+                                <button type="submit" style="background:#c53030; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">
+                                    Kirim Revisi
+                                </button>
+                            </form>
+                        </div>
+                        {% else %}
+                        <span style="color:#a0aec0;">Selesai</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="8" style="text-align:center;">Belum ada laporan masuk.</td></tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
 
-<!-- Ringkasan Revisi Pekerjaan -->
-<div class="metrics-grid" style="grid-template-columns: repeat(3, 1fr);">
-    <div class="metric-card" style="border-top-color: #e74c3c;">
-        <div class="card-info"><span class="card-label">Total Revisi</span><h3 class="card-value">3</h3></div>
-    </div>
-    <div class="metric-card" style="border-top-color: #2ecc71;">
-        <div class="card-info"><span class="card-label">Laporan Selesai</span><h3 class="card-value">7</h3></div>
-    </div>
-    <div class="metric-card" style="border-top-color: #f39c12;">
-        <div class="card-info"><span class="card-label">Sedang Proses</span><h3 class="card-value">3</h3></div>
-    </div>
-</div>
+<script>
+document.querySelectorAll('.btn-revisi').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        const el = document.getElementById('revisi-form-' + id);
+        el.style.display = (el.style.display === 'none') ? 'block' : 'none';
+    });
+});
+</script>
 {% endblock %}

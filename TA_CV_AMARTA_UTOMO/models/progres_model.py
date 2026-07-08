@@ -2,6 +2,7 @@ from models.database import Database
 
 
 def ajukan_laporan(nama, nama_proyek, deskripsi, status, progres_manual, file_laporan):
+    """Karyawan submit laporan baru. Status validasi otomatis mulai dari 'Menunggu Peninjauan Admin'."""
     query = """
         INSERT INTO laporan_progres (nama_karyawan, nama_proyek, deskripsi_tugas, status, progres_manual, file_laporan)
         VALUES (%s, %s, %s, %s, %s, %s)
@@ -19,9 +20,14 @@ def _hitung_progres(row):
     return 0
 
 
+# ============================================================
+# UNTUK KARYAWAN — lihat laporan miliknya sendiri
+# ============================================================
+
 def get_semua_laporan(nama):
     query = """
-        SELECT id, nama_proyek, deskripsi_tugas, status, progres_manual, file_laporan, tanggal_kirim
+        SELECT id, nama_proyek, deskripsi_tugas, status, progres_manual, file_laporan, tanggal_kirim,
+               status_validasi, catatan_revisi, tanggal_validasi
         FROM laporan_progres
         WHERE nama_karyawan = %s
         ORDER BY tanggal_kirim DESC
@@ -34,11 +40,102 @@ def get_semua_laporan(nama):
 
 def get_ringkasan_laporan(nama):
     semua = get_semua_laporan(nama)
-    selesai = [r for r in semua if r['status'] == 'Selesai']
-    revisi = [r for r in semua if r['status'] == 'Butuh Revisi']
+    selesai = [r for r in semua if r['status_validasi'] == 'Disetujui']
+    revisi = [r for r in semua if r['status_validasi'] == 'Revisi']
     return {
         "total": len(semua),
         "semua": semua,
         "selesai": selesai,
         "revisi": revisi,
     }
+
+
+# ============================================================
+# UNTUK ADMIN — terima, simpan, lihat detail, teruskan ke Direktur
+# ============================================================
+
+def get_semua_laporan_admin():
+    """Semua laporan masuk (semua status), digabung data karyawan. Dipakai Admin buat rekap & kelola."""
+    query = """
+        SELECT lp.id, lp.nama_karyawan, lp.nama_proyek, lp.deskripsi_tugas, lp.status,
+               lp.progres_manual, lp.file_laporan, lp.tanggal_kirim,
+               lp.status_validasi, lp.catatan_revisi, lp.tanggal_diteruskan, lp.tanggal_validasi,
+               k.nama_lengkap, k.divisi, k.jabatan
+        FROM laporan_progres lp
+        LEFT JOIN karyawan k ON lp.nama_karyawan = k.username
+        ORDER BY lp.tanggal_kirim DESC
+    """
+    rows = Database.fetch_all(query)
+    for row in rows:
+        row['progres'] = _hitung_progres(row)
+    return rows
+
+
+def get_laporan_detail(id):
+    """Detail 1 laporan spesifik — dipakai Admin & Direktur buat halaman detail."""
+    query = """
+        SELECT lp.*, k.nama_lengkap, k.divisi, k.jabatan
+        FROM laporan_progres lp
+        LEFT JOIN karyawan k ON lp.nama_karyawan = k.username
+        WHERE lp.id = %s
+    """
+    rows = Database.fetch_all(query, (id,))
+    if not rows:
+        return None
+    row = rows[0]
+    row['progres'] = _hitung_progres(row)
+    return row
+
+
+def teruskan_ke_direktur(id):
+    """Admin meneruskan 1 laporan ke Direktur untuk divalidasi."""
+    query = """
+        UPDATE laporan_progres
+        SET status_validasi = 'Menunggu Validasi Direktur', tanggal_diteruskan = NOW()
+        WHERE id = %s
+    """
+    Database.execute_query(query, (id,))
+
+
+# ============================================================
+# UNTUK DIREKTUR — validasi laporan yang sudah diteruskan Admin
+# ============================================================
+
+def get_laporan_untuk_direktur():
+    """Direktur cuma lihat laporan yang statusnya sudah 'Menunggu Validasi Direktur' atau sudah pernah divalidasi (riwayat)."""
+    query = """
+        SELECT lp.id, lp.nama_karyawan, lp.nama_proyek, lp.deskripsi_tugas, lp.status,
+               lp.progres_manual, lp.file_laporan, lp.tanggal_kirim,
+               lp.status_validasi, lp.catatan_revisi, lp.tanggal_diteruskan, lp.tanggal_validasi,
+               k.nama_lengkap, k.divisi, k.jabatan
+        FROM laporan_progres lp
+        LEFT JOIN karyawan k ON lp.nama_karyawan = k.username
+        WHERE lp.status_validasi IN ('Menunggu Validasi Direktur', 'Disetujui', 'Revisi')
+        ORDER BY
+            CASE lp.status_validasi WHEN 'Menunggu Validasi Direktur' THEN 0 ELSE 1 END,
+            lp.tanggal_kirim DESC
+    """
+    rows = Database.fetch_all(query)
+    for row in rows:
+        row['progres'] = _hitung_progres(row)
+    return rows
+
+
+def validasi_laporan(id, status_validasi, catatan_revisi=None):
+    query = """
+        UPDATE laporan_progres
+        SET status_validasi = %s, catatan_revisi = %s, tanggal_validasi = NOW()
+        WHERE id = %s
+    """
+    Database.execute_query(query, (status_validasi, catatan_revisi, id))
+
+def kirim_ulang_laporan(id, nama_karyawan, deskripsi, status, progres_manual, file_laporan):
+    """Karyawan kirim ulang laporan yang diminta revisi. Balik ke awal alur (ditinjau Admin lagi)."""
+    query = """
+        UPDATE laporan_progres
+        SET deskripsi_tugas = %s, status = %s, progres_manual = %s, file_laporan = %s,
+            status_validasi = 'Menunggu Peninjauan Admin', catatan_revisi = NULL,
+            tanggal_diteruskan = NULL, tanggal_validasi = NULL, tanggal_kirim = NOW()
+        WHERE id = %s AND nama_karyawan = %s
+    """
+    Database.execute_query(query, (deskripsi, status, progres_manual, file_laporan, id, nama_karyawan))

@@ -4,10 +4,41 @@
 
 {% block content %} 
 <div class="content-box" style="padding: 30px; background: white; border-radius: 20px; border: 1px solid #e2e8f0; max-width: 900px; margin: auto;">
+
+    <!-- PILIH BULAN -->
+    <form method="GET" style="margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
+        <label for="pilih-bulan" style="font-weight: 600; color: #4a5568;">Lihat Slip Bulan:</label>
+        <select id="pilih-bulan" name="periode" onchange="this.form.submit()" class="form-control-input" style="max-width: 220px;">
+            <option value="{{ tahun_dipilih }}-{{ bulan_dipilih }}" selected>
+                {{ nama_bulan[bulan_dipilih] }} {{ tahun_dipilih }} (sedang dilihat)
+            </option>
+            {% for b in daftar_bulan %}
+                {% if not (b.bulan == bulan_dipilih and b.tahun == tahun_dipilih) %}
+                <option value="{{ b.tahun }}-{{ b.bulan }}">{{ nama_bulan[b.bulan] }} {{ b.tahun }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+    </form>
+    <script>
+        // pecah value "tahun-bulan" jadi 2 query param pas form disubmit
+        document.getElementById('pilih-bulan').addEventListener('change', function(e) {
+            e.preventDefault();
+            const [tahun, bulan] = this.value.split('-');
+            window.location.href = `?bulan=${bulan}&tahun=${tahun}`;
+        });
+    </script>
+
     <h2 style="margin-bottom: 20px; color: #1a202c;">Slip Gaji Karyawan</h2>
 
+    {% if not slip %}
+    <div style="text-align:center; padding: 40px; color:#a0aec0;">
+        <i class="fas fa-file-invoice" style="font-size:2rem; margin-bottom:10px; display:block;"></i>
+        Slip gaji untuk <strong>{{ nama_bulan[bulan_dipilih] }} {{ tahun_dipilih }}</strong> belum dikirim oleh Direktur.
+    </div>
+    {% else %}
+
     <div style="border-bottom: 1px solid #e2e8f0; margin-bottom: 20px; padding-bottom: 10px; color: #4a5568;">
-        <p><strong>CV Amarta Utomo</strong><br>Jl. Osamaliki No. 57, Salatiga<br>Periode Penggajian: {{ profil.jabatan and 'Bulan Ini' }}</p>
+        <p><strong>CV Amarta Utomo</strong><br>Jl. Osamaliki No. 57, Salatiga<br>Periode Penggajian: {{ nama_bulan[bulan_dipilih] }} {{ tahun_dipilih }}</p>
     </div>
 
     <div style="margin-bottom: 30px;">
@@ -21,12 +52,12 @@
     </div>
 
     <div style="margin-bottom: 20px; padding: 12px 15px; background:#f8fafc; border-radius:8px; color:#4a5568; font-size:0.9rem;">
-        <strong>Rekap Kehadiran Bulan Ini:</strong>
-        Hadir {{ hasil_potongan.rekap['Hadir'] }} hari &bull;
-        Cuti {{ hasil_potongan.rekap['Cuti'] }} hari &bull;
-        Sakit {{ hasil_potongan.rekap['Sakit'] }} hari &bull;
-        Izin Lainnya {{ hasil_potongan.rekap['Izin Lainnya'] }} hari &bull;
-        <span style="color:#e53e3e; font-weight:600;">Tanpa Keterangan (Alpha) {{ hasil_potongan.rekap['Alpha'] }} hari</span>
+        <strong>Rekap Kehadiran:</strong>
+        Hadir {{ slip.rekap['Hadir'] }} hari &bull;
+        Cuti {{ slip.rekap['Cuti'] }} hari &bull;
+        Sakit {{ slip.rekap['Sakit'] }} hari &bull;
+        Izin Lainnya {{ slip.rekap['Izin Lainnya'] }} hari &bull;
+        <span style="color:#e53e3e; font-weight:600;">Tanpa Keterangan (Alpha) {{ slip.rekap['Alpha'] }} hari</span>
     </div>
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 30px;">
@@ -34,27 +65,27 @@
             <h4 style="margin-bottom: 10px; color: #2d3748;">PENGHASILAN</h4>
             <table style="width: 100%; border-collapse: collapse;">
                 <tr style="background: #edf2f7;"><th style="padding: 8px; text-align: left;">Keterangan</th><th style="padding: 8px; text-align: right;">Jumlah</th></tr>
-                <tr><td style="padding: 5px;">Gaji Pokok</td><td style="text-align: right;">{{ profil.gaji_pokok | rupiah }}</td></tr>
-                <tr><td style="padding: 5px;">Tunjangan</td><td style="text-align: right;">{{ profil.tunjangan | rupiah }}</td></tr>
-                <tr style="border-top: 2px solid #cbd5e0; font-weight: bold;"><td>TOTAL PENGHASILAN</td><td style="text-align: right;">{{ total_penghasilan | rupiah }}</td></tr>
+                <tr><td style="padding: 5px;">Gaji Pokok</td><td style="text-align: right;">{{ slip.gaji_pokok | rupiah }}</td></tr>
+                <tr><td style="padding: 5px;">Tunjangan</td><td style="text-align: right;">{{ slip.tunjangan | rupiah }}</td></tr>
+                <tr style="border-top: 2px solid #cbd5e0; font-weight: bold;"><td>TOTAL PENGHASILAN</td><td style="text-align: right;">{{ slip.total_penghasilan | rupiah }}</td></tr>
             </table>
         </div>
         <div>
             <h4 style="margin-bottom: 10px; color: #2d3748;">POTONGAN</h4>
             <table style="width: 100%; border-collapse: collapse;">
                 <tr style="background: #edf2f7;"><th style="padding: 8px; text-align: left;">Keterangan</th><th style="padding: 8px; text-align: right;">Jumlah</th></tr>
-                {% if hasil_potongan.jumlah_hari_potong > 0 %}
-                <tr><td style="padding: 5px;">Tanpa Keterangan / Alpha ({{ hasil_potongan.jumlah_hari_potong }} hari)</td><td style="text-align: right;">{{ total_potongan | rupiah }}</td></tr>
+                {% if slip.jumlah_hari_potong > 0 %}
+                <tr><td style="padding: 5px;">Tanpa Keterangan / Alpha ({{ slip.jumlah_hari_potong }} hari)</td><td style="text-align: right;">{{ slip.total_potongan | rupiah }}</td></tr>
                 {% else %}
                 <tr><td style="padding: 5px; color:#a0aec0;">Tidak ada potongan</td><td style="text-align: right; color:#a0aec0;">Rp 0</td></tr>
                 {% endif %}
-                <tr style="border-top: 2px solid #cbd5e0; font-weight: bold;"><td>TOTAL POTONGAN</td><td style="text-align: right;">{{ total_potongan | rupiah }}</td></tr>
+                <tr style="border-top: 2px solid #cbd5e0; font-weight: bold;"><td>TOTAL POTONGAN</td><td style="text-align: right;">{{ slip.total_potongan | rupiah }}</td></tr>
             </table>
         </div>
     </div>
 
     <div style="background: #3b82f6; color: white; padding: 15px; border-radius: 8px; font-weight: bold; text-align: center; margin-bottom: 40px; font-size: 1.1rem;">
-        TOTAL GAJI BERSIH: {{ gaji_bersih | rupiah }}
+        TOTAL GAJI BERSIH: {{ slip.gaji_bersih | rupiah }}
     </div>
 
     <div style="text-align: right; margin-top: 40px;">
@@ -62,5 +93,7 @@
         <br><br><br>
         <p>( ........................... )</p>
     </div>
+
+    {% endif %}
 </div>
 {% endblock %}

@@ -3,6 +3,8 @@ from flask import Blueprint, flash, redirect, url_for, render_template, session
 from models.karyawan_model import get_semua_karyawan, get_karyawan_by_id, update_status_gaji
 from models.absensi_model import hitung_potongan_gaji
 from functools import wraps
+from models.gaji_model import simpan_slip_gaji, is_slip_terkirim, NAMA_BULAN
+import datetime
 
 direktur_bp = Blueprint('direktur_bp', __name__)
 resend.api_key = "re_Q7MAFYLd_7TS5p25pWLK7VQgBcBhAdCVX"
@@ -29,6 +31,9 @@ def _hitung_rincian_gaji(karyawan):
     total_potongan = hasil_potongan['total_potongan']
     gaji_bersih = total_penghasilan - total_potongan
 
+    today = datetime.date.today()
+    sudah_terkirim = is_slip_terkirim(karyawan['id'], today.month, today.year)
+
     return {
         **karyawan,
         "gaji_pokok": gaji_pokok,
@@ -38,6 +43,7 @@ def _hitung_rincian_gaji(karyawan):
         "jumlah_hari_potong": hasil_potongan['jumlah_hari_potong'],
         "total_potongan": total_potongan,
         "gaji_bersih": gaji_bersih,
+        "status_gaji": "Terkirim" if sudah_terkirim else "Belum",
     }
 
 
@@ -83,6 +89,10 @@ def kirim_slip(id):
         return redirect(url_for('direktur_bp.direktur_penggajian'))
 
     rincian = _hitung_rincian_gaji(karyawan)
+    today = datetime.date.today()
+
+    # Simpan snapshot slip gaji bulan ini — INI KUNCI SINKRONNYA
+    simpan_slip_gaji(karyawan['id'], today.month, today.year, rincian)
 
     try:
         params = {
@@ -91,7 +101,7 @@ def kirim_slip(id):
             "subject": "Slip Gaji Bulanan - CV Amarta Utomo",
             "html": f"""
                 <p>Halo {karyawan['nama_lengkap']},</p>
-                <p>Berikut rincian gaji Anda bulan ini:</p>
+                <p>Berikut rincian gaji Anda bulan {NAMA_BULAN[today.month]} {today.year}:</p>
                 <ul>
                     <li>Gaji Pokok: Rp {rincian['gaji_pokok']:,.0f}</li>
                     <li>Tunjangan: Rp {rincian['tunjangan']:,.0f}</li>
@@ -101,7 +111,6 @@ def kirim_slip(id):
             """
         }
         resend.Emails.send(params)
-        update_status_gaji(id, "Terkirim")
         flash(f'Slip gaji berhasil dikirim ke {karyawan["nama_lengkap"]}!', 'success')
     except Exception as e:
         flash(f'Gagal mengirim email: {str(e)}', 'danger')

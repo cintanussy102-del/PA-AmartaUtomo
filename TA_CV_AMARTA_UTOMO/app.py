@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from dotenv import load_dotenv
 from functools import wraps
 from controllers.direktur_controller import direktur_bp
+from models.gaji_model import get_slip_gaji, get_semua_bulan_tersedia, NAMA_BULAN
 from models.karyawan_model import (
     get_data_karyawan_by_name, get_profil_gaji,
     get_semua_karyawan, get_karyawan_by_id,
@@ -17,7 +18,11 @@ from models.absensi_model import (
     get_absensi_tanggal, get_daftar_tanggal_bulan, reset_absensi_hari_ini
 )
 
-from models.progres_model import ajukan_laporan, get_ringkasan_laporan
+from models.progres_model import (
+       ajukan_laporan, get_ringkasan_laporan, kirim_ulang_laporan,
+       get_semua_laporan_admin, get_laporan_detail, teruskan_ke_direktur,
+       get_laporan_untuk_direktur, validasi_laporan
+   )
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
@@ -263,12 +268,54 @@ def admin_divisi():
 @app.route('/admin/rekap-laporan')
 @login_required(role='admin')
 def admin_rekap_laporan():
-    return render_template('admin/rekap_laporan.html')
+    daftar_laporan = get_semua_laporan_admin()
+    total = len(daftar_laporan)
+    menunggu_admin = len([l for l in daftar_laporan if l['status_validasi'] == 'Menunggu Peninjauan Admin'])
+    menunggu_direktur = len([l for l in daftar_laporan if l['status_validasi'] == 'Menunggu Validasi Direktur'])
+    disetujui = len([l for l in daftar_laporan if l['status_validasi'] == 'Disetujui'])
+    revisi = len([l for l in daftar_laporan if l['status_validasi'] == 'Revisi'])
+    return render_template(
+        'admin/rekap_laporan.html',
+        daftar_laporan=daftar_laporan,
+        total=total,
+        menunggu_admin=menunggu_admin,
+        menunggu_direktur=menunggu_direktur,
+        disetujui=disetujui,
+        revisi=revisi
+    )
+
+
+@app.route('/admin/teruskan-laporan/<int:id>', methods=['POST'])
+@login_required(role='admin')
+def admin_teruskan_laporan(id):
+    teruskan_ke_direktur(id)
+    flash('Laporan berhasil diteruskan ke Direktur untuk divalidasi.', 'success')
+    return redirect(url_for('admin_rekap_laporan'))
 
 @app.route('/admin/slip-gaji')
 @login_required(role='admin')
 def admin_slip_gaji():
-    return render_template('admin/slip_gaji.html')
+    admin_data = get_karyawan_by_username('admin')  # sesuaikan kalau username-nya beda
+    if not admin_data:
+        flash('Data admin tidak ditemukan di database!', 'danger')
+        return redirect(url_for('admin_dashboard'))
+
+    today = datetime.now()
+    bulan_dipilih = int(request.args.get('bulan', today.month))
+    tahun_dipilih = int(request.args.get('tahun', today.year))
+
+    slip = get_slip_gaji(admin_data['id'], bulan_dipilih, tahun_dipilih)
+    daftar_bulan = get_semua_bulan_tersedia(admin_data['id'])
+
+    return render_template(
+        'admin/slip_gaji.html',
+        profil=admin_data,
+        slip=slip,
+        bulan_dipilih=bulan_dipilih,
+        tahun_dipilih=tahun_dipilih,
+        daftar_bulan=daftar_bulan,
+        nama_bulan=NAMA_BULAN
+    )
 
 # ============================================================
 # RUTE KARYAWAN
@@ -377,24 +424,55 @@ def karyawan_kirim_laporan():
     flash('Laporan kerja berhasil dikirim!', 'success')
     return redirect(url_for('karyawan_input_progres'))
 
+@app.route('/karyawan/kirim-ulang-laporan/<int:id>', methods=['POST'])
+@login_required(role='karyawan')
+def karyawan_kirim_ulang_laporan(id):
+    nama_user = session['user']['username']
+    deskripsi = request.form.get('tugas_pekerjaan')
+    status = request.form.get('status_tugas')
+    progres_manual = request.form.get('progres_manual')
+    progres_manual = int(progres_manual) if progres_manual else None
+
+    file_laporan = request.files.get('file_laporan')
+    if not file_laporan or file_laporan.filename == '':
+        flash('File laporan revisi wajib diunggah!', 'danger')
+        return redirect(url_for('karyawan_input_progres'))
+    if not file_laporan.filename.lower().endswith('.pdf'):
+        flash('File laporan harus berformat PDF.', 'danger')
+        return redirect(url_for('karyawan_input_progres'))
+
+    filename = secure_filename(f"{nama_user}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{file_laporan.filename}")
+    file_laporan.save(os.path.join(app.config['UPLOAD_FOLDER_LAPORAN'], filename))
+    file_path = f"uploads/laporan_kerja/{filename}"
+
+    kirim_ulang_laporan(id, nama_user, deskripsi, status, progres_manual, file_path)
+    flash('Laporan revisi berhasil dikirim ulang untuk ditinjau!', 'success')
+    return redirect(url_for('karyawan_input_progres'))
+
 @app.route('/karyawan/slip-gaji')
 @login_required(role='karyawan')
 def karyawan_slip_gaji():
     nama_user = session['user']['username']
-    profil = get_profil_gaji(nama_user)
-    hasil_potongan = hitung_potongan_gaji(nama_user, profil['gaji_pokok'])
+    karyawan = get_karyawan_by_username(nama_user)
+    if not karyawan:
+        flash('Data karyawan tidak ditemukan!', 'danger')
+        return redirect(url_for('karyawan_dashboard'))
 
-    total_penghasilan = profil['gaji_pokok'] + profil['tunjangan']
-    total_potongan = hasil_potongan['total_potongan']
-    gaji_bersih = total_penghasilan - total_potongan
+    today = datetime.now()
+    bulan_dipilih = int(request.args.get('bulan', today.month))
+    tahun_dipilih = int(request.args.get('tahun', today.year))
+
+    slip = get_slip_gaji(karyawan['id'], bulan_dipilih, tahun_dipilih)
+    daftar_bulan = get_semua_bulan_tersedia(karyawan['id'])
 
     return render_template(
         'karyawan/slip_gaji.html',
-        profil=profil,
-        hasil_potongan=hasil_potongan,
-        total_penghasilan=total_penghasilan,
-        total_potongan=total_potongan,
-        gaji_bersih=gaji_bersih
+        profil=karyawan,
+        slip=slip,
+        bulan_dipilih=bulan_dipilih,
+        tahun_dipilih=tahun_dipilih,
+        daftar_bulan=daftar_bulan,
+        nama_bulan=NAMA_BULAN
     )
 
 # ============================================================
@@ -487,7 +565,36 @@ def direktur_validasi_gaji():
 @app.route('/direktur/laporan')
 @login_required(role='direktur')
 def direktur_laporan():
-    return render_template('direktur/laporan.html')
+    daftar_laporan = get_laporan_untuk_direktur()
+    total_revisi = len([l for l in daftar_laporan if l['status_validasi'] == 'Revisi'])
+    total_selesai = len([l for l in daftar_laporan if l['status_validasi'] == 'Disetujui'])
+    total_proses = len([l for l in daftar_laporan if l['status_validasi'] == 'Menunggu Validasi Direktur'])
+    return render_template(
+        'direktur/laporan.html',
+        daftar_laporan=daftar_laporan,
+        total_revisi=total_revisi,
+        total_selesai=total_selesai,
+        total_proses=total_proses
+    )
+
+
+@app.route('/direktur/validasi-laporan/<int:id>', methods=['POST'])
+@login_required(role='direktur')
+def direktur_validasi_laporan(id):
+    aksi = request.form.get('aksi')
+    catatan = (request.form.get('catatan_revisi') or '').strip()
+
+    if aksi == 'setuju':
+        validasi_laporan(id, 'Disetujui', None)
+        flash('Laporan berhasil disetujui!', 'success')
+    elif aksi == 'revisi':
+        if not catatan:
+            flash('Catatan revisi wajib diisi supaya karyawan tahu apa yang perlu diperbaiki!', 'danger')
+            return redirect(url_for('direktur_laporan'))
+        validasi_laporan(id, 'Revisi', catatan)
+        flash('Laporan dikembalikan untuk direvisi.', 'success')
+
+    return redirect(url_for('direktur_laporan'))
 
 # ============================================================
 # RUTE API ABSENSI (JSON)

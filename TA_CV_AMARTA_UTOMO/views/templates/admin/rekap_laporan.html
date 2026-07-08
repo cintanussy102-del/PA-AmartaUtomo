@@ -1,55 +1,95 @@
-{% extends 'base.html' %} 
-{% block title %}Rekap Laporan Progres{% endblock %} 
-{% block page_title %}Rekap Laporan Progres{% endblock %} 
+{% extends 'base.html' %}
+{% block title %}Rekap Laporan Pekerjaan{% endblock %}
+{% block page_title %}Rekap Laporan Pekerjaan{% endblock %}
 
-{% block content %} 
-<!-- Panel Utama Tabel Rekap -->
-<div class="content-box">
-    <div class="box-header" style="display: flex; justify-content: space-between; align-items: center;">
-        <h3>Daftar Laporan Masuk</h3>
-        <button class="btn-primary-amarta"><i class="fas fa-file-download"></i> Unduh Rekap</button>
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for message in messages %}
+      <div style="background: #d4edda; color: #155724; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<div class="metrics-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 20px;">
+    <div class="metric-card" style="border-top-color: #4b89dc;">
+        <div class="card-info"><span class="card-label">Total Laporan</span><h3 class="card-value">{{ total }}</h3></div>
     </div>
+    <div class="metric-card" style="border-top-color: #f39c12;">
+        <div class="card-info"><span class="card-label">Perlu Ditinjau Admin</span><h3 class="card-value">{{ menunggu_admin }}</h3></div>
+    </div>
+    <div class="metric-card" style="border-top-color: #9b59b6;">
+        <div class="card-info"><span class="card-label">Menunggu Direktur</span><h3 class="card-value">{{ menunggu_direktur }}</h3></div>
+    </div>
+    <div class="metric-card" style="border-top-color: #2ecc71;">
+        <div class="card-info"><span class="card-label">Sudah Divalidasi</span><h3 class="card-value">{{ disetujui }} disetujui / {{ revisi }} revisi</h3></div>
+    </div>
+</div>
+
+<div class="content-box">
     <div class="box-body no-padding">
         <table class="amarta-table">
             <thead>
                 <tr>
-                    <th>NO</th>
-                    <th>TANGGAL</th>
-                    <th>KARYAWAN</th>
-                    <th>PROYEK</th>
-                    <th>PROGRES</th>
-                    <th>STATUS</th>
-                    <th>AKSI</th>
+                    <th>Pengirim</th>
+                    <th>Divisi</th>
+                    <th>Proyek</th>
+                    <th>Tanggal Kirim</th>
+                    <th>Deskripsi</th>
+                    <th>File</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
+                {% for row in daftar_laporan %}
                 <tr>
-                    <td>1</td>
-                    <td>24 Jun 2026</td>
-                    <td><strong>Rony Parulian</strong></td>
-                    <td>Pembangunan Gudang B</td>
-                    <td>85%</td>
-                    <td><span class="status-badge aktif">Disetujui</span></td>
-                    <td><button class="btn-table-action btn-view">Detail</button></td>
+                    <td>{{ row.nama_lengkap or row.nama_karyawan }}</td>
+                    <td>{{ row.divisi or '-' }}</td>
+                    <td>{{ row.nama_proyek }}</td>
+                    <td>{{ row.tanggal_kirim }}</td>
+                    <td style="max-width:220px;">{{ row.deskripsi_tugas }}</td>
+                    <td>
+                        {% if row.file_laporan %}
+                        <a href="{{ url_for('static', filename=row.file_laporan) }}" target="_blank">Lihat</a>
+                        &bull;
+                        <a href="{{ url_for('static', filename=row.file_laporan) }}" download>Download</a>
+                        {% else %}
+                        <span style="color:#a0aec0;">Tidak ada file</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if row.status_validasi == 'Menunggu Peninjauan Admin' %}
+                        <span class="status-badge" style="background:#feebc8; color:#dd6b20;">Perlu Ditinjau</span>
+                        {% elif row.status_validasi == 'Menunggu Validasi Direktur' %}
+                        <span class="status-badge" style="background:#e9d8fd; color:#6b46c1;">Menunggu Direktur</span>
+                        {% elif row.status_validasi == 'Disetujui' %}
+                        <span class="status-badge aktif">Disetujui</span>
+                        {% elif row.status_validasi == 'Revisi' %}
+                        <span class="status-badge" style="background:#fed7d7; color:#c53030;">Revisi</span>
+                        {% if row.catatan_revisi %}
+                        <br><small style="color:#c53030;">Catatan: {{ row.catatan_revisi }}</small>
+                        {% endif %}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if row.status_validasi == 'Menunggu Peninjauan Admin' %}
+                        <form action="{{ url_for('admin_teruskan_laporan', id=row.id) }}" method="POST">
+                            <button type="submit" style="background:#4b89dc; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">
+                                Teruskan ke Direktur
+                            </button>
+                        </form>
+                        {% else %}
+                        <span style="color:#a0aec0;">-</span>
+                        {% endif %}
+                    </td>
                 </tr>
-                <tr>
-                    <td>2</td>
-                    <td>24 Jun 2026</td>
-                    <td><strong>Siti Aminah</strong></td>
-                    <td>Renovasi Kantor</td>
-                    <td>60%</td>
-                    <td><span class="status-badge baris">Pending</span></td>
-                    <td><button class="btn-table-action btn-process">Validasi</button></td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>23 Jun 2026</td>
-                    <td><strong>Andi Wijaya</strong></td>
-                    <td>Jembatan Musi</td>
-                    <td>45%</td>
-                    <td><span class="status-badge aktif">Disetujui</span></td>
-                    <td><button class="btn-table-action btn-view">Detail</button></td>
-                </tr>
+                {% else %}
+                <tr><td colspan="8" style="text-align:center;">Belum ada laporan masuk.</td></tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>

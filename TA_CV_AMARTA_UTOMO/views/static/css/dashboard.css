@@ -1,3 +1,6 @@
+/* ============================================================
+   [SHARED] RESET & GLOBAL
+   ============================================================ */
 * {
     margin: 0;
     padding: 0;
@@ -10,6 +13,10 @@ body {
     color: #482d2d;
 }
 
+/* ============================================================
+   [SHARED] KARTU METRIK KECIL (Total Karyawan, Proyek Aktif, dll)
+   Dipakai di: Dashboard Direktur, Admin, Karyawan
+   ============================================================ */
 .card-blue { border-top-color: #4b89dc; }
 .card-orange { border-top-color: #e67e22; }
 .card-green { border-top-color: #2ecc71; }
@@ -32,11 +39,13 @@ body {
 .card-info {
     display: flex;
     flex-direction: column;
+    text-align: center;
 }
 
 .card-label {
-    font-size: 0.8rem;
-    color: #000000;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #6b4a3d;
     display: block;
 }
 
@@ -47,7 +56,9 @@ body {
     margin-bottom: 5px;
 }
 
-
+/* ============================================================
+   [SHARED] LAYOUT GRID 2 KOLOM (mis. Progres Proyek + Divisi)
+   ============================================================ */
 .dashboard-grid-two {
     display: grid;
     grid-template-columns: 2fr 1fr; 
@@ -57,6 +68,9 @@ body {
     width: 100%;
 }
 
+/* ============================================================
+   [SHARED] PANEL / CONTENT BOX BESAR
+   ============================================================ */
 .content-box {
     background: white;
     border-radius: 16px;
@@ -85,7 +99,9 @@ body {
     padding: 0;
 }
 
-/* Progress Bar List Laporan Kerja */
+/* ============================================================
+   [SHARED] PROGRESS BAR LIST (Laporan Kerja / Progres Proyek)
+   ============================================================ */
 .progress-item {
     margin-bottom: 20px;
 }
@@ -99,7 +115,7 @@ body {
     justify-content: space-between;
     font-size: 0.9rem;
     margin-bottom: 8px;
-    color: #4a5568;
+    color: #68534a;
 }
 
 .progress-bar-bg {
@@ -110,6 +126,9 @@ body {
     overflow: hidden;
 }
 
+/* ============================================================
+   [SHARED] LIST DIVISI (Karyawan per Divisi)
+   ============================================================ */
 .divisi-list {
     list-style: none;
 }
@@ -132,6 +151,9 @@ body {
     font-weight: 600;
 }
 
+/* ============================================================
+   [SHARED] TABEL AMARTA
+   ============================================================ */
 .amarta-table {
     background: white;
     border-radius: 12px;
@@ -152,7 +174,9 @@ body {
     border-bottom: none;
 }
 
-/* Badge Status Karyawan Modern */
+/* ============================================================
+   [SHARED] BADGE STATUS
+   ============================================================ */
 .status-badge {
     padding: 5px 12px;
     border-radius: 20px;
@@ -172,11 +196,16 @@ body {
     color: #dd6b20;
 }
 
-/* Kelas Utilitas Tambahan */
+/* ============================================================
+   [SHARED] UTILITAS
+   ============================================================ */
 .margin-top-30 { 
     margin-top: 30px; 
 }
 
+/* ============================================================
+   [SHARED] SIDEBAR & LAYOUT UTAMA
+   ============================================================ */
 .dashboard-wrapper {
     display: flex;
     min-height: 100vh;
@@ -242,7 +271,7 @@ body {
 }
 
 /* ==========================================
-   STYLING HALAMAN DATA KARYAWAN MASTER
+   [ADMIN] STYLING HALAMAN DATA KARYAWAN MASTER
    ========================================== */
 
 /* Bar Kontrol Pencarian & Tambah */
@@ -348,7 +377,7 @@ body {
 }
 
 /* ==========================================
-   STYLING HALAMAN DASHBOARD KARYAWAN
+   [KARYAWAN] STYLING HALAMAN DASHBOARD KARYAWAN
    ========================================== */
 
 /* Variasi Warna Ungu Tambahan untuk Kartu Gaji */
@@ -394,7 +423,7 @@ body {
 }
 
 /* ==========================================
-   STYLING HALAMAN PANEL ABSENSI KARYAWAN
+   [KARYAWAN] STYLING HALAMAN PANEL ABSENSI KARYAWAN
    ========================================== */
 
 /* Wrapper Tombol Absen Utama */
@@ -503,7 +532,7 @@ body {
 }
 
 /* ==========================================
-   STYLING FORM INPUT LAPORAN KERJA KARYAWAN
+   [KARYAWAN] STYLING FORM INPUT LAPORAN KERJA KARYAWAN
    ========================================== */
 
 /* Kotak Data Akun Pengirim */
@@ -556,8 +585,9 @@ body {
     border: 1px solid #fbd38d;
 }
 
+
 /* ==========================================
-   STYLING HALAMAN MONITORING PROYEK DIREKTUR
+   [DIREKTUR] STYLING HALAMAN MONITORING PROYEK DIREKTUR
    ========================================== */
 
 /* Container Progress Bar yang Sejajar Teks */
@@ -608,7 +638,7 @@ body {
 }
 
 /* ==========================================
-   STYLING PANEL VALIDASI GAJI DIREKTUR
+   [DIREKTUR] STYLING PANEL VALIDASI GAJI DIREKTUR
    ========================================== */
 
 .salary-box-header {
@@ -684,6 +714,9 @@ body {
 }
 .btn-table-action.btn-process:hover { background-color: #3572b8; }
 
+/* ============================================================
+   [SHARED] NAVIGASI SIDEBAR
+   ============================================================ */
 .sidebar nav a {
     display: flex;
     align-items: center;
@@ -789,7 +822,7 @@ body {
 }
 
 /* ==========================================
-   HAMBURGER BUTTON (disembunyikan di desktop)
+   [SHARED] HAMBURGER BUTTON (disembunyikan di desktop)
    ========================================== */
 .hamburger-btn {
     display: none;
@@ -815,7 +848,7 @@ body {
 }
 
 /* ==========================================
-   RESPONSIVE - TABLET (≤ 992px)
+   [SHARED] RESPONSIVE - TABLET (≤ 992px)
    ========================================== */
 @media (max-width: 992px) {
     .metrics-grid {
@@ -830,7 +863,7 @@ body {
 }
 
 /* ==========================================
-   RESPONSIVE - MOBILE (≤ 768px)
+   [SHARED] RESPONSIVE - MOBILE (≤ 768px)
    ========================================== */
 @media (max-width: 768px) {
     .hamburger-btn {
@@ -903,7 +936,7 @@ body {
 }
 
 /* ==========================================
-   RESPONSIVE - MOBILE KECIL (≤ 480px)
+   [SHARED] RESPONSIVE - MOBILE KECIL (≤ 480px)
    ========================================== */
 @media (max-width: 480px) {
     .metrics-grid {
@@ -912,7 +945,7 @@ body {
 }
 
 /* ==========================================
-   PILL TANGGAL & PAGINATION - DIREKTUR ABSENSI
+   [ADMIN] PILL TANGGAL & PAGINATION - ABSENSI
    ========================================== */
 .tanggal-pill {
     padding: 8px 14px;
@@ -954,28 +987,53 @@ body {
     cursor: not-allowed;
 }
 
+/* ============================================================
+   [SHARED] DEKORASI BUNGA — muncul di semua .metric-card & .content-box
+   (Dashboard Direktur Utama, Dashboard Admin, Dashboard Karyawan)
+   ============================================================ */
 .content-box, .metric-card {
     position: relative;
     overflow: hidden;
 }
 
-.content-box::after, .metric-card::after {
+/* Base style bunga dekorasi — shared */
+.content-box,
+.metric-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.content-box::after,
+.metric-card::after {
     content: '';
     position: absolute;
     bottom: -15px;
     right: -15px;
-    width: 160px;      /* diperbesar dari 90px */
-    height: 160px;      /* diperbesar dari 90px */
     background-image: url('/static/images/floral-deco.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: bottom right;
-    opacity: 0.35;      /* dinaikkan dari 0.12, biar lebih keliatan */
+    opacity: 0.35;
     pointer-events: none;
     z-index: 0;
 }
 
-.content-box > *, .metric-card > * {
+/* Kartu KECIL (Total Karyawan, Tingkat Kehadiran, dll) */
+.metric-card::after {
+    width: 55%;
+    aspect-ratio: 1 / 1;
+    max-width: 130px;
+}
+
+/* Panel BESAR (Progres Proyek, Karyawan per Divisi, dll) */
+.content-box::after {
+    width: 35%;
+    aspect-ratio: 1 / 1;
+    max-width: 180px;
+}
+
+.content-box > *,
+.metric-card > * {
     position: relative;
     z-index: 1;
 }
