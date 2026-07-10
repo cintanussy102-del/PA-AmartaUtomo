@@ -100,17 +100,29 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        if username == 'Admin' and password == 'Glory':
-            session['user'] = {'username': 'admin', 'role': 'admin'}
-            return redirect(url_for('admin_dashboard'))
+        # Login Admin
+        if username == 'Admin':
+            if password == 'Glory':
+                session['user'] = {'username': 'admin', 'role': 'admin'}
+                return redirect(url_for('admin_dashboard'))
+            else:
+                flash('Password salah', 'danger')
+                return redirect(url_for('login'))
 
-        elif username == 'Direktur' and password == 'Gloria':
-            session['user'] = {'username': 'direktur', 'role': 'direktur'}
-            return redirect(url_for('direktur_dashboard'))
+        # Login Direktur
+        elif username == 'Direktur':
+            if password == 'Gloria':
+                session['user'] = {'username': 'direktur', 'role': 'direktur'}
+                return redirect(url_for('direktur_dashboard'))
+            else:
+                flash('Password salah', 'danger')
+                return redirect(url_for('login'))
 
+        # Login Karyawan
         elif username in DIVISI_LOGIN_MAP:
             divisi_asli = DIVISI_LOGIN_MAP[username]
             karyawan = get_karyawan_by_divisi_dan_username(divisi_asli, password)
+
             if karyawan:
                 session['user'] = {
                     'username': karyawan['username'],
@@ -119,11 +131,11 @@ def login():
                 }
                 return redirect(url_for('karyawan_dashboard'))
             else:
-                flash('Username atau password salah!', 'danger')
+                flash('Password salah', 'danger')
                 return redirect(url_for('login'))
 
         else:
-            flash('Username atau password salah!', 'danger')
+            flash('Username salah', 'danger')
             return redirect(url_for('login'))
 
     return render_template('login.html')

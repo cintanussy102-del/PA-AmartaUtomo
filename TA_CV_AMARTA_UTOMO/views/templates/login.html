@@ -46,9 +46,15 @@
         </div>
         
         <button type="submit" class="btn-submit">Masuk Sistem</button>
-        {% if error %}
-        <p class="login-error">{{ error }}</p>
-        {% endif %}
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <p class="login-error">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
     </form>
 </div>
 

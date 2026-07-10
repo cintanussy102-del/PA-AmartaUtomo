@@ -355,9 +355,9 @@ body {
 .btn-ajukan { width: 100%; padding: 10px; background: #3b82f6; color: white; border: none; border-radius: 5px; }
 
 .login-error {
-    color: #dc2626;
+    color: red;
     text-align: center;
-    font-size: 0.9rem;
-    font-weight: 600;
     margin-top: 15px;
+    font-weight: 600;
+    font-size: 0.9rem;
 }
