@@ -20,23 +20,23 @@
         <div class="card-icon"><i class="fas fa-users"></i></div>
         <div class="card-info">
             <span class="card-label">Total Karyawan</span>
-            <h3 class="card-value">128</h3>
+            <h3 class="card-value">{{ total_karyawan }}</h3>
         </div>
     </div>
-    
+
     <div class="metric-card card-green">
         <div class="card-icon"><i class="fas fa-building"></i></div>
         <div class="card-info">
             <span class="card-label">Divisi Aktif</span>
-            <h3 class="card-value">6</h3>
+            <h3 class="card-value">{{ jumlah_divisi_aktif }}</h3>
         </div>
     </div>
-    
+
     <div class="metric-card card-orange">
         <div class="card-icon"><i class="fas fa-tasks"></i></div>
         <div class="card-info">
             <span class="card-label">Progres Kerja Kelompok</span>
-            <h3 class="card-value">87%</h3>
+            <h3 class="card-value">{{ progres_rata }}%</h3>
         </div>
     </div>
 </div>
@@ -78,55 +78,43 @@
 <div class="dashboard-grid-two">
     
     <div class="content-box">
-        <div class="box-header">
-            <h3>LAPORAN PROGRES</h3>
-        </div>
-        <div class="box-body">
-            <div class="progress-item">
-                <div class="progress-info">
-                    <span>Proyek A - Konstruksi Hotel</span>
-                    <span>90%</span>
-                </div>
-                <div class="progress-bar-bg"><div class="progress-fill" data-value="90"></div></div>
-            </div>
-            <div class="progress-item">
-                <div class="progress-info">
-                    <span>Proyek B - Renovasi Ruko</span>
-                    <span>60%</span>
-                </div>
-                <div class="progress-bar-bg"><div class="progress-fill" data-value="60"></div></div>
-            </div>
-            <div class="progress-item">
-                <div class="progress-info">
-                    <span>Proyek C - Desain Rumah</span>
-                    <span>45%</span>
-                </div>
-                <div class="progress-bar-bg"><div class="progress-fill" data-value="45"></div></div>
-            </div>
-            <div class="progress-item">
-                <div class="progress-info">
-                    <span>Proyek D - Pemasaran Unit</span>
-                    <span>30%</span>
-                </div>
-                <div class="progress-bar-bg"><div class="progress-fill" data-value="30"></div></div>
-            </div>
-        </div>
+    <div class="box-header">
+        <h3>LAPORAN PROGRES</h3>
     </div>
+    <div class="box-body">
+        {% if laporan_per_divisi %}
+            {% for divisi, laporans in laporan_per_divisi.items() %}
+            <div class="divisi-progress-group">
+                <h4 style="margin-top: 20px; margin-bottom: 10px; color: #4a5568; font-size: 0.95rem; font-weight: 700;">
+                    {{ divisi }}
+                </h4>
+                {% for lp in laporans %}
+                <div class="progress-item">
+                    <div class="progress-info">
+                        <span>{{ lp.nama_proyek }}</span>
+                        <span>{{ lp.progres }}%</span>
+                    </div>
+                    <div class="progress-bar-bg"><div class="progress-fill" data-value="{{ lp.progres }}"></div></div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>Belum ada laporan progres masuk.</p>
+        {% endif %}
+    </div>
+</div>
 
     <div class="content-box">
-        <div class="box-header">
-            <h3>DIVISI</h3>
-        </div>
-        <div class="box-body">
-            <ul class="divisi-list">
-                <li><span>Konstruksi</span> <strong>32 orang</strong></li>
-                <li><span>Desain</span> <strong>18 orang</strong></li>
-                <li><span>Keuangan</span> <strong>12 orang</strong></li>
-                <li><span>Pemasaran</span> <strong>15 orang</strong></li>
-                <li><span>HRD</span> <strong>8 orang</strong></li>
-                <li><span>Operasional</span> <strong>43 orang</strong></li>
-            </ul>
-        </div>
+    <div class="box-header">
+        <h3>DIVISI</h3>
+    </div>
+    <div class="box-body">
+        <ul class="divisi-list">
+            {% for d in divisi_list %}
+            <li><span>{{ d.divisi }}</span> <strong>{{ d.jumlah }} orang</strong></li>
+            {% endfor %}
+        </ul>
     </div>
 </div>
 
@@ -145,24 +133,18 @@
                 </tr>
             </thead>
             <tbody>
+                {% for k in karyawan_terbaru %}
                 <tr>
-                    <td>Ahmad Fauzi</td>
-                    <td>Konstruksi</td>
-                    <td>Site Manager</td>
-                    <td><span class="status-badge aktif">Aktif</span></td>
+                    <td>{{ k.nama_lengkap }}</td>
+                    <td>{{ k.divisi }}</td>
+                    <td>{{ k.jabatan }}</td>
+                    <td>
+                        <span class="status-badge {{ 'aktif' if k.status == 'Aktif' else 'baris' }}">
+                            {{ k.status }}
+                        </span>
+                    </td>
                 </tr>
-                <tr>
-                    <td>Siti Rahayu</td>
-                    <td>Keuangan</td>
-                    <td>Akuntan</td>
-                    <td><span class="status-badge aktif">Aktif</span></td>
-                </tr>
-                <tr>
-                    <td>Budi Santoso</td>
-                    <td>Desain</td>
-                    <td>Arsitek</td>
-                    <td><span class="status-badge baris">Baru</span></td>
-                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>

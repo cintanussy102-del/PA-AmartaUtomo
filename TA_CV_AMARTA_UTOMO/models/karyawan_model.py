@@ -76,3 +76,13 @@ def get_karyawan_by_divisi_dan_username(divisi, username):
     query = "SELECT * FROM karyawan WHERE divisi = %s AND username = %s"
     rows = Database.fetch_all(query, (divisi, username))
     return rows[0] if rows else None
+
+def get_total_karyawan_aktif():
+    query = "SELECT COUNT(*) AS total FROM karyawan WHERE status = 'Aktif'"
+    rows = Database.fetch_all(query)
+    return rows[0]['total'] if rows else 0
+
+
+def get_karyawan_terbaru(limit=3):
+    query = "SELECT * FROM karyawan ORDER BY tanggal_bergabung DESC, id DESC LIMIT %s"
+    return Database.fetch_all(query, (limit,))

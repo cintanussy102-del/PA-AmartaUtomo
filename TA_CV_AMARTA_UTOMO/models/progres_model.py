@@ -139,3 +139,28 @@ def kirim_ulang_laporan(id, nama_karyawan, deskripsi, status, progres_manual, fi
         WHERE id = %s AND nama_karyawan = %s
     """
     Database.execute_query(query, (deskripsi, status, progres_manual, file_laporan, id, nama_karyawan))
+
+def get_rata_rata_progres():
+    """Rata-rata progres dari semua laporan yang masuk — dipakai buat kartu 'Progres Kerja Kelompok'."""
+    semua = get_semua_laporan_admin()
+    if not semua:
+        return 0
+    total = sum(row['progres'] for row in semua)
+    return round(total / len(semua))
+
+
+def get_laporan_progres_terbaru(limit=4):
+    """Beberapa laporan progres terbaru untuk ditampilkan di dashboard admin."""
+    semua = get_semua_laporan_admin()
+    return semua[:limit]
+
+def get_laporan_progres_per_divisi():
+    """Kelompokkan semua laporan progres berdasarkan divisi, dipakai di Dashboard Admin."""
+    semua = get_semua_laporan_admin()
+    hasil = {}
+    for row in semua:
+        divisi = row['divisi'] if row['divisi'] else 'Tanpa Divisi'
+        if divisi not in hasil:
+            hasil[divisi] = []
+        hasil[divisi].append(row)
+    return hasil

@@ -4,11 +4,13 @@ from dotenv import load_dotenv
 from functools import wraps
 from controllers.direktur_controller import direktur_bp
 from models.gaji_model import get_slip_gaji, get_semua_bulan_tersedia, NAMA_BULAN
+
 from models.karyawan_model import (
     get_data_karyawan_by_name, get_profil_gaji,
     get_semua_karyawan, get_karyawan_by_id,
     tambah_karyawan, update_karyawan, hapus_karyawan,
-    get_karyawan_by_username, get_karyawan_by_divisi_dan_username
+    get_karyawan_by_username, get_karyawan_by_divisi_dan_username,
+    get_total_karyawan_aktif, get_karyawan_terbaru
 )
 from models.absensi_model import (
     get_absensi_hari_ini_semua, get_riwayat_absensi, get_status_hari_ini,
@@ -17,12 +19,16 @@ from models.absensi_model import (
     hitung_durasi_kerja, get_rekap_bulanan,
     get_absensi_tanggal, get_daftar_tanggal_bulan, reset_absensi_hari_ini
 )
-
 from models.progres_model import (
        ajukan_laporan, get_ringkasan_laporan, kirim_ulang_laporan,
        get_semua_laporan_admin, get_laporan_detail, teruskan_ke_direktur,
-       get_laporan_untuk_direktur, validasi_laporan
+       get_laporan_untuk_direktur, validasi_laporan,
+       get_rata_rata_progres, get_laporan_progres_terbaru,
+       get_laporan_progres_per_divisi
    )
+
+from models.divisi_model import get_semua_divisi_dengan_jumlah, get_jumlah_divisi_aktif
+
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
@@ -136,7 +142,23 @@ def logout():
 @login_required(role='admin')
 def admin_dashboard():
     rekap_hari_ini = get_rekap_absensi_hari_ini()
-    return render_template('admin/dashboard.html', rekap_hari_ini=rekap_hari_ini)
+    total_karyawan = get_total_karyawan_aktif()
+    divisi_list = get_semua_divisi_dengan_jumlah()
+    jumlah_divisi_aktif = get_jumlah_divisi_aktif()
+    progres_rata = get_rata_rata_progres()
+    laporan_per_divisi = build_laporan_progres_dashboard()
+    karyawan_terbaru = get_karyawan_terbaru(3)
+
+    return render_template(
+        'admin/dashboard.html',
+        rekap_hari_ini=rekap_hari_ini,
+        total_karyawan=total_karyawan,
+        divisi_list=divisi_list,
+        jumlah_divisi_aktif=jumlah_divisi_aktif,
+        progres_rata=progres_rata,
+        laporan_per_divisi=laporan_per_divisi,
+        karyawan_terbaru=karyawan_terbaru
+    )
 
 @app.route('/admin/data-karyawan')
 @login_required(role='admin')
@@ -390,13 +412,59 @@ def karyawan_ajukan_izin():
     flash('Pengajuan izin/cuti berhasil dikirim!', 'success')
     return redirect(url_for('karyawan_absensi'))
 
+TUGAS_PER_DIVISI = {
+    'Arsitektur': [
+        'Desain Gambar Kerja Proyek',
+        'Review & Revisi Desain',
+        'Survey Lokasi Proyek Baru',
+    ],
+    'Marketing': [
+        'Promosi Unit Perumahan',
+        'Promosi & Sewa Kos-kosan',
+        'Follow Up Klien/Penyewa',
+    ],
+    'Logistik': [
+        'Pengadaan Material Proyek',
+        'Distribusi Material ke Lokasi',
+        'Maintenance Fasilitas Kos-kosan',
+    ],
+    'Pengawas Lapangan': [
+        'Monitoring Progres Proyek Konstruksi',
+        'Pengecekan Kualitas Material/Pekerjaan',
+        'Inspeksi Kondisi Kos-kosan',
+    ],
+}
+
+def build_laporan_progres_dashboard():
+    """Gabungkan daftar tugas tetap per divisi dengan progres laporan asli yang sudah masuk."""
+    semua_laporan = get_semua_laporan_admin()
+    hasil = {}
+    for divisi, daftar_tugas in TUGAS_PER_DIVISI.items():
+        hasil[divisi] = []
+        for tugas in daftar_tugas:
+            laporan_terkait = [
+                l for l in semua_laporan
+                if l['divisi'] == divisi and l['nama_proyek'] == tugas
+            ]
+            if laporan_terkait:
+                # semua_laporan sudah urut DESC by tanggal_kirim, jadi ambil index pertama = laporan terbaru
+                progres = laporan_terkait[0]['progres']
+            else:
+                progres = 0
+            hasil[divisi].append({
+                'nama_proyek': tugas,
+                'progres': progres
+            })
+    return hasil
+
 @app.route('/karyawan/input-progres')
 @login_required(role='karyawan')
 def karyawan_input_progres():
     nama_user = session['user']['username']
     profil = get_profil_gaji(nama_user)
     ringkasan = get_ringkasan_laporan(nama_user)
-    return render_template('karyawan/input_progres.html', profil=profil, ringkasan=ringkasan)
+    daftar_tugas = TUGAS_PER_DIVISI.get(profil['divisi'], [])
+    return render_template('karyawan/input_progres.html', profil=profil, ringkasan=ringkasan, daftar_tugas=daftar_tugas)
 
 @app.route('/karyawan/kirim-laporan', methods=['POST'])
 @login_required(role='karyawan')

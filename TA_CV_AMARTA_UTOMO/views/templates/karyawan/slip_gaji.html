@@ -88,11 +88,47 @@
         TOTAL GAJI BERSIH: {{ slip.gaji_bersih | rupiah }}
     </div>
 
-    <div style="text-align: right; margin-top: 40px;">
-        <p>Mengetahui,<br>Direktur</p>
-        <br><br><br>
-        <p>( ........................... )</p>
+    <div style="display: flex; justify-content: flex-end; margin-top: 50px;">
+    <div style="text-align: center; position: relative; width: 220px;">
+        <p style="margin-bottom: 0; color: #4a5568;">Mengetahui,</p>
+        <p style="margin-top: 2px; margin-bottom: 70px; color: #4a5568;">Direktur</p>
+
+        <!-- Cap perusahaan (dibuat dari CSS, bukan gambar) -->
+        <div style="
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-12deg);
+            width: 100px;
+            height: 100px;
+            border: 3px double #b91c1c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.55;
+            pointer-events: none;
+        ">
+            <div style="text-align: center; line-height: 1.1;">
+                <p style="margin: 0; font-size: 0.55rem; font-weight: 700; color: #b91c1c; letter-spacing: 0.5px;">CV AMARTA</p>
+                <p style="margin: 2px 0; font-size: 0.5rem; color: #b91c1c;">★ SALATIGA ★</p>
+                <p style="margin: 0; font-size: 0.55rem; font-weight: 700; color: #b91c1c; letter-spacing: 0.5px;">UTOMO</p>
+            </div>
+        </div>
+
+        <p style="
+            margin: 0;
+            font-weight: 700;
+            font-family: 'Brush Script MT', cursive, 'Segoe Script', sans-serif;
+            font-size: 1.4rem;
+            color: #1a202c;
+            transform: rotate(-2deg);
+        ">Gloria Kho</p>
+        <p style="margin-top: 2px; padding-top: 4px; border-top: 1px solid #4a5568; color: #4a5568; font-size: 0.85rem;">
+            ( Gloria Kho )
+        </p>
     </div>
+</div>
 
     {% endif %}
 </div>

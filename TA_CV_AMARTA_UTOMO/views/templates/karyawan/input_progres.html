@@ -25,9 +25,9 @@
                         <label for="pilih_proyek">Pilih Proyek / Tugas:</label>
                         <select id="pilih_proyek" name="id_pekerjaan" class="form-control-input" required>
                             <option value="">-- Pilih Proyek Aktif --</option>
-                            <option value="Pembangunan Gudang B">Pembangunan Gudang B</option>
-                            <option value="Renovasi Kantor Pusat">Renovasi Kantor Pusat</option>
-                            <option value="Proyek Jalan Tol Sec. 3">Proyek Jalan Tol Sec. 3</option>
+                            {% for tugas in daftar_tugas %}
+                            <option value="{{ tugas }}">{{ tugas }}</option>
+                            {% endfor %}
                         </select>
                     </div>
 
