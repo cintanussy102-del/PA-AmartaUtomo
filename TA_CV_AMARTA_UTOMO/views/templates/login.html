@@ -46,33 +46,40 @@
         </div>
         
         <button type="submit" class="btn-submit">Masuk Sistem</button>
+        {% if error %}
+        <p class="login-error">{{ error }}</p>
+        {% endif %}
     </form>
 </div>
 
-<script>
-    function togglePassword() {
-        const x = document.getElementById("password");
-        if (x.type === "password") {
-            x.type = "text";
-        } else {
-            x.type = "password";
-        }
-    }
-</script>
     </div>
 
     <script>
-        function togglePassword() {
-            const passInput = document.getElementById("password");
-            const icon = document.querySelector(".eye-icon");
-            if (passInput.type === "password") {
-                passInput.type = "text";
-                icon.textContent = "🙈";
-            } else {
-                passInput.type = "password";
-                icon.textContent = "👁️";
-            }
+    function togglePassword() {
+        const passInput = document.getElementById("password");
+        const button = document.querySelector(".eye-toggle");
+
+        if (passInput.type === "password") {
+            passInput.type = "text";
+            button.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" 
+            stroke="currentColor" stroke-width="2">
+                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20
+                c-7 0-11-8-11-8a21.77 21.77 0 0 1 5.06-5.94">
+                </path>
+                <path d="M1 1l22 22"></path>
+            </svg>`;
+        } else {
+            passInput.type = "password";
+            button.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" 
+            stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z">
+                </path>
+                <circle cx="12" cy="12" r="3"></circle>
+            </svg>`;
         }
+    }
     </script>
 </body>
 </html>
