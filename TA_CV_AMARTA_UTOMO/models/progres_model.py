@@ -2,10 +2,10 @@ from models.database import Database
 
 
 def ajukan_laporan(nama, nama_proyek, deskripsi, status, progres_manual, file_laporan):
-    """Karyawan submit laporan baru. Status validasi otomatis mulai dari 'Menunggu Peninjauan Admin'."""
+    """Karyawan submit laporan baru. Langsung masuk antrian validasi Direktur."""
     query = """
-        INSERT INTO laporan_progres (nama_karyawan, nama_proyek, deskripsi_tugas, status, progres_manual, file_laporan)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO laporan_progres (nama_karyawan, nama_proyek, deskripsi_tugas, status, progres_manual, file_laporan, status_validasi)
+        VALUES (%s, %s, %s, %s, %s, %s, 'Menunggu Validasi Direktur')
     """
     Database.execute_query(query, (nama, nama_proyek, deskripsi, status, progres_manual, file_laporan))
 
@@ -130,12 +130,12 @@ def validasi_laporan(id, status_validasi, catatan_revisi=None):
     Database.execute_query(query, (status_validasi, catatan_revisi, id))
 
 def kirim_ulang_laporan(id, nama_karyawan, deskripsi, status, progres_manual, file_laporan):
-    """Karyawan kirim ulang laporan yang diminta revisi. Balik ke awal alur (ditinjau Admin lagi)."""
+    """Karyawan kirim ulang laporan revisi. Langsung balik ke antrian Direktur (bukan Admin lagi)."""
     query = """
         UPDATE laporan_progres
         SET deskripsi_tugas = %s, status = %s, progres_manual = %s, file_laporan = %s,
-            status_validasi = 'Menunggu Peninjauan Admin', catatan_revisi = NULL,
-            tanggal_diteruskan = NULL, tanggal_validasi = NULL, tanggal_kirim = NOW()
+            status_validasi = 'Menunggu Validasi Direktur', catatan_revisi = NULL,
+            tanggal_validasi = NULL, tanggal_kirim = NOW()
         WHERE id = %s AND nama_karyawan = %s
     """
     Database.execute_query(query, (deskripsi, status, progres_manual, file_laporan, id, nama_karyawan))
@@ -164,3 +164,23 @@ def get_laporan_progres_per_divisi():
             hasil[divisi] = []
         hasil[divisi].append(row)
     return hasil
+
+def get_progres_per_proyek():
+    """Kelompokkan laporan berdasarkan NAMA PROYEK (bukan divisi), ambil progres terbaru tiap proyek."""
+    semua = get_semua_laporan_admin()
+    proyek = {}
+    for row in semua:
+        nama = row['nama_proyek']
+        if nama not in proyek:
+            proyek[nama] = row['progres']
+    return proyek
+
+def get_progres_per_proyek():
+    """Kelompokkan laporan berdasarkan NAMA PROYEK (bukan divisi), ambil progres terbaru tiap proyek."""
+    semua = get_semua_laporan_admin()
+    proyek = {}
+    for row in semua:
+        nama = row['nama_proyek']
+        if nama not in proyek:
+            proyek[nama] = row['progres']
+    return proyek

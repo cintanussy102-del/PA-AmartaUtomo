@@ -1,30 +1,117 @@
-{% extends 'base.html' %} 
-{% block title %}Manajemen Divisi{% endblock %} 
-{% block page_title %}Divisi{% endblock %} 
-{% block sidebar_menu %} 
-<!-- Menu sidebar tetap sama -->
-{% endblock %} 
-{% block content %} 
-<!-- 1. Metrics Grid Atas (Dinamis) -->
-<div class="metrics-grid" style="grid-template-columns: repeat(3, 1fr);">
-    <div class="metric-card card-blue"><div class="card-info"><span class="card-label">Total Divisi</span><h3 class="card-value">{{ divisi_list|length }}</h3></div></div>
-    <div class="metric-card card-green"><div class="card-info"><span class="card-label">Total Karyawan</span><h3 class="card-value">{{ divisi_list|sum(attribute='karyawan') }}</h3></div></div>
-    <div class="metric-card card-orange"><div class="card-info"><span class="card-label">Divisi Terbesar</span><h3 class="card-value">{{ divisi_list|sort(attribute='karyawan', reverse=True)|first|attr('nama')|upper }}</h3></div></div>
+{% extends 'base.html' %}
+{% block title %}Manajemen Divisi{% endblock %}
+{% block page_title %}Divisi{% endblock %}
+
+{% block content %}
+
+<div class="metrics-grid" style="grid-template-columns: repeat(2, 1fr);">
+    <div class="metric-card card-blue">
+        <div class="card-info">
+            <span class="card-label">Total Divisi</span>
+            <h3 class="card-value">{{ divisi_list|length }}</h3>
+        </div>
+    </div>
+    <div class="metric-card card-green">
+        <div class="card-info">
+            <span class="card-label">Total Karyawan</span>
+            <h3 class="card-value">{{ total_karyawan }}</h3>
+        </div>
+    </div>
 </div>
-<!-- 2. Grid Kartu Divisi (Dinamis) -->
-<div class="dashboard-grid-three" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px;">
+
+<div class="content-box margin-top-20">
+    <div class="box-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>Tambah Divisi Baru</h3>
+    </div>
+    <div class="box-body">
+        <form method="POST" action="{{ url_for('admin_tambah_divisi') }}" style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+            <div style="flex:1; min-width:180px;">
+                <label style="font-size:0.85rem; color:#718096;">Nama Divisi</label><br>
+                <input type="text" name="nama" required style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e0;">
+            </div>
+            <div style="flex:2; min-width:250px;">
+                <label style="font-size:0.85rem; color:#718096;">Deskripsi Tugas</label><br>
+                <input type="text" name="deskripsi" placeholder="Tugas utama divisi ini..." style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e0;">
+            </div>
+            <button type="submit" class="btn-primary" style="padding:9px 20px; border-radius:6px; background:#4b89dc; color:white; border:none; cursor:pointer;">
+                <i class="fas fa-plus"></i> Tambah
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="dashboard-grid-three" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:20px; margin: 20px 0;">
     {% for d in divisi_list %}
     <div class="content-box">
         <div class="box-body">
-            <h3 style="color: #2d3748; margin-bottom: 5px;">{{ d.nama|upper }}</h3>
-            <p style="font-weight: 700; color: #4b89dc;">{{ d.karyawan }} KARYAWAN</p>
-            <p style="font-size: 0.8rem; color: #718096; margin-bottom: 10px;">Kepala: {{ d.kepala }}</p>
-            <div style="font-size: 0.75rem; color: #4b89dc;">Edit | Hapus | Detail</div>
+            <details>
+                <summary style="cursor:pointer; list-style:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:start;">
+                        <div>
+                            <h3 style="color:#2d3748; margin-bottom:5px;">{{ d.nama|upper }}</h3>
+                            <p style="font-weight:700; color:#4b89dc; margin:0;">{{ d.jumlah_karyawan }} KARYAWAN</p>
+                            <p style="font-size:0.8rem; color:#718096; margin:5px 0 0 0;">Kepala: {{ d.nama_kepala or '-' }}</p>
+                        </div>
+                        <span class="status-badge {{ 'aktif' if d.status == 'Aktif' else 'baris' }}">{{ d.status }}</span>
+                    </div>
+                </summary>
+
+                <div style="margin-top:15px; padding-top:15px; border-top:1px solid #e2e8f0;">
+                    <p style="font-size:0.85rem; color:#4a5568;"><strong>Deskripsi:</strong> {{ d.deskripsi or 'Belum ada deskripsi.' }}</p>
+
+                    <p style="font-size:0.85rem; color:#4a5568; font-weight:700; margin-top:12px;">Anggota:</p>
+                    {% if d.anggota %}
+                    <ul style="font-size:0.85rem; color:#4a5568; padding-left:18px; margin:5px 0;">
+                        {% for a in d.anggota %}
+                        <li>{{ a.nama_lengkap }} ({{ a.id_karyawan }}) — {{ a.jabatan }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p style="font-size:0.8rem; color:#a0aec0;">Belum ada karyawan di divisi ini.</p>
+                    {% endif %}
+
+                    <details style="margin-top:12px;">
+                        <summary style="cursor:pointer; font-size:0.85rem; color:#4b89dc;">Edit Divisi</summary>
+                        <form method="POST" action="{{ url_for('admin_edit_divisi', id=d.id) }}" style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
+                            <label style="font-size:0.8rem; color:#718096;">Nama Divisi</label>
+                            <input type="text" name="nama" value="{{ d.nama }}" required style="padding:7px; border-radius:6px; border:1px solid #cbd5e0;">
+
+                            <label style="font-size:0.8rem; color:#718096;">Deskripsi Tugas</label>
+                            <textarea name="deskripsi" rows="2" style="padding:7px; border-radius:6px; border:1px solid #cbd5e0;">{{ d.deskripsi or '' }}</textarea>
+
+                            <label style="font-size:0.8rem; color:#718096;">Kepala Divisi</label>
+                            <select name="kepala_id" style="padding:7px; border-radius:6px; border:1px solid #cbd5e0;">
+                                <option value="">-- Tidak ada --</option>
+                                {% for k in semua_karyawan %}
+                                <option value="{{ k.id }}" {% if d.kepala_id == k.id %}selected{% endif %}>{{ k.nama_lengkap }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <label style="font-size:0.8rem; color:#718096;">Status</label>
+                            <select name="status" style="padding:7px; border-radius:6px; border:1px solid #cbd5e0;">
+                                <option value="Aktif" {% if d.status == 'Aktif' %}selected{% endif %}>Aktif</option>
+                                <option value="Nonaktif" {% if d.status == 'Nonaktif' %}selected{% endif %}>Nonaktif</option>
+                            </select>
+
+                            <button type="submit" style="margin-top:5px; padding:8px; border-radius:6px; background:#4b89dc; color:white; border:none; cursor:pointer;">
+                                Simpan Perubahan
+                            </button>
+                        </form>
+                    </details>
+
+                    <form method="POST" action="{{ url_for('admin_hapus_divisi', id=d.id) }}" style="margin-top:10px;"
+                          onsubmit="return confirm('Yakin ingin menghapus divisi {{ d.nama }}?');">
+                        <button type="submit" style="padding:7px 14px; border-radius:6px; background:#fff; color:#e53e3e; border:1px solid #e53e3e; cursor:pointer; font-size:0.8rem;">
+                            <i class="fas fa-trash"></i> Hapus Divisi
+                        </button>
+                    </form>
+                </div>
+            </details>
         </div>
     </div>
     {% endfor %}
 </div>
-<!-- 3. Tabel Ringkasan Divisi (Dinamis) -->
+
 <div class="content-box">
     <div class="box-header">
         <h3>RINGKASAN DIVISI</h3>
@@ -39,9 +126,9 @@
                 <tr>
                     <td>{{ loop.index }}</td>
                     <td>{{ d.nama }}</td>
-                    <td>{{ d.karyawan }}</td>
-                    <td>{{ d.kepala }}</td>
-                    <td><span class="status-badge aktif">{{ d.status }}</span></td>
+                    <td>{{ d.jumlah_karyawan }}</td>
+                    <td>{{ d.nama_kepala or '-' }}</td>
+                    <td><span class="status-badge {{ 'aktif' if d.status == 'Aktif' else 'baris' }}">{{ d.status }}</span></td>
                 </tr>
                 {% endfor %}
             </tbody>

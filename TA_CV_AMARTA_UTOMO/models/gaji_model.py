@@ -2,7 +2,6 @@ from models.database import Database
 from models.absensi_model import get_rekap_bulanan
 
 def get_detail_gaji_karyawan(nama):
-    # 1. Ambil Gaji Pokok & Tunjangan dari database (asumsi ada tabel karyawan)
     query_karyawan = "SELECT gaji_pokok, tunjangan FROM karyawan WHERE nama = %s"
     data_karyawan = Database.fetch_one(query_karyawan, (nama,))
     
@@ -12,15 +11,12 @@ def get_detail_gaji_karyawan(nama):
     pokok = data_karyawan['gaji_pokok']
     tunjangan = data_karyawan['tunjangan']
     
-    # 2. Ambil data absensi (Alpha) untuk potongan
     rekap = get_rekap_bulanan(nama)
     jumlah_alpha = rekap['Alpha']
     
-    # 3. Hitung potongan (asumsi 25 hari kerja)
     potongan_per_hari = pokok / 25
     total_potongan = potongan_per_hari * jumlah_alpha
     
-    # 4. Hitung Gaji Bersih
     total_bersih = (pokok + tunjangan) - total_potongan
     
     return {
@@ -31,12 +27,6 @@ def get_detail_gaji_karyawan(nama):
         "total_potongan": total_potongan,
         "total_bersih": total_bersih
     }
-
-# ============================================================
-# BARU: Sistem Slip Gaji Tersimpan (snapshot per bulan)
-# Dipakai supaya data gaji Direktur & Karyawan/Admin selalu sinkron,
-# dan supaya karyawan bisa lihat riwayat gaji bulan-bulan sebelumnya.
-# ============================================================
 
 NAMA_BULAN = {
     1: "Januari", 2: "Februari", 3: "Maret", 4: "April",

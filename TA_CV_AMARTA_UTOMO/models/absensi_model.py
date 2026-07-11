@@ -172,9 +172,9 @@ def hitung_hari_alpha(nama, bulan=None, tahun=None):
     jumlah_alpha = 0
     for hari in range(1, hari_terakhir + 1):
         tgl = datetime.date(tahun, bulan, hari)
-        if tgl.weekday() == 6:  # Minggu = libur, skip
+        if tgl.weekday() == 6: 
             continue
-        if tgl > today:  # hari di masa depan, skip
+        if tgl > today: 
             continue
         if tgl not in tanggal_tercatat:
             jumlah_alpha += 1
@@ -184,7 +184,7 @@ def hitung_hari_alpha(nama, bulan=None, tahun=None):
 
 def hitung_potongan_gaji(nama, gaji_pokok, hari_kerja_per_bulan=25):
     rekap = get_rekap_bulanan(nama)
-    jumlah_hari_potong = rekap['Alpha']  # hanya hari Alpha (tanpa keterangan) yang dipotong
+    jumlah_hari_potong = rekap['Alpha']  
     potongan_per_hari = gaji_pokok / hari_kerja_per_bulan
     total_potongan = round(potongan_per_hari * jumlah_hari_potong)
 
@@ -330,3 +330,41 @@ def reset_absensi_hari_ini(nama=None):
     else:
         query = "DELETE FROM absensi WHERE tanggal = %s"
         Database.execute_query(query, (hari_ini,))
+
+def get_tingkat_kehadiran_hari_ini():
+    """Hitung persentase kehadiran hari ini berdasarkan data karyawan REAL (bukan hardcode)."""
+    from models.karyawan_model import get_semua_karyawan
+
+    hari_ini = waktu_sekarang().date()
+    daftar = [k for k in get_semua_karyawan() if k['status'] == 'Aktif' and k['divisi'] != 'Direktur']
+
+    if not daftar:
+        return 0
+
+    hadir = 0
+    for k in daftar:
+        query = "SELECT status FROM absensi WHERE nama_karyawan = %s AND tanggal = %s"
+        rows = Database.fetch_all(query, (k['username'], hari_ini))
+        if rows and rows[0]['status'] == 'Hadir':
+            hadir += 1
+
+    return round((hadir / len(daftar)) * 100, 1)
+
+def get_tingkat_kehadiran_hari_ini():
+    """Persentase kehadiran hari ini, dihitung dari data karyawan REAL (bukan DAFTAR_KARYAWAN hardcode)."""
+    from models.karyawan_model import get_semua_karyawan
+
+    hari_ini = waktu_sekarang().date()
+    daftar = [k for k in get_semua_karyawan() if k['status'] == 'Aktif' and k['divisi'] != 'Direktur']
+
+    if not daftar:
+        return 0
+
+    hadir = 0
+    for k in daftar:
+        query = "SELECT status FROM absensi WHERE nama_karyawan = %s AND tanggal = %s"
+        rows = Database.fetch_all(query, (k['username'], hari_ini))
+        if rows and rows[0]['status'] == 'Hadir':
+            hadir += 1
+
+    return round((hadir / len(daftar)) * 100, 1)

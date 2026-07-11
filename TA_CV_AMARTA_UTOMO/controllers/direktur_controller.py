@@ -5,6 +5,7 @@ from models.absensi_model import hitung_potongan_gaji
 from functools import wraps
 from models.gaji_model import simpan_slip_gaji, is_slip_terkirim, NAMA_BULAN
 import datetime
+from models.divisi_model import get_jabatan_tampilan
 
 direktur_bp = Blueprint('direktur_bp', __name__)
 resend.api_key = "re_Q7MAFYLd_7TS5p25pWLK7VQgBcBhAdCVX"
@@ -22,7 +23,6 @@ def login_required(role=None):
 
 
 def _hitung_rincian_gaji(karyawan):
-    """Hitung potongan & gaji bersih 1 karyawan berdasarkan data absensi bulan ini."""
     gaji_pokok = float(karyawan['gaji_pokok'])
     tunjangan = float(karyawan['tunjangan'])
     hasil_potongan = hitung_potongan_gaji(karyawan['username'], gaji_pokok)
@@ -44,6 +44,7 @@ def _hitung_rincian_gaji(karyawan):
         "total_potongan": total_potongan,
         "gaji_bersih": gaji_bersih,
         "status_gaji": "Terkirim" if sudah_terkirim else "Belum",
+        "jabatan": get_jabatan_tampilan(karyawan['id'], karyawan['divisi']),  # <-- TAMBAHAN, override jabatan asli
     }
 
 

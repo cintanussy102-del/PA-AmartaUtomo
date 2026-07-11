@@ -4,30 +4,37 @@ from dotenv import load_dotenv
 from functools import wraps
 from controllers.direktur_controller import direktur_bp
 from models.gaji_model import get_slip_gaji, get_semua_bulan_tersedia, NAMA_BULAN
+from models.divisi_model import get_jabatan_tampilan
 
 from models.karyawan_model import (
     get_data_karyawan_by_name, get_profil_gaji,
     get_semua_karyawan, get_karyawan_by_id,
     tambah_karyawan, update_karyawan, hapus_karyawan,
     get_karyawan_by_username, get_karyawan_by_divisi_dan_username,
-    get_total_karyawan_aktif, get_karyawan_terbaru
+    get_total_karyawan_aktif, get_karyawan_terbaru,
+    get_karyawan_per_divisi  
 )
 from models.absensi_model import (
     get_absensi_hari_ini_semua, get_riwayat_absensi, get_status_hari_ini,
     catat_absen_masuk, catat_absen_keluar, ajukan_izin,
     hitung_potongan_gaji, get_rekap_absensi_hari_ini,
     hitung_durasi_kerja, get_rekap_bulanan,
-    get_absensi_tanggal, get_daftar_tanggal_bulan, reset_absensi_hari_ini
+    get_absensi_tanggal, get_daftar_tanggal_bulan, reset_absensi_hari_ini,
+    get_tingkat_kehadiran_hari_ini, get_semua_pengajuan_izin   
 )
 from models.progres_model import (
        ajukan_laporan, get_ringkasan_laporan, kirim_ulang_laporan,
        get_semua_laporan_admin, get_laporan_detail, teruskan_ke_direktur,
        get_laporan_untuk_direktur, validasi_laporan,
        get_rata_rata_progres, get_laporan_progres_terbaru,
-       get_laporan_progres_per_divisi
-   )
+       get_laporan_progres_per_divisi,
+       get_progres_per_proyek  
+)
 
-from models.divisi_model import get_semua_divisi_dengan_jumlah, get_jumlah_divisi_aktif
+from models.divisi_model import (
+    get_semua_divisi_dengan_jumlah, get_jumlah_divisi_aktif,
+    get_semua_divisi, get_anggota_divisi, tambah_divisi, update_divisi, hapus_divisi
+)
 
 from datetime import datetime
 from werkzeug.utils import secure_filename
@@ -283,40 +290,59 @@ def admin_ajukan_izin():
 @app.route('/admin/divisi')
 @login_required(role='admin')
 def admin_divisi():
-    # Ambil semua karyawan dari database lalu kelompokkan per divisi
+    divisi_list = get_semua_divisi()
+    for d in divisi_list:
+        d['anggota'] = get_anggota_divisi(d['nama'])
+    total_karyawan = sum(d['jumlah_karyawan'] for d in divisi_list)
     semua_karyawan = get_semua_karyawan()
-    divisi_names = ['Arsitektur', 'Marketing', 'Logistik', 'Pengawas Lapangan']
-    divisi_data = []
-    for nama_divisi in divisi_names:
-        anggota = [k for k in semua_karyawan if k['divisi'] == nama_divisi]
-        kepala = anggota[0]['nama_lengkap'] if anggota else '-'
-        divisi_data.append({
-            'nama': nama_divisi,
-            'karyawan': len(anggota),
-            'kepala': kepala,
-            'status': 'Aktif'
-        })
-    return render_template('admin/divisi.html', divisi_list=divisi_data)
+    return render_template(
+        'admin/divisi.html',
+        divisi_list=divisi_list,
+        total_karyawan=total_karyawan,
+        semua_karyawan=semua_karyawan
+    )
+
+
+@app.route('/admin/divisi/tambah', methods=['POST'])
+@login_required(role='admin')
+def admin_tambah_divisi():
+    nama = request.form.get('nama')
+    deskripsi = request.form.get('deskripsi')
+    tambah_divisi(nama, deskripsi)
+    flash('Divisi baru berhasil ditambahkan!', 'success')
+    return redirect(url_for('admin_divisi'))
+
+
+@app.route('/admin/divisi/edit/<int:id>', methods=['POST'])
+@login_required(role='admin')
+def admin_edit_divisi(id):
+    nama = request.form.get('nama')
+    deskripsi = request.form.get('deskripsi')
+    kepala_id = request.form.get('kepala_id') or None
+    status = request.form.get('status', 'Aktif')
+    update_divisi(id, nama, deskripsi, kepala_id, status)
+    flash('Data divisi berhasil diperbarui!', 'success')
+    return redirect(url_for('admin_divisi'))
+
+
+@app.route('/admin/divisi/hapus/<int:id>', methods=['POST'])
+@login_required(role='admin')
+def admin_hapus_divisi(id):
+    berhasil, pesan = hapus_divisi(id)
+    flash(pesan, 'success' if berhasil else 'danger')
+    return redirect(url_for('admin_divisi'))
 
 @app.route('/admin/rekap-laporan')
 @login_required(role='admin')
 def admin_rekap_laporan():
-    daftar_laporan = get_semua_laporan_admin()
+    semua = get_semua_laporan_admin()
+    daftar_laporan = [l for l in semua if l['status_validasi'] == 'Disetujui']
     total = len(daftar_laporan)
-    menunggu_admin = len([l for l in daftar_laporan if l['status_validasi'] == 'Menunggu Peninjauan Admin'])
-    menunggu_direktur = len([l for l in daftar_laporan if l['status_validasi'] == 'Menunggu Validasi Direktur'])
-    disetujui = len([l for l in daftar_laporan if l['status_validasi'] == 'Disetujui'])
-    revisi = len([l for l in daftar_laporan if l['status_validasi'] == 'Revisi'])
     return render_template(
         'admin/rekap_laporan.html',
         daftar_laporan=daftar_laporan,
         total=total,
-        menunggu_admin=menunggu_admin,
-        menunggu_direktur=menunggu_direktur,
-        disetujui=disetujui,
-        revisi=revisi
     )
-
 
 @app.route('/admin/teruskan-laporan/<int:id>', methods=['POST'])
 @login_required(role='admin')
@@ -328,10 +354,12 @@ def admin_teruskan_laporan(id):
 @app.route('/admin/slip-gaji')
 @login_required(role='admin')
 def admin_slip_gaji():
-    admin_data = get_karyawan_by_username('admin')  # sesuaikan kalau username-nya beda
+    admin_data = get_karyawan_by_username('admin')
     if not admin_data:
         flash('Data admin tidak ditemukan di database!', 'danger')
         return redirect(url_for('admin_dashboard'))
+
+    admin_data['jabatan'] = get_jabatan_tampilan(admin_data['id'], admin_data['divisi'])
 
     today = datetime.now()
     bulan_dipilih = int(request.args.get('bulan', today.month))
@@ -458,7 +486,6 @@ def build_laporan_progres_dashboard():
                 if l['divisi'] == divisi and l['nama_proyek'] == tugas
             ]
             if laporan_terkait:
-                # semua_laporan sudah urut DESC by tanggal_kirim, jadi ambil index pertama = laporan terbaru
                 progres = laporan_terkait[0]['progres']
             else:
                 progres = 0
@@ -537,6 +564,8 @@ def karyawan_slip_gaji():
         flash('Data karyawan tidak ditemukan!', 'danger')
         return redirect(url_for('karyawan_dashboard'))
 
+    karyawan['jabatan'] = get_jabatan_tampilan(karyawan['id'], karyawan['divisi'])
+
     today = datetime.now()
     bulan_dipilih = int(request.args.get('bulan', today.month))
     tahun_dipilih = int(request.args.get('tahun', today.year))
@@ -561,12 +590,86 @@ def karyawan_slip_gaji():
 @app.route('/direktur/dashboard')
 @login_required(role='direktur')
 def direktur_dashboard():
-    return render_template('direktur/dashboard.html')
+    karyawan_per_divisi = get_karyawan_per_divisi()
+    total_karyawan = get_total_karyawan_aktif()
+
+    progres_proyek = get_progres_per_proyek()
+    proyek_aktif = len([p for p in progres_proyek.values() if p < 100])
+
+    tingkat_kehadiran = get_tingkat_kehadiran_hari_ini()
+
+    progres_per_divisi = build_laporan_progres_dashboard()
+
+    laporan_terbaru = []
+    for row in get_semua_laporan_admin()[:5]:
+        laporan_terbaru.append({
+            "tanggal": row['tanggal_kirim'],
+            "nama": row['nama_lengkap'] or row['nama_karyawan'],
+            "aktivitas": f"Submit laporan progres {row['nama_proyek']}",
+            "status": "Selesai" if row['status_validasi'] == 'Disetujui' else "Pending",
+        })
+
+    izin_terbaru = []
+    for izin in get_semua_pengajuan_izin()[:5]:
+        k = get_karyawan_by_username(izin['nama_karyawan'])
+        izin_terbaru.append({
+            "tanggal": izin['tanggal'],
+            "nama": k['nama_lengkap'] if k else izin['nama_karyawan'],
+            "aktivitas": f"Pengajuan {izin['status']}",
+            "status": izin['status_approval'],
+        })
+
+    return render_template(
+        'direktur/dashboard.html',
+        total_karyawan=total_karyawan,
+        proyek_aktif=proyek_aktif,
+        tingkat_kehadiran=tingkat_kehadiran,
+        progres_per_divisi=progres_per_divisi,
+        karyawan_per_divisi=karyawan_per_divisi,
+        laporan_terbaru=laporan_terbaru,
+        izin_terbaru=izin_terbaru,
+    )
 
 @app.route('/direktur/monitoring')
 @login_required(role='direktur')
 def direktur_monitoring():
-    return render_template('direktur/monitoring.html')
+    semua_laporan = get_semua_laporan_admin()  
+
+    proyek_map = {}
+    for row in semua_laporan:
+        nama = row['nama_proyek']
+        if nama not in proyek_map:
+            proyek_map[nama] = row
+    daftar_proyek = list(proyek_map.values())
+
+    for p in daftar_proyek:
+        progres = p['progres']
+        if progres >= 70:
+            p['kondisi'] = 'On Track'
+            p['kondisi_class'] = 'status-on-track'
+            p['warna_progres'] = 'fill-green'
+        elif progres >= 30:
+            p['kondisi'] = 'Delayed'
+            p['kondisi_class'] = 'status-delayed'
+            p['warna_progres'] = 'fill-orange'
+        else:
+            p['kondisi'] = 'Critical'
+            p['kondisi_class'] = 'status-critical'
+            p['warna_progres'] = 'fill-red'
+
+    total_proyek = len(daftar_proyek)
+    sudah_selesai = len([p for p in daftar_proyek if p['progres'] == 100])
+    perlu_perhatian = len([p for p in daftar_proyek if 30 <= p['progres'] < 70])
+    terhambat = len([p for p in daftar_proyek if p['progres'] < 30])
+
+    return render_template(
+        'direktur/monitoring.html',
+        daftar_proyek=daftar_proyek,
+        total_proyek=total_proyek,
+        sudah_selesai=sudah_selesai,
+        perlu_perhatian=perlu_perhatian,
+        terhambat=terhambat,
+    )
 
 @app.route('/direktur/absensi')
 @login_required(role='direktur')

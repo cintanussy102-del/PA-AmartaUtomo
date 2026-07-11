@@ -86,3 +86,25 @@ def get_total_karyawan_aktif():
 def get_karyawan_terbaru(limit=3):
     query = "SELECT * FROM karyawan ORDER BY tanggal_bergabung DESC, id DESC LIMIT %s"
     return Database.fetch_all(query, (limit,))
+
+def get_karyawan_per_divisi():
+    """Hitung jumlah karyawan aktif per divisi, diurutkan dari yang terbanyak."""
+    daftar = get_semua_karyawan()
+    hasil = {}
+    for k in daftar:
+        if k['status'] != 'Aktif':
+            continue
+        divisi = k['divisi']
+        hasil[divisi] = hasil.get(divisi, 0) + 1
+    return dict(sorted(hasil.items(), key=lambda x: x[1], reverse=True))
+
+def get_karyawan_per_divisi():
+    """Hitung jumlah karyawan aktif per divisi, diurutkan dari yang terbanyak."""
+    daftar = get_semua_karyawan()
+    hasil = {}
+    for k in daftar:
+        if k['status'] != 'Aktif':
+            continue
+        divisi = k['divisi']
+        hasil[divisi] = hasil.get(divisi, 0) + 1
+    return dict(sorted(hasil.items(), key=lambda x: x[1], reverse=True))

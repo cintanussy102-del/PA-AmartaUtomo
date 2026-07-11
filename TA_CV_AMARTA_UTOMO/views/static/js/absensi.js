@@ -42,7 +42,7 @@ async function kirimAbsen() {
         });
 
         if (res.ok) {
-            const result = await res.json(); // Hasil dari app.py (tanggal, jam_masuk, status)
+            const result = await res.json(); 
             
             // --- UPDATE: Masukkan baris baru ke tabel ---
             const tableBody = document.querySelector('.amarta-table tbody');

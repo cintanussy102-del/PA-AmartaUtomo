@@ -15,10 +15,9 @@ class Database:
         """Membuat koneksi tunggal ke TiDB Cloud dengan membaca Railway Variables langsung."""
         if cls._connection is None or not cls._connection.is_connected():
             try:
-                # Kita langsung ambil dari os.getenv() dengan nama variabel yang konsisten
                 cls._connection = mysql.connector.connect(
-                    host=os.getenv('DB_HOST'),      # Pastikan di Railway Variables namanya DB_HOST
-                    user=os.getenv('DB_USER'),      # Pastikan di Railway Variables namanya DB_USER
+                    host=os.getenv('DB_HOST'),     
+                    user=os.getenv('DB_USER'),    
                     password=os.getenv('DB_PASSWORD'),
                     database=os.getenv('DB_NAME'),
                     port=int(os.getenv('DB_PORT', 4000)),
