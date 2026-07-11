@@ -1066,3 +1066,26 @@ body {
     font-size:14px;
     color:#64748b;
 }
+
+.accordion-header {
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+
+.accordion-header span {
+    color:#64748b;
+    font-size:14px;
+}
+
+
+.accordion-body {
+    display:none;
+}
+
+
+.accordion-body.show {
+    display:block;
+}
