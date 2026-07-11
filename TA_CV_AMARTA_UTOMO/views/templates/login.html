@@ -49,13 +49,14 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <p class="login-error">{{ message }}</p>
+                    {% if category == 'login_error' %}
+                        <p class="login-error">{{ message }}</p>
+                    {% endif %}
                 {% endfor %}
             {% endif %}
         {% endwith %}
 
     </form>
-</div>
 
     </div>
 

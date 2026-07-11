@@ -81,13 +81,15 @@ def login_required(role=None):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if 'user' not in session:
-                flash('Silakan login terlebih dahulu!', 'danger')
                 return redirect(url_for('login'))
+
             if role and session['user'].get('role') != role:
-                flash('Anda tidak memiliki akses ke halaman ini!', 'danger')
                 return redirect(url_for('login'))
+
             return f(*args, **kwargs)
+
         return decorated_function
+
     return decorator
 
 @app.route('/')

@@ -4,145 +4,395 @@
 {% block page_title %}Dashboard Direktur Utama{% endblock %}
 
 {% block sidebar_menu %}
-<a href="{{ url_for('direktur_dashboard') }}" class="active"><i class="fas fa-chart-line"></i> Dashboard</a>
-<a href="{{ url_for('direktur_monitoring') }}"><i class="fas fa-eye"></i> Monitoring Pekerjaan</a>
-<a href="{{ url_for('direktur_validasi_gaji') }}"><i class="fas fa-check-double"></i> Validasi Gaji</a>
+<a href="{{ url_for('direktur_dashboard') }}" class="active">
+    <i class="fas fa-chart-line"></i> Dashboard
+</a>
+
+<a href="{{ url_for('direktur_monitoring') }}">
+    <i class="fas fa-eye"></i> Monitoring Pekerjaan
+</a>
+
+<a href="{{ url_for('direktur_validasi_gaji') }}">
+    <i class="fas fa-check-double"></i> Validasi Gaji
+</a>
 {% endblock %}
 
+
 {% block content %}
+
+<style>
+    /* Seluruh kotak collapse */
+    .dashboard-collapse {
+        overflow: hidden;
+    }
+
+    /* Judul yang bisa diklik */
+    .dashboard-collapse > summary {
+        list-style: none;
+        cursor: pointer;
+        user-select: none;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    /* Menghilangkan panah bawaan browser */
+    .dashboard-collapse > summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .dashboard-collapse > summary::marker {
+        display: none;
+        content: "";
+    }
+
+    /* Panah sebelah kanan */
+    .collapse-arrow {
+        color: #718096;
+        font-size: 13px;
+        transition: transform 0.25s ease;
+    }
+
+    /* Saat kotak terbuka */
+    .dashboard-collapse[open] .collapse-arrow {
+        transform: rotate(180deg);
+    }
+
+    .dashboard-collapse > summary:hover {
+        background-color: #f8fafc;
+    }
+
+    /* Jarak isi setelah kotak dibuka */
+    .dashboard-collapse[open] > .box-body {
+        border-top: 1px solid #edf0f4;
+    }
+
+    /* Agar tabel tetap aman jika layar kecil */
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+</style>
+
+
+<!-- METRIC -->
 <div class="metrics-grid-four">
+
     <div class="metric-card card-blue">
-        <div class="card-icon"><i class="fas fa-users"></i></div>
+        <div class="card-icon">
+            <i class="fas fa-users"></i>
+        </div>
+
         <div class="card-info">
             <h3 class="card-value">{{ total_karyawan }}</h3>
             <span class="card-label">Total Karyawan Aktif</span>
         </div>
     </div>
 
+
     <div class="metric-card card-green">
-        <div class="card-icon"><i class="fas fa-project-diagram"></i></div>
+        <div class="card-icon">
+            <i class="fas fa-project-diagram"python app.py></i>
+        </div>
+
         <div class="card-info">
             <h3 class="card-value">{{ proyek_aktif }}</h3>
             <span class="card-label">Proyek Aktif</span>
         </div>
     </div>
 
+
     <div class="metric-card card-orange">
-        <div class="card-icon"><i class="fas fa-user-check"></i></div>
+        <div class="card-icon">
+            <i class="fas fa-user-check"></i>
+        </div>
+
         <div class="card-info">
             <h3 class="card-value">{{ tingkat_kehadiran }}%</h3>
             <span class="card-label">Tingkat Kehadiran Hari Ini</span>
         </div>
     </div>
+
 </div>
 
+
+<!-- DUA KOLOM -->
 <div class="dashboard-grid-two">
 
-    <div class="content-box">
-        <div class="box-header">
+    <!-- PROGRES PROYEK -->
+    <details class="content-box dashboard-collapse">
+
+        <summary class="box-header">
             <h3>Progres Proyek per Divisi</h3>
-        </div>
+            <i class="fas fa-chevron-down collapse-arrow"></i>
+        </summary>
+
         <div class="box-body">
+
             {% if progres_per_divisi %}
+
                 {% for divisi, daftar_tugas in progres_per_divisi.items() %}
-                <details class="divisi-collapse" open>
-                    <summary><strong>{{ divisi }}</strong></summary>
-                    {% for tugas in daftar_tugas %}
-                    {% set progres = tugas.progres %}
-                    {% set warna = 'crimson' if progres < 30 else ('goldenrod' if progres < 70 else ('dodgerblue' if progres < 100 else 'seagreen')) %}
-                    <div class="progress-item">
-                        <div class="progress-info">
-                            <span>{{ tugas.nama_proyek }}</span>
-                            <span>{{ progres }}%</span>
-                        </div>
-                        <div class="progress-bar-bg">
-                            <div class="progress-fill" style="width: {{ progres }}%; background-color: {{ warna }};"></div>
-                        </div>
+
+                    <div class="division-project-group">
+
+                        <h4 style="margin: 0 0 15px 0;">
+                            {{ divisi }}
+                        </h4>
+
+                        {% for tugas in daftar_tugas %}
+
+                            {% set progres = tugas.progres | int %}
+
+                            {% set warna =
+                                'crimson'
+                                if progres < 30
+                                else 'goldenrod'
+                                if progres < 70
+                                else 'dodgerblue'
+                                if progres < 100
+                                else 'seagreen'
+                            %}
+
+                            <div class="progress-item">
+
+                                <div class="progress-info">
+                                    <span>{{ tugas.nama_proyek }}</span>
+                                    <span>{{ progres }}%</span>
+                                </div>
+
+                                <div class="progress-bar-bg">
+                                    <div
+                                        class="progress-fill progress-dynamic"
+                                        data-progress="{{ progres }}"
+                                        data-color="{{ warna }}"
+                                    ></div>
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
                     </div>
-                    {% endfor %}
-                </details>
+
+                    {% if not loop.last %}
+                        <hr style="
+                            margin: 20px 0;
+                            border: 0;
+                            border-top: 1px dashed #dce3eb;
+                        ">
+                    {% endif %}
+
                 {% endfor %}
+
             {% else %}
+
                 <p>Belum ada laporan proyek masuk.</p>
+
             {% endif %}
-        </div>
-    </div>
 
-    <div class="content-box">
-        <div class="box-header">
+        </div>
+
+    </details>
+
+
+    <!-- KARYAWAN PER DIVISI -->
+    <details class="content-box dashboard-collapse">
+
+        <summary class="box-header">
             <h3>Karyawan per Divisi</h3>
-        </div>
+            <i class="fas fa-chevron-down collapse-arrow"></i>
+        </summary>
+
         <div class="box-body">
-            <ul class="divisi-list">
-                {% for divisi, jumlah in karyawan_per_divisi.items() %}
-                <li><span>{{ divisi }}</span> <strong>{{ jumlah }} orang</strong></li>
-                {% endfor %}
-            </ul>
+
+            {% if karyawan_per_divisi %}
+
+                <ul class="divisi-list">
+
+                    {% for divisi, jumlah in karyawan_per_divisi.items() %}
+
+                        <li>
+                            <span>{{ divisi }}</span>
+                            <strong>{{ jumlah }} orang</strong>
+                        </li>
+
+                    {% endfor %}
+
+                </ul>
+
+            {% else %}
+
+                <p>Belum ada data karyawan.</p>
+
+            {% endif %}
+
         </div>
-    </div>
+
+    </details>
+
 </div>
 
-<div class="content-box margin-top-20">
-    <div class="box-header">
+
+<!-- LAPORAN PROGRES TERBARU -->
+<details class="content-box dashboard-collapse margin-top-20">
+
+    <summary class="box-header">
         <h3>Laporan Progres Terbaru</h3>
-    </div>
-    <div class="box-body no-padding">
-        <table class="amarta-table">
-            <thead>
-                <tr>
-                    <th>Tanggal</th>
-                    <th>Karyawan</th>
-                    <th>Aktivitas</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if laporan_terbaru %}
-                    {% for a in laporan_terbaru %}
-                    <tr>
-                        <td>{{ a.tanggal }}</td>
-                        <td><strong>{{ a.nama }}</strong></td>
-                        <td>{{ a.aktivitas }}</td>
-                        <td><span class="status-badge {{ 'aktif' if a.status == 'Selesai' else 'baris' }}">{{ a.status }}</span></td>
-                    </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr><td colspan="4">Belum ada laporan progres masuk.</td></tr>
-                {% endif %}
-            </tbody>
-        </table>
-    </div>
-</div>
+        <i class="fas fa-chevron-down collapse-arrow"></i>
+    </summary>
 
-<div class="content-box margin-top-20">
-    <div class="box-header">
-        <h3>Pengajuan Izin / Cuti Terbaru</h3>
-    </div>
     <div class="box-body no-padding">
-        <table class="amarta-table">
-            <thead>
-                <tr>
-                    <th>Tanggal</th>
-                    <th>Karyawan</th>
-                    <th>Aktivitas</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if izin_terbaru %}
-                    {% for a in izin_terbaru %}
+
+        <div class="table-wrapper">
+
+            <table class="amarta-table">
+
+                <thead>
                     <tr>
-                        <td>{{ a.tanggal }}</td>
-                        <td><strong>{{ a.nama }}</strong></td>
-                        <td>{{ a.aktivitas }}</td>
-                        <td><span class="status-badge {{ 'aktif' if a.status == 'Approved' else 'baris' }}">{{ a.status }}</span></td>
+                        <th>Tanggal</th>
+                        <th>Karyawan</th>
+                        <th>Aktivitas</th>
+                        <th>Status</th>
                     </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr><td colspan="4">Belum ada pengajuan izin/cuti.</td></tr>
-                {% endif %}
-            </tbody>
-        </table>
+                </thead>
+
+                <tbody>
+
+                    {% if laporan_terbaru %}
+
+                        {% for a in laporan_terbaru %}
+
+                            <tr>
+                                <td>{{ a.tanggal }}</td>
+
+                                <td>
+                                    <strong>{{ a.nama }}</strong>
+                                </td>
+
+                                <td>{{ a.aktivitas }}</td>
+
+                                <td>
+                                    <span class="status-badge {{
+                                        'aktif'
+                                        if a.status == 'Selesai'
+                                        else 'baris'
+                                    }}">
+                                        {{ a.status }}
+                                    </span>
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <tr>
+                            <td colspan="4">
+                                Belum ada laporan progres masuk.
+                            </td>
+                        </tr>
+
+                    {% endif %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
     </div>
-</div>
+
+</details>
+
+
+<!-- PENGAJUAN IZIN / CUTI -->
+<details class="content-box dashboard-collapse margin-top-20">
+
+    <summary class="box-header">
+        <h3>Pengajuan Izin / Cuti Terbaru</h3>
+        <i class="fas fa-chevron-down collapse-arrow"></i>
+    </summary>
+
+    <div class="box-body no-padding">
+
+        <div class="table-wrapper">
+
+            <table class="amarta-table">
+
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Karyawan</th>
+                        <th>Aktivitas</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% if izin_terbaru %}
+
+                        {% for a in izin_terbaru %}
+
+                            <tr>
+                                <td>{{ a.tanggal }}</td>
+
+                                <td>
+                                    <strong>{{ a.nama }}</strong>
+                                </td>
+
+                                <td>{{ a.aktivitas }}</td>
+
+                                <td>
+                                    <span class="status-badge {{
+                                        'aktif'
+                                        if a.status == 'Approved'
+                                        else 'baris'
+                                    }}">
+                                        {{ a.status }}
+                                    </span>
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <tr>
+                            <td colspan="4">
+                                Belum ada pengajuan izin/cuti.
+                            </td>
+                        </tr>
+
+                    {% endif %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</details>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const progressBars =
+        document.querySelectorAll(".progress-dynamic");
+
+    progressBars.forEach(function (bar) {
+        let progress = Number(bar.dataset.progress) || 0;
+
+        progress = Math.max(0, Math.min(progress, 100));
+
+        bar.style.width = progress + "%";
+        bar.style.backgroundColor =
+            bar.dataset.color || "dodgerblue";
+    });
+});
+</script>
+
 {% endblock %}
