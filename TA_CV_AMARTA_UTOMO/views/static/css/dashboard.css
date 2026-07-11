@@ -254,6 +254,12 @@ body {
     padding-top: 20px;
 }
 
+.sidebar-menu a.active {
+    background: linear-gradient(90deg, rgba(255,255,255,0.18), transparent);
+    border-left: 3px solid #5cbee8;
+    color: white;
+}
+
 .sidebar-footer {
     padding: 20px;
     border-top: 1px solid rgba(184, 18, 18, 0.1);

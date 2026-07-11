@@ -26,25 +26,85 @@
                     {% set role = session['user']['role'] %}
 
                     {% if role == 'admin' %}
-                        <a href="{{ url_for('admin_dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
-                        <a href="{{ url_for('admin_absensi') }}"><i class="fas fa-calendar-check"></i> Absensi</a>
-                        <a href="{{ url_for('admin_data_karyawan') }}"><i class="fas fa-users"></i> Data Karyawan</a>
-                        <a href="{{ url_for('admin_divisi') }}"><i class="fas fa-sitemap"></i> Divisi</a>
-                        <a href="{{ url_for('admin_rekap_laporan') }}"><i class="fas fa-file-alt"></i> Laporan</a>
-                        <a href="{{ url_for('admin_slip_gaji') }}"><i class="fas fa-wallet"></i> Slip Gaji</a>  
+
+                    <a href="{{ url_for('admin_dashboard') }}"
+                    class="{% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+                        <i class="fas fa-th-large"></i> Dashboard
+                    </a>
+
+                    <a href="{{ url_for('admin_absensi') }}"
+                    class="{% if request.endpoint == 'admin_absensi' %}active{% endif %}">
+                        <i class="fas fa-calendar-check"></i> Absensi
+                    </a>
+
+                    <a href="{{ url_for('admin_data_karyawan') }}"
+                    class="{% if request.endpoint == 'admin_data_karyawan' %}active{% endif %}">
+                        <i class="fas fa-users"></i> Data Karyawan
+                    </a>
+
+                    <a href="{{ url_for('admin_divisi') }}"
+                    class="{% if request.endpoint == 'admin_divisi' %}active{% endif %}">
+                        <i class="fas fa-sitemap"></i> Divisi
+                    </a>
+
+                    <a href="{{ url_for('admin_rekap_laporan') }}"
+                    class="{% if request.endpoint == 'admin_rekap_laporan' %}active{% endif %}">
+                        <i class="fas fa-file-alt"></i> Laporan
+                    </a>
+
+                    <a href="{{ url_for('admin_slip_gaji') }}"
+                    class="{% if request.endpoint == 'admin_slip_gaji' %}active{% endif %}">
+                        <i class="fas fa-wallet"></i> Slip Gaji
+                    </a>
 
                     {% elif role == 'karyawan' %}
-                        <a href="{{ url_for('karyawan_dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
-                        <a href="{{ url_for('karyawan_absensi') }}"><i class="fas fa-calendar-check"></i> Absensi</a>
-                        <a href="{{ url_for('karyawan_input_progres') }}"><i class="fas fa-tasks"></i> Input Laporan Kerja</a>
-                        <a href="{{ url_for('karyawan_slip_gaji') }}"><i class="fas fa-wallet"></i> Slip Gaji</a>
+                    <a href="{{ url_for('karyawan_dashboard') }}"
+                    class="{% if request.endpoint == 'karyawan_dashboard' %}active{% endif %}">
+                        <i class="fas fa-th-large"></i> Dashboard
+                    </a>
+
+                    <a href="{{ url_for('karyawan_absensi') }}"
+                    class="{% if request.endpoint == 'karyawan_absensi' %}active{% endif %}">
+                        <i class="fas fa-calendar-check"></i> Absensi
+                    </a>
+
+                    <a href="{{ url_for('karyawan_input_progres') }}"
+                    class="{% if request.endpoint == 'karyawan_input_progres' %}active{% endif %}">
+                        <i class="fas fa-tasks"></i> Input Laporan Kerja
+                    </a>
+
+                    <a href="{{ url_for('karyawan_slip_gaji') }}"
+                    class="{% if request.endpoint == 'karyawan_slip_gaji' %}active{% endif %}">
+                        <i class="fas fa-wallet"></i> Slip Gaji
+                    </a>
                     
                     {% elif role == 'direktur' %}
-                        <a href="{{ url_for('direktur_dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
-                        <a href="{{ url_for('direktur_monitoring') }}"><i class="fas fa-chart-line"></i> Monitoring Pekerjaan</a>
-                        <a href="{{ url_for('direktur_absensi') }}"><i class="fas fa-calendar-check"></i> Absensi Karyawan</a>
-                        <a href="{{ url_for('direktur_penggajian') }}"><i class="fas fa-wallet"></i> Penggajian</a>
-                        <a href="{{ url_for('direktur_laporan') }}"><i class="fas fa-file-alt"></i> Laporan</a>
+
+                    <a href="{{ url_for('direktur_dashboard') }}"
+                    class="{% if request.endpoint == 'direktur_dashboard' %}active{% endif %}">
+                        <i class="fas fa-th-large"></i> Dashboard
+                    </a>
+
+                    <a href="{{ url_for('direktur_monitoring') }}"
+                    class="{% if request.endpoint == 'direktur_monitoring' %}active{% endif %}">
+                        <i class="fas fa-chart-line"></i> Monitoring Pekerjaan
+                    </a>
+
+                    <a href="{{ url_for('direktur_absensi') }}"
+                    class="{% if request.endpoint == 'direktur_absensi' %}active{% endif %}">
+                        <i class="fas fa-calendar-check"></i> Absensi Karyawan
+                    </a>
+
+                    <a href="{{ url_for('direktur_penggajian') }}"
+                    class="{% if request.endpoint == 'direktur_penggajian' %}active{% endif %}">
+                        <i class="fas fa-wallet"></i> Penggajian
+                    </a>
+
+                    <a href="{{ url_for('direktur_laporan') }}"
+                    class="{% if request.endpoint == 'direktur_laporan' %}active{% endif %}">
+                        <i class="fas fa-file-alt"></i> Laporan
+                    </a>
+
                     {% endif %}
                 {% endif %}
             </nav>
