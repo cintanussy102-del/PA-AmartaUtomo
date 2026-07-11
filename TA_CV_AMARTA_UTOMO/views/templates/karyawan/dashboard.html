@@ -49,10 +49,14 @@
 <div class="dashboard-grid-two">
 
     <div class="content-box">
-        <div class="box-header">
+
+        <div class="box-header accordion-header" onclick="toggleBox('progresBox')">
             <h3>PROGRES KERJA MINGGU INI</h3>
+            <span id="icon-progres">▼</span>
         </div>
-        <div class="box-body">
+
+        <div class="box-body accordion-body" id="progresBox">
+
             <div class="progress-item">
                 <div class="progress-info">
                     <span>Laporan Bulanan</span>
@@ -62,6 +66,8 @@
                     <div class="progress-fill" data-value="10"></div>
                 </div>
             </div>
+
+
             <div class="progress-item">
                 <div class="progress-info">
                     <span>Input Data Klien</span>
@@ -71,6 +77,8 @@
                     <div class="progress-fill" data-value="80"></div>
                 </div>
             </div>
+
+
             <div class="progress-item">
                 <div class="progress-info">
                     <span>Review Dokumen</span>
@@ -80,6 +88,8 @@
                     <div class="progress-fill" data-value="45"></div>
                 </div>
             </div>
+
+
             <div class="progress-item">
                 <div class="progress-info">
                     <span>Meeting Divisi</span>
@@ -89,15 +99,22 @@
                     <div class="progress-fill" data-value="100"></div>
                 </div>
             </div>
+
         </div>
     </div>
 
     <div class="content-box">
-        <div class="box-header">
+
+        <div class="box-header accordion-header" onclick="toggleBox('absensiBox')">
             <h3>RIWAYAT ABSENSI</h3>
+            <span id="icon-absensi">▼</span>
         </div>
-        <div class="box-body no-padding">
+
+
+        <div class="box-body no-padding accordion-body" id="absensiBox">
+
             <table class="amarta-table">
+
                 <thead>
                     <tr>
                         <th>Tanggal</th>
@@ -106,26 +123,42 @@
                         <th>Status</th>
                     </tr>
                 </thead>
+
                 <tbody>
-                    {% for row in riwayat %}
-                    <tr>
-                        <td>{{ row.tanggal }}</td>
-                        <td>{{ row.masuk }}</td>
-                        <td>{{ row.keluar }}</td>
-                        <td>
-                            {% if row.status == 'Hadir' %}
-                            <span class="status-badge aktif">Hadir</span>
-                            {% else %}
-                            <span class="status-badge baris">{{ row.status }}</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr><td colspan="4" style="text-align:center; color:#a0aec0;">Belum ada riwayat absensi.</td></tr>
-                    {% endfor %}
+
+                {% for row in riwayat %}
+
+                <tr>
+                    <td>{{ row.tanggal }}</td>
+                    <td>{{ row.masuk }}</td>
+                    <td>{{ row.keluar }}</td>
+
+                    <td>
+                        {% if row.status == 'Hadir' %}
+                        <span class="status-badge aktif">Hadir</span>
+                        {% else %}
+                        <span class="status-badge baris">{{ row.status }}</span>
+                        {% endif %}
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+                    <td colspan="4" style="text-align:center;color:#a0aec0;">
+                        Belum ada riwayat absensi.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
                 </tbody>
+
             </table>
+
         </div>
+
     </div>
 </div>
 
@@ -167,4 +200,34 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
+
+<script>
+
+function toggleBox(id){
+
+    let box = document.getElementById(id);
+
+    let icon = document.getElementById(
+        id === 'progresBox' 
+        ? 'icon-progres' 
+        : 'icon-absensi'
+    );
+
+
+    if(box.classList.contains('show')){
+
+        box.classList.remove('show');
+        icon.innerHTML="▼";
+
+    }else{
+
+        box.classList.add('show');
+        icon.innerHTML="▲";
+
+    }
+
+}
+
+</script>
+
 {% endblock %}

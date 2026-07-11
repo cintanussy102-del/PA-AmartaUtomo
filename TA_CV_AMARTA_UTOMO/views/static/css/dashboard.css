@@ -1043,3 +1043,26 @@ body {
     position: relative;
     z-index: 1;
 }
+
+.accordion-header {
+    cursor: pointer;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+
+.accordion-body {
+    display:none;
+}
+
+
+.accordion-body.show {
+    display:block;
+}
+
+
+.accordion-header span {
+    font-size:14px;
+    color:#64748b;
+}
