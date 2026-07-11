@@ -184,3 +184,13 @@ def get_progres_per_proyek():
         if nama not in proyek:
             proyek[nama] = row['progres']
     return proyek
+
+def get_progres_tugas_karyawan(nama_user, daftar_tugas):
+    """Ambil progres TERBARU milik karyawan ini sendiri, untuk tiap tugas tetap di divisinya."""
+    semua = get_semua_laporan(nama_user)  # sudah urut DESC by tanggal_kirim
+    hasil = []
+    for tugas in daftar_tugas:
+        laporan_terkait = [l for l in semua if l['nama_proyek'] == tugas]
+        progres = laporan_terkait[0]['progres'] if laporan_terkait else 0
+        hasil.append({'nama_proyek': tugas, 'progres': progres})
+    return hasil

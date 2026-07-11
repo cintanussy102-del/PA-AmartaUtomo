@@ -28,7 +28,8 @@ from models.progres_model import (
        get_laporan_untuk_direktur, validasi_laporan,
        get_rata_rata_progres, get_laporan_progres_terbaru,
        get_laporan_progres_per_divisi,
-       get_progres_per_proyek  
+       get_progres_per_proyek,
+       get_progres_tugas_karyawan   
 )
 
 from models.divisi_model import (
@@ -388,9 +389,28 @@ def admin_slip_gaji():
 @login_required(role='karyawan')
 def karyawan_dashboard():
     nama_user = session['user']['username']
-    data = get_data_karyawan_by_name(nama_user)
+    karyawan = get_karyawan_by_username(nama_user)
     riwayat = get_riwayat_absensi(nama_user, limit=3)
-    return render_template('karyawan/dashboard.html', data=data, riwayat=riwayat)
+    rekap = get_rekap_bulanan(nama_user)
+
+    daftar_tugas = TUGAS_PER_DIVISI.get(karyawan['divisi'], []) if karyawan else []
+    progres_tugas = get_progres_tugas_karyawan(nama_user, daftar_tugas)
+
+    progres_rata = round(sum(t['progres'] for t in progres_tugas) / len(progres_tugas)) if progres_tugas else 0
+
+    data = {
+        "hari_hadir": rekap.get('Hadir', 0),
+        "izin": rekap.get('Cuti', 0) + rekap.get('Izin Lainnya', 0) + rekap.get('Sakit', 0),
+        "gaji": float(karyawan['gaji_pokok']) if karyawan else 0,
+        "progres": progres_rata,
+    }
+
+    return render_template(
+        'karyawan/dashboard.html',
+        data=data,
+        riwayat=riwayat,
+        progres_tugas=progres_tugas
+    )
 
 @app.route('/karyawan/absensi')
 @login_required(role='karyawan')

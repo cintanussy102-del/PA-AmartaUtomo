@@ -161,49 +161,45 @@
     </div>
 
 <div class="content-box">
-    <div class="box-header accordion-header" onclick="toggleAdminBox('karyawanBox')">
+        <div class="box-header accordion-header" onclick="toggleAdminBox('karyawanBox')">
+            <h3>Data Karyawan Terbaru</h3>
+            <span id="icon-karyawan">▼</span>
+        </div>
 
-        <h3>Data Karyawan Terbaru</h3>
-
-        <span id="icon-karyawan">▼</span>
-
+        <div class="box-body no-padding accordion-body" id="karyawanBox">
+            <table class="amarta-table">
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Divisi</th>
+                        <th>Jabatan</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for k in karyawan_terbaru %}
+                    <tr>
+                        <td>{{ k.nama_lengkap }}</td>
+                        <td>{{ k.divisi }}</td>
+                        <td>{{ k.jabatan }}</td>
+                        <td>
+                            <span class="status-badge {{ 'aktif' if k.status == 'Aktif' else 'baris' }}">
+                                {{ k.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
-
-    <div class="box-body no-padding accordion-body" id="karyawanBox">
-
-    <div class="box-body no-padding">
-        <table class="amarta-table">
-            <thead>
-                <tr>
-                    <th>Nama</th>
-                    <th>Divisi</th>
-                    <th>Jabatan</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for k in karyawan_terbaru %}
-                <tr>
-                    <td>{{ k.nama_lengkap }}</td>
-                    <td>{{ k.divisi }}</td>
-                    <td>{{ k.jabatan }}</td>
-                    <td>
-                        <span class="status-badge {{ 'aktif' if k.status == 'Aktif' else 'baris' }}">
-                            {{ k.status }}
-                        </span>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
 </div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const bars = document.querySelectorAll('.progress-fill');
-
+    
     bars.forEach(bar => {
         if (bar.hasAttribute('data-value')) {
             const value = parseInt(bar.getAttribute('data-value'));

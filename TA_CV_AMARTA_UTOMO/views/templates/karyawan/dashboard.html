@@ -3,13 +3,6 @@
 {% block title %}Dashboard Karyawan{% endblock %}
 {% block page_title %}Dashboard Karyawan{% endblock %}
 
-{% block sidebar_menu %}
-<a href="{{ url_for('karyawan_dashboard') }}" class="active"><i class="fas fa-th-large"></i> Dashboard</a>
-<a href="{{ url_for('karyawan_absensi') }}"><i class="fas fa-calendar-check"></i> Absensi</a>
-<a href="{{ url_for('karyawan_input_progres') }}"><i class="fas fa-tasks"></i> Input Laporan Kerja</a>
-<a href="{{ url_for('karyawan_slip_gaji') }}"><i class="fas fa-wallet"></i> Slip Gaji</a>
-{% endblock %}
-
 {% block content %}
 <div class="metrics-grid-four">
     <div class="metric-card card-blue">
@@ -43,78 +36,43 @@
             <span class="card-label">Slip Gaji Terbaru</span>
         </div>
     </div>
-
 </div>
 
 <div class="dashboard-grid-two">
 
     <div class="content-box">
-
         <div class="box-header accordion-header" onclick="toggleBox('progresBox')">
             <h3>PROGRES KERJA MINGGU INI</h3>
             <span id="icon-progres">▼</span>
         </div>
 
         <div class="box-body accordion-body" id="progresBox">
-
-            <div class="progress-item">
-                <div class="progress-info">
-                    <span>Laporan Bulanan</span>
-                    <span>10%</span>
+            {% if progres_tugas %}
+                {% for tugas in progres_tugas %}
+                <div class="progress-item">
+                    <div class="progress-info">
+                        <span>{{ tugas.nama_proyek }}</span>
+                        <span>{{ tugas.progres }}%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-fill" data-value="{{ tugas.progres }}"></div>
+                    </div>
                 </div>
-                <div class="progress-bar-bg">
-                    <div class="progress-fill" data-value="10"></div>
-                </div>
-            </div>
-
-
-            <div class="progress-item">
-                <div class="progress-info">
-                    <span>Input Data Klien</span>
-                    <span>80%</span>
-                </div>
-                <div class="progress-bar-bg">
-                    <div class="progress-fill" data-value="80"></div>
-                </div>
-            </div>
-
-
-            <div class="progress-item">
-                <div class="progress-info">
-                    <span>Review Dokumen</span>
-                    <span>45%</span>
-                </div>
-                <div class="progress-bar-bg">
-                    <div class="progress-fill" data-value="45"></div>
-                </div>
-            </div>
-
-
-            <div class="progress-item">
-                <div class="progress-info">
-                    <span>Meeting Divisi</span>
-                    <span>100%</span>
-                </div>
-                <div class="progress-bar-bg">
-                    <div class="progress-fill" data-value="100"></div>
-                </div>
-            </div>
-
+                {% endfor %}
+            {% else %}
+                <p style="color:#a0aec0;">Belum ada tugas terdaftar untuk divisi Anda.</p>
+            {% endif %}
         </div>
     </div>
 
     <div class="content-box">
-
         <div class="box-header accordion-header" onclick="toggleBox('absensiBox')">
             <h3>RIWAYAT ABSENSI</h3>
             <span id="icon-absensi">▼</span>
         </div>
 
-
         <div class="box-body no-padding accordion-body" id="absensiBox">
-
             <table class="amarta-table">
-
                 <thead>
                     <tr>
                         <th>Tanggal</th>
@@ -123,16 +81,12 @@
                         <th>Status</th>
                     </tr>
                 </thead>
-
                 <tbody>
-
                 {% for row in riwayat %}
-
                 <tr>
                     <td>{{ row.tanggal }}</td>
                     <td>{{ row.masuk }}</td>
                     <td>{{ row.keluar }}</td>
-
                     <td>
                         {% if row.status == 'Hadir' %}
                         <span class="status-badge aktif">Hadir</span>
@@ -140,26 +94,19 @@
                         <span class="status-badge baris">{{ row.status }}</span>
                         {% endif %}
                     </td>
-
                 </tr>
-
                 {% else %}
-
                 <tr>
                     <td colspan="4" style="text-align:center;color:#a0aec0;">
                         Belum ada riwayat absensi.
                     </td>
                 </tr>
-
                 {% endfor %}
-
                 </tbody>
-
             </table>
-
         </div>
-
     </div>
+
 </div>
 
 <div class="content-box margin-top-20">
@@ -173,17 +120,13 @@
     </div>
 </div>
 
-
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const bars = document.querySelectorAll('.progress-fill');
-
     bars.forEach(bar => {
         if (bar.hasAttribute('data-value')) {
             const value = parseInt(bar.getAttribute('data-value'));
-
             bar.style.setProperty('width', value + '%', 'important');
-
             let color = '';
             if (value >= 1 && value <= 39) {
                 color = 'red';
@@ -194,7 +137,6 @@ document.addEventListener("DOMContentLoaded", function() {
             } else if (value >= 80 && value <= 100) {
                 color = '#0ff007';
             }
-
             bar.style.setProperty('background-color', color, 'important');
         }
     });
@@ -202,32 +144,19 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 <script>
-
 function toggleBox(id){
-
     let box = document.getElementById(id);
-
     let icon = document.getElementById(
-        id === 'progresBox' 
-        ? 'icon-progres' 
-        : 'icon-absensi'
+        id === 'progresBox' ? 'icon-progres' : 'icon-absensi'
     );
-
-
     if(box.classList.contains('show')){
-
         box.classList.remove('show');
         icon.innerHTML="▼";
-
     }else{
-
         box.classList.add('show');
         icon.innerHTML="▲";
-
     }
-
 }
-
 </script>
 
 {% endblock %}
