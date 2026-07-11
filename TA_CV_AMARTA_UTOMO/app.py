@@ -143,7 +143,6 @@ def login():
 @app.route('/logout')
 def logout():
     session.clear()
-    flash('Anda telah berhasil keluar.', 'info')
     return redirect(url_for('login'))
 
 # ============================================================
