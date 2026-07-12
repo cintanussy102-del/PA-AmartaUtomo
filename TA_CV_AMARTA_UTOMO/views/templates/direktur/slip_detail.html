@@ -11,12 +11,12 @@
 
 {% block content %}
 <div class="content-box" style="padding: 30px; max-width: 900px; margin: auto;">
-    <a href="{{ url_for('direktur_bp.direktur_penggajian') }}" style="display:inline-block; margin-bottom:15px; color:#4b89dc; text-decoration:none;">&larr; Kembali ke Data Penggajian</a>
+    <a href="{{ url_for('direktur_bp.direktur_penggajian', bulan=bulan_dipilih, tahun=tahun_dipilih) }}" style="display:inline-block; margin-bottom:15px; color:#4b89dc; text-decoration:none;">&larr; Kembali ke Data Penggajian</a>
 
     <h2 style="margin-bottom: 20px; color: #1a202c;">Preview Slip Gaji</h2>
 
     <div style="border-bottom: 1px solid #e2e8f0; margin-bottom: 20px; padding-bottom: 10px; color: #4a5568;">
-        <p><strong>CV Amarta Utomo</strong><br>Jl. Osamaliki No. 57, Salatiga<br>Periode Penggajian: Bulan Ini</p>
+        <p><strong>CV Amarta Utomo</strong><br>Jl. Osamaliki No. 57, Salatiga<br>Periode Penggajian: {{ nama_bulan[bulan_dipilih] }} {{ tahun_dipilih }}</p>
     </div>
 
     <div style="margin-bottom: 20px;">
@@ -66,16 +66,20 @@
         TOTAL GAJI BERSIH: Rp {{ "{:,.0f}".format(k.gaji_bersih) }}
     </div>
 
-    {% if k.status_gaji != 'Terkirim' %}
-    <form action="{{ url_for('direktur_bp.kirim_slip', id=k.id) }}" method="POST">
-        <button type="submit" class="btn-primary-amarta full-width-btn">
-            <i class="fas fa-paper-plane"></i> Kirim Slip Gaji ke Karyawan
-        </button>
-    </form>
-    {% else %}
-    <div style="text-align:center; color:#2ecc71; font-weight:600;">
+    {% if k.status_gaji == 'Terkirim' %}
+    <div style="text-align:center; color:#2ecc71; font-weight:600; margin-bottom:15px;">
         <i class="fas fa-check-circle"></i> Slip gaji ini sudah terkirim ke karyawan.
     </div>
     {% endif %}
+
+    <form action="{{ url_for('direktur_bp.kirim_slip', id=k.id) }}" method="POST"
+        onsubmit="return confirm('{{ 'Kirim ulang slip gaji ini ke email karyawan?' if k.status_gaji == 'Terkirim' else 'Kirim slip gaji ini ke email karyawan?' }}');">
+        <input type="hidden" name="bulan" value="{{ bulan_dipilih }}">
+        <input type="hidden" name="tahun" value="{{ tahun_dipilih }}">
+        <button type="submit" class="btn-primary-amarta full-width-btn">
+            <i class="fas fa-paper-plane"></i>
+            {% if k.status_gaji == 'Terkirim' %}Kirim Ulang Slip Gaji{% else %}Kirim Slip Gaji ke Karyawan{% endif %}
+        </button>
+    </form>
 </div>
 {% endblock %}

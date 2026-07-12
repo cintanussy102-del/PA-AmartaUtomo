@@ -182,9 +182,9 @@ def hitung_hari_alpha(nama, bulan=None, tahun=None):
     return jumlah_alpha
 
 
-def hitung_potongan_gaji(nama, gaji_pokok, hari_kerja_per_bulan=25):
-    rekap = get_rekap_bulanan(nama)
-    jumlah_hari_potong = rekap['Alpha']  
+def hitung_potongan_gaji(nama, gaji_pokok, bulan=None, tahun=None, hari_kerja_per_bulan=25):
+    rekap = get_rekap_bulanan(nama, bulan, tahun)
+    jumlah_hari_potong = rekap['Alpha']
     potongan_per_hari = gaji_pokok / hari_kerja_per_bulan
     total_potongan = round(potongan_per_hari * jumlah_hari_potong)
 
@@ -368,3 +368,24 @@ def get_tingkat_kehadiran_hari_ini():
             hadir += 1
 
     return round((hadir / len(daftar)) * 100, 1)
+
+def get_riwayat_absensi_bulan(nama, bulan, tahun, limit=None):
+    """Riwayat absensi terfilter bulan & tahun tertentu (bukan semua riwayat)."""
+    query = """
+        SELECT tanggal, jam_masuk AS masuk, jam_keluar AS keluar,
+               status, keterangan, file_bukti
+        FROM absensi
+        WHERE nama_karyawan = %s AND MONTH(tanggal) = %s AND YEAR(tanggal) = %s
+        ORDER BY tanggal DESC
+    """
+    if limit:
+        query += " LIMIT %s"
+        rows = Database.fetch_all(query, (nama, bulan, tahun, limit))
+    else:
+        rows = Database.fetch_all(query, (nama, bulan, tahun))
+
+    for row in rows:
+        row['tanggal'] = format_tanggal_indonesia(row['tanggal'])
+        row['masuk'] = row['masuk'] or '-'
+        row['keluar'] = row['keluar'] or '-'
+    return rows

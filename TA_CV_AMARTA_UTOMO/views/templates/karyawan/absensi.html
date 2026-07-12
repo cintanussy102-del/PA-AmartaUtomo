@@ -44,6 +44,24 @@
             </div>
         </div>
 
+<div class="content-box" style="margin-bottom:15px;">
+    <div class="box-body" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+        <form method="GET" style="display:flex; gap:10px; align-items:center;">
+            <select name="bulan" onchange="this.form.submit()" style="padding:7px; border-radius:6px; border:1px solid #cbd5e0;">
+                {% for i in range(1, 13) %}
+                <option value="{{ i }}" {% if i == bulan_pilih %}selected{% endif %}>{{ nama_bulan[i] }}</option>
+                {% endfor %}
+            </select>
+            <select name="tahun" onchange="this.form.submit()" style="padding:7px; border-radius:6px; border:1px solid #cbd5e0;">
+                {% for y in range(2024, 2028) %}
+                <option value="{{ y }}" {% if y == tahun_pilih %}selected{% endif %}>{{ y }}</option>
+                {% endfor %}
+            </select>
+        </form>
+        <span style="font-weight:600; color:#4a5568;">Menampilkan: {{ nama_bulan[bulan_pilih] }} {{ tahun_pilih }}</span>
+    </div>
+</div>
+
         <div class="content-box">
             <div class="box-header">
                 <h3>RIWAYAT ABSENSI</h3>

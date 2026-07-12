@@ -5,26 +5,20 @@
 {% block content %} 
 <div class="content-box" style="padding: 30px; background: white; border-radius: 20px; border: 1px solid #e2e8f0; max-width: 900px; margin: auto;">
 
-    <!-- PILIH BULAN -->
-    <form method="GET" style="margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
-        <label for="pilih-bulan" style="font-weight: 600; color: #4a5568;">Lihat Slip Bulan:</label>
-        <select id="pilih-bulan" name="periode" class="form-control-input" style="max-width: 220px;">
-            <option value="{{ tahun_dipilih }}-{{ bulan_dipilih }}" selected>
-                {{ nama_bulan[bulan_dipilih] }} {{ tahun_dipilih }} (sedang dilihat)
-            </option>
-            {% for b in daftar_bulan %}
-                {% if not (b.bulan == bulan_dipilih and b.tahun == tahun_dipilih) %}
-                <option value="{{ b.tahun }}-{{ b.bulan }}">{{ nama_bulan[b.bulan] }} {{ b.tahun }}</option>
-                {% endif %}
+    <!-- PILIH PERIODE -->
+    <form method="GET" style="margin-bottom: 25px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <label style="font-weight: 600; color: #4a5568;">Lihat Slip Bulan:</label>
+        <select name="bulan" onchange="this.form.submit()" class="form-control-input" style="max-width: 160px;">
+            {% for i in range(1, 13) %}
+            <option value="{{ i }}" {% if i == bulan_dipilih %}selected{% endif %}>{{ nama_bulan[i] }}</option>
+            {% endfor %}
+        </select>
+        <select name="tahun" onchange="this.form.submit()" class="form-control-input" style="max-width: 120px;">
+            {% for y in range(2024, 2028) %}
+            <option value="{{ y }}" {% if y == tahun_dipilih %}selected{% endif %}>{{ y }}</option>
             {% endfor %}
         </select>
     </form>
-    <script>
-        document.getElementById('pilih-bulan').addEventListener('change', function(e) {
-            const [tahun, bulan] = this.value.split('-');
-            window.location.href = `?bulan=${bulan}&tahun=${tahun}`;
-        });
-    </script>
 
     <h2 style="margin-bottom: 20px; color: #1a202c;">Slip Gaji Admin</h2>
 

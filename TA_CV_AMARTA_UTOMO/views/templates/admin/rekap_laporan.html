@@ -1,97 +1,99 @@
 {% extends 'base.html' %}
+
 {% block title %}Rekap Laporan Pekerjaan{% endblock %}
 {% block page_title %}Rekap Laporan Pekerjaan{% endblock %}
 
 {% block content %}
 
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    {% for message in messages %}
-      <div style="background: #d4edda; color: #155724; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
-        {{ message }}
-      </div>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
-
-<div class="metrics-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 20px;">
-    <div class="metric-card" style="border-top-color: #4b89dc;">
-        <div class="card-info"><span class="card-label">Total Laporan</span><h3 class="card-value">{{ total }}</h3></div>
+<div class="metrics-grid" style="grid-template-columns: repeat(2, 1fr);">
+    <div class="metric-card card-blue">
+        <div class="card-info">
+            <span class="card-label">Total Laporan Fix Tersimpan</span>
+            <h3 class="card-value">{{ total_laporan }}</h3>
+        </div>
     </div>
-    <div class="metric-card" style="border-top-color: #f39c12;">
-        <div class="card-info"><span class="card-label">Perlu Ditinjau Admin</span><h3 class="card-value">{{ menunggu_admin }}</h3></div>
-    </div>
-    <div class="metric-card" style="border-top-color: #9b59b6;">
-        <div class="card-info"><span class="card-label">Menunggu Direktur</span><h3 class="card-value">{{ menunggu_direktur }}</h3></div>
-    </div>
-    <div class="metric-card" style="border-top-color: #2ecc71;">
-        <div class="card-info"><span class="card-label">Sudah Divalidasi</span><h3 class="card-value">{{ disetujui }} disetujui / {{ revisi }} revisi</h3></div>
+    <div class="metric-card card-green">
+        <div class="card-info">
+            <span class="card-label">Divisi Terwakili</span>
+            <h3 class="card-value">{{ total_divisi }}</h3>
+        </div>
     </div>
 </div>
 
-<div class="content-box">
-    <div class="box-body no-padding">
-        <table class="amarta-table">
-            <thead>
-                <tr>
-                    <th>Pengirim</th>
-                    <th>Divisi</th>
-                    <th>Proyek</th>
-                    <th>Tanggal Kirim</th>
-                    <th>Deskripsi</th>
-                    <th>File</th>
-                    <th>Status</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in daftar_laporan %}
-                <tr>
-                    <td>{{ row.nama_lengkap or row.nama_karyawan }}</td>
-                    <td>{{ row.divisi or '-' }}</td>
-                    <td>{{ row.nama_proyek }}</td>
-                    <td>{{ row.tanggal_kirim }}</td>
-                    <td style="max-width:220px;">{{ row.deskripsi_tugas }}</td>
-                    <td>
-                        {% if row.file_laporan %}
-                        <a href="{{ url_for('static', filename=row.file_laporan) }}" target="_blank">Lihat</a>
-                        &bull;
-                        <a href="{{ url_for('static', filename=row.file_laporan) }}" download>Download</a>
-                        {% else %}
-                        <span style="color:#a0aec0;">Tidak ada file</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if row.status_validasi == 'Menunggu Peninjauan Admin' %}
-                        <span class="status-badge" style="background:#feebc8; color:#dd6b20;">Perlu Ditinjau</span>
-                        {% elif row.status_validasi == 'Menunggu Validasi Direktur' %}
-                        <span class="status-badge" style="background:#e9d8fd; color:#6b46c1;">Menunggu Direktur</span>
-                        {% elif row.status_validasi == 'Disetujui' %}
-                        <span class="status-badge aktif">Disetujui</span>
-                        {% elif row.status_validasi == 'Revisi' %}
-                        <span class="status-badge" style="background:#fed7d7; color:#c53030;">Revisi</span>
-                        {% if row.catatan_revisi %}
-                        <br><small style="color:#c53030;">Catatan: {{ row.catatan_revisi }}</small>
-                        {% endif %}
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if row.status_validasi == 'Menunggu Peninjauan Admin' %}
-                        <form action="{{ url_for('admin_teruskan_laporan', id=row.id) }}" method="POST">
-                            <button type="submit" style="background:#4b89dc; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">
-                                Teruskan ke Direktur
-                            </button>
-                        </form>
-                        {% else %}
-                        <span style="color:#a0aec0;">-</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% else %}
-                <tr><td colspan="8" style="text-align:center;">Belum ada laporan masuk.</td></tr>
+<div class="content-box margin-top-20">
+    <div class="box-body" style="display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
+        <form method="GET" style="display:flex; gap:10px; align-items:center;">
+            <label style="font-size:0.85rem; color:#718096;">Filter Periode:</label>
+            <select name="bulan" onchange="this.form.submit()" style="padding:7px; border-radius:6px; border:1px solid #cbd5e0;">
+                <option value="">-- Semua Bulan --</option>
+                {% for i in range(1, 13) %}
+                <option value="{{ i }}" {% if i == bulan_pilih %}selected{% endif %}>{{ nama_bulan[i] }}</option>
                 {% endfor %}
-            </tbody>
-        </table>
+            </select>
+            <select name="tahun" onchange="this.form.submit()" style="padding:7px; border-radius:6px; border:1px solid #cbd5e0;">
+                <option value="">-- Semua Tahun --</option>
+                {% for y in tahun_tersedia %}
+                <option value="{{ y }}" {% if y == tahun_pilih %}selected{% endif %}>{{ y }}</option>
+                {% endfor %}
+            </select>
+        </form>
+        {% if bulan_pilih and tahun_pilih %}
+        <a href="{{ url_for('admin_rekap_laporan') }}" style="font-size:0.85rem; color:#e53e3e;">✕ Hapus Filter</a>
+        {% endif %}
     </div>
 </div>
+
+<div class="content-box margin-top-20">
+    <div class="box-header">
+        <h3>ARSIP LAPORAN RESMI PER DIVISI</h3>
+    </div>
+    <div class="box-body">
+        {% if per_divisi %}
+            {% for divisi, laporans in per_divisi.items() %}
+            <details class="divisi-collapse" open style="margin-bottom:15px; border-bottom:1px solid #e2e8f0; padding-bottom:10px;">
+                <summary style="cursor:pointer;">
+                    <strong>{{ divisi|upper }}</strong>
+                    <span style="color:#718096; font-size:0.85rem;">({{ laporans|length }} laporan)</span>
+                </summary>
+
+                <table class="amarta-table" style="margin-top:10px;">
+                    <thead>
+                        <tr>
+                            <th>Pengirim</th>
+                            <th>Proyek</th>
+                            <th>Deskripsi</th>
+                            <th>Tanggal Kirim</th>
+                            <th>Tanggal Disahkan</th>
+                            <th>File</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for l in laporans %}
+                        <tr>
+                            <td><strong>{{ l.nama_lengkap or l.nama_karyawan }}</strong></td>
+                            <td>{{ l.nama_proyek }}</td>
+                            <td>{{ l.deskripsi_tugas }}</td>
+                            <td>{{ l.tanggal_kirim.strftime('%d %b %Y') if l.tanggal_kirim else '-' }}</td>
+                            <td>{{ l.tanggal_validasi.strftime('%d %b %Y') if l.tanggal_validasi else '-' }}</td>
+                            <td>
+                                {% if l.file_laporan %}
+                                <a href="{{ url_for('static', filename=l.file_laporan) }}" target="_blank">
+                                    <i class="fas fa-file-pdf"></i> Lihat
+                                </a>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </details>
+            {% endfor %}
+        {% else %}
+            <p style="color:#a0aec0;">Belum ada laporan resmi yang tersimpan untuk periode ini.</p>
+        {% endif %}
+    </div>
+</div>
+
 {% endblock %}

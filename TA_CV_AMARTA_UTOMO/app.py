@@ -1,6 +1,8 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from dotenv import load_dotenv
+load_dotenv()                       
+
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from functools import wraps
 from controllers.direktur_controller import direktur_bp
 from models.gaji_model import get_slip_gaji, get_semua_bulan_tersedia, NAMA_BULAN
@@ -20,7 +22,8 @@ from models.absensi_model import (
     hitung_potongan_gaji, get_rekap_absensi_hari_ini,
     hitung_durasi_kerja, get_rekap_bulanan,
     get_absensi_tanggal, get_daftar_tanggal_bulan, reset_absensi_hari_ini,
-    get_tingkat_kehadiran_hari_ini, get_semua_pengajuan_izin   
+    get_tingkat_kehadiran_hari_ini, get_semua_pengajuan_izin,
+    get_riwayat_absensi_bulan   
 )
 from models.progres_model import (
        ajukan_laporan, get_ringkasan_laporan, kirim_ulang_laporan,
@@ -31,7 +34,6 @@ from models.progres_model import (
        get_progres_per_proyek,
        get_progres_tugas_karyawan   
 )
-
 from models.divisi_model import (
     get_semua_divisi_dengan_jumlah, get_jumlah_divisi_aktif,
     get_semua_divisi, get_anggota_divisi, tambah_divisi, update_divisi, hapus_divisi
@@ -41,9 +43,6 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 
-import resend
-
-resend.api_key = "re_Q7MAFYLd_7TS5p25pWLK7VQgBcBhAdCVX"
 
 load_dotenv()
 
@@ -162,23 +161,33 @@ def logout():
 @app.route('/admin/dashboard')
 @login_required(role='admin')
 def admin_dashboard():
-    rekap_hari_ini = get_rekap_absensi_hari_ini()
     total_karyawan = get_total_karyawan_aktif()
     divisi_list = get_semua_divisi_dengan_jumlah()
     jumlah_divisi_aktif = get_jumlah_divisi_aktif()
-    progres_rata = get_rata_rata_progres()
     laporan_per_divisi = build_laporan_progres_dashboard()
     karyawan_terbaru = get_karyawan_terbaru(3)
 
+    semua_laporan = get_semua_laporan_admin()
+    laporan_disetujui = len([l for l in semua_laporan if l['status_validasi'] == 'Disetujui'])
+    laporan_menunggu = len([l for l in semua_laporan if l['status_validasi'] == 'Menunggu Validasi Direktur'])
+
+    bulan_ini = datetime.now().month
+    tahun_ini = datetime.now().year
+    karyawan_baru_bulan_ini = len([
+        k for k in get_semua_karyawan()
+        if k.get('tanggal_bergabung') and k['tanggal_bergabung'].month == bulan_ini and k['tanggal_bergabung'].year == tahun_ini
+    ])
+
     return render_template(
         'admin/dashboard.html',
-        rekap_hari_ini=rekap_hari_ini,
         total_karyawan=total_karyawan,
         divisi_list=divisi_list,
         jumlah_divisi_aktif=jumlah_divisi_aktif,
-        progres_rata=progres_rata,
         laporan_per_divisi=laporan_per_divisi,
-        karyawan_terbaru=karyawan_terbaru
+        karyawan_terbaru=karyawan_terbaru,
+        laporan_disetujui=laporan_disetujui,
+        laporan_menunggu=laporan_menunggu,
+        karyawan_baru_bulan_ini=karyawan_baru_bulan_ini,
     )
 
 @app.route('/admin/data-karyawan')
@@ -247,19 +256,28 @@ def admin_hapus_karyawan(id):
 @login_required(role='admin')
 def admin_absensi():
     nama_user = session['user']['username']
-    riwayat = get_riwayat_absensi(nama_user)
+
+    today = datetime.now()
+    bulan_pilih = int(request.args.get('bulan', today.month))
+    tahun_pilih = int(request.args.get('tahun', today.year))
+
+    riwayat = get_riwayat_absensi_bulan(nama_user, bulan_pilih, tahun_pilih)
     status_hari_ini = get_status_hari_ini(nama_user)
     durasi_kerja = hitung_durasi_kerja(
         status_hari_ini['masuk'] if status_hari_ini else None,
         status_hari_ini['keluar'] if status_hari_ini else None
     )
-    rekap = get_rekap_bulanan(nama_user)
+    rekap = get_rekap_bulanan(nama_user, bulan_pilih, tahun_pilih)
+
     return render_template(
         'admin/kelola_absensi.html',
         riwayat=riwayat,
         status_hari_ini=status_hari_ini,
         durasi_kerja=durasi_kerja,
-        rekap=rekap
+        rekap=rekap,
+        bulan_pilih=bulan_pilih,
+        tahun_pilih=tahun_pilih,
+        nama_bulan=NAMA_BULAN
     )
 
 @app.route('/admin/ajukan-izin', methods=['POST'])
@@ -339,12 +357,38 @@ def admin_hapus_divisi(id):
 @login_required(role='admin')
 def admin_rekap_laporan():
     semua = get_semua_laporan_admin()
-    daftar_laporan = [l for l in semua if l['status_validasi'] == 'Disetujui']
-    total = len(daftar_laporan)
+    disetujui = [l for l in semua if l['status_validasi'] == 'Disetujui']
+
+    bulan_pilih = request.args.get('bulan', type=int)
+    tahun_pilih = request.args.get('tahun', type=int)
+
+    if bulan_pilih and tahun_pilih:
+        disetujui = [
+            l for l in disetujui
+            if l['tanggal_validasi'] and l['tanggal_validasi'].month == bulan_pilih and l['tanggal_validasi'].year == tahun_pilih
+        ]
+
+    per_divisi = {}
+    for l in disetujui:
+        divisi = l['divisi'] or 'Tanpa Divisi'
+        per_divisi.setdefault(divisi, []).append(l)
+
+    total_laporan = len(disetujui)
+    total_divisi = len(per_divisi)
+
+    tahun_tersedia = sorted({l['tanggal_validasi'].year for l in semua if l['status_validasi'] == 'Disetujui' and l['tanggal_validasi']}, reverse=True)
+    if not tahun_tersedia:
+        tahun_tersedia = [datetime.now().year]
+
     return render_template(
         'admin/rekap_laporan.html',
-        daftar_laporan=daftar_laporan,
-        total=total,
+        per_divisi=per_divisi,
+        total_laporan=total_laporan,
+        total_divisi=total_divisi,
+        bulan_pilih=bulan_pilih,
+        tahun_pilih=tahun_pilih,
+        tahun_tersedia=tahun_tersedia,
+        nama_bulan=NAMA_BULAN,
     )
 
 @app.route('/admin/teruskan-laporan/<int:id>', methods=['POST'])
@@ -416,19 +460,28 @@ def karyawan_dashboard():
 @login_required(role='karyawan')
 def karyawan_absensi():
     nama_user = session['user']['username']
-    riwayat = get_riwayat_absensi(nama_user)
+
+    today = datetime.now()
+    bulan_pilih = int(request.args.get('bulan', today.month))
+    tahun_pilih = int(request.args.get('tahun', today.year))
+
+    riwayat = get_riwayat_absensi_bulan(nama_user, bulan_pilih, tahun_pilih)
     status_hari_ini = get_status_hari_ini(nama_user)
     durasi_kerja = hitung_durasi_kerja(
         status_hari_ini['masuk'] if status_hari_ini else None,
         status_hari_ini['keluar'] if status_hari_ini else None
     )
-    rekap = get_rekap_bulanan(nama_user)
+    rekap = get_rekap_bulanan(nama_user, bulan_pilih, tahun_pilih)
+
     return render_template(
         'karyawan/absensi.html',
         riwayat=riwayat,
         status_hari_ini=status_hari_ini,
         durasi_kerja=durasi_kerja,
-        rekap=rekap
+        rekap=rekap,
+        bulan_pilih=bulan_pilih,
+        tahun_pilih=tahun_pilih,
+        nama_bulan=NAMA_BULAN
     )
 
 @app.route('/karyawan/absen-masuk', methods=['POST'])

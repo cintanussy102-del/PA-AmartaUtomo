@@ -21,6 +21,31 @@
   {% endif %}
 {% endwith %}
 
+<div class="content-box" style="margin-bottom:20px;">
+    <div class="box-body" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <form method="GET" style="display:flex; gap:10px; align-items:center;">
+            <label style="font-weight:600; color:#4a5568;">Periode:</label>
+            <select name="bulan" onchange="this.form.submit()" class="form-control-input" style="max-width:160px;">
+                {% for i in range(1, 13) %}
+                <option value="{{ i }}" {% if i == bulan_dipilih %}selected{% endif %}>{{ nama_bulan[i] }}</option>
+                {% endfor %}
+            </select>
+            <select name="tahun" onchange="this.form.submit()" class="form-control-input" style="max-width:120px;">
+                {% for y in range(2024, 2028) %}
+                <option value="{{ y }}" {% if y == tahun_dipilih %}selected{% endif %}>{{ y }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+</div>
+
+{% if bulan_masih_berjalan %}
+<div style="background:#fff3cd; color:#856404; padding:12px 15px; border-radius:8px; margin-bottom:20px; font-size:0.9rem;">
+    <i class="fas fa-info-circle"></i>
+    Bulan <strong>{{ nama_bulan[bulan_dipilih] }} {{ tahun_dipilih }}</strong> masih berjalan (belum genap sebulan). Perhitungan di bawah tetap akurat berdasarkan hari kerja yang sudah tercatat, tapi sebaiknya slip gaji dikirim setelah bulan ini selesai.
+</div>
+{% endif %}
+
 <div class="metrics-grid-four">
     <div class="metric-card card-blue">
         <div class="card-info">
@@ -107,7 +132,7 @@
                 <tr>
                     <td>{{ loop.index }}</td>
                     <td>
-                        <a href="{{ url_for('direktur_bp.direktur_slip_detail', id=row.id) }}" style="color:#4b89dc; font-weight:600; text-decoration:none;">
+                        <a href="{{ url_for('direktur_bp.direktur_slip_detail', id=row.id, bulan=bulan_dipilih, tahun=tahun_dipilih) }}" style="color:#4b89dc; font-weight:600; text-decoration:none;">
                             {{ row.nama_lengkap }}
                         </a>
                     </td>
@@ -121,14 +146,15 @@
                         {% endif %}
                     </td>
                     <td>
-                        <a href="{{ url_for('direktur_bp.direktur_slip_detail', id=row.id) }}" class="btn-action edit" style="margin-right:10px;">Lihat Slip</a>
-                        {% if row.status_gaji != 'Terkirim' %}
-                        <form action="{{ url_for('direktur_bp.kirim_slip', id=row.id) }}" method="POST" style="display:inline;">
-                            <button type="submit" style="background: #e67e22; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">
-                                Kirim Slip
+                       <a href="{{ url_for('direktur_bp.direktur_slip_detail', id=row.id, bulan=bulan_dipilih, tahun=tahun_dipilih) }}" class="btn-action edit" style="margin-right:10px;">Lihat Slip</a>
+                        <form action="{{ url_for('direktur_bp.kirim_slip', id=row.id) }}" method="POST" style="display:inline;"
+                            onsubmit="return confirm('{{ 'Kirim ulang slip gaji ke ' + row.nama_lengkap + '?' if row.status_gaji == 'Terkirim' else 'Kirim slip gaji ke ' + row.nama_lengkap + '?' }}');">
+                            <input type="hidden" name="bulan" value="{{ bulan_dipilih }}">
+                            <input type="hidden" name="tahun" value="{{ tahun_dipilih }}">
+                            <button type="submit" style="background: {{ '#3b82f6' if row.status_gaji == 'Terkirim' else '#e67e22' }}; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">
+                                {% if row.status_gaji == 'Terkirim' %}Kirim Ulang{% else %}Kirim Slip{% endif %}
                             </button>
                         </form>
-                        {% endif %}
                     </td>
                 </tr>
                 {% else %}

@@ -3,17 +3,6 @@
 {% block title %}Dashboard Admin{% endblock %}
 {% block page_title %}Dashboard Admin{% endblock %}
 
-/* Mengisi Sidebar Navigasi Khusus Admin sesuai Mockup */
-{% block sidebar_menu %}
-<a href="{{ url_for('admin_dashboard') }}" class="active"><i class="fas fa-th-large"></i> Dashboard</a>
-<a href="{{ url_for('karyawan_absensi') }}"><i class="fas fa-calendar-check"></i> Absensi</a>
-<a href="{{ url_for('admin_data_karyawan') }}"><i class="fas fa-users"></i> Data Karyawan</a>
-<a href="#"><i class="fas fa-sitemap"></i> Divisi</a>
-<a href="{{ url_for('admin_rekap_laporan') }}"><i class="fas fa-file-alt"></i> Laporan</a>
-<a href="{{ url_for('admin_slip_gaji') }}"><i class="fas fa-wallet"></i> Slip Gaji</a>
-{% endblock %}
-
-/* Mengisi Konten Utama Dashboard Admin */
 {% block content %}
 <div class="metrics-grid">
     <div class="metric-card card-blue">
@@ -33,179 +22,125 @@
     </div>
 
     <div class="metric-card card-orange">
-        <div class="card-icon"><i class="fas fa-tasks"></i></div>
+        <div class="card-icon"><i class="fas fa-user-plus"></i></div>
         <div class="card-info">
-            <span class="card-label">Progres Kerja Kelompok</span>
-            <h3 class="card-value">{{ progres_rata }}%</h3>
+            <span class="card-label">Karyawan Baru Bulan Ini</span>
+            <h3 class="card-value">{{ karyawan_baru_bulan_ini }}</h3>
         </div>
     </div>
 </div>
 
 <div class="metrics-grid-four margin-top-20">
     <div class="metric-card card-blue">
-        <div class="card-icon"><i class="fas fa-user-check"></i></div>
+        <div class="card-icon"><i class="fas fa-check-double"></i></div>
         <div class="card-info">
-            <h3 class="card-value">{{ rekap_hari_ini.hadir }} / {{ rekap_hari_ini.total_karyawan }}</h3>
-            <span class="card-label">Hadir Hari Ini</span>
+            <h3 class="card-value">{{ laporan_disetujui }}</h3>
+            <span class="card-label">Laporan Fix Tersimpan</span>
         </div>
     </div>
 
     <div class="metric-card card-purple">
-        <div class="card-icon"><i class="fas fa-user-clock"></i></div>
+        <div class="card-icon"><i class="fas fa-hourglass-half"></i></div>
         <div class="card-info">
-            <h3 class="card-value">{{ rekap_hari_ini.izin_cuti }} HARI</h3>
-            <span class="card-label">Izin / Cuti Hari Ini</span>
-        </div>
-    </div>
-
-    <div class="metric-card card-orange">
-        <div class="card-icon"><i class="fas fa-briefcase-medical"></i></div>
-        <div class="card-info">
-            <h3 class="card-value">{{ rekap_hari_ini.sakit }} HARI</h3>
-            <span class="card-label">Sakit Hari Ini</span>
-        </div>
-    </div>
-
-    <div class="metric-card card-red">
-        <div class="card-icon"><i class="fas fa-user-times"></i></div>
-        <div class="card-info">
-            <h3 class="card-value">{{ rekap_hari_ini.alpha }} HARI</h3>
-            <span class="card-label">Alpha / Tanpa Keterangan</span>
+            <h3 class="card-value">{{ laporan_menunggu }}</h3>
+            <span class="card-label">Menunggu Validasi Direktur</span>
         </div>
     </div>
 </div>
 
 <div class="dashboard-grid-two">
-    
-    <div class="content-box">
 
+    <div class="content-box">
         <div class="box-header accordion-header" onclick="toggleAdminBox('laporanBox')">
-            <h3>LAPORAN PROGRES</h3>
+            <h3>RINGKASAN PROGRES PER DIVISI</h3>
             <span id="icon-laporan">▼</span>
         </div>
 
-
         <div class="box-body accordion-body" id="laporanBox">
-
             {% if laporan_per_divisi %}
-
                 {% for divisi, laporans in laporan_per_divisi.items() %}
-
                 <div class="divisi-progress-group">
-
-                    <h4 style="margin-top:20px; margin-bottom:10px; color:#4a5568;">
-                        {{ divisi }}
-                    </h4>
-
-
+                    <h4 style="margin-top:20px; margin-bottom:10px; color:#4a5568;">{{ divisi }}</h4>
                     {% for lp in laporans %}
-
                     <div class="progress-item">
-
                         <div class="progress-info">
                             <span>{{ lp.nama_proyek }}</span>
                             <span>{{ lp.progres }}%</span>
                         </div>
-
                         <div class="progress-bar-bg">
                             <div class="progress-fill" data-value="{{ lp.progres }}"></div>
                         </div>
-
                     </div>
-
                     {% endfor %}
-
                 </div>
-
                 {% endfor %}
-
             {% else %}
-
-            <p>Belum ada laporan progres masuk.</p>
-
+                <p>Belum ada laporan progres masuk.</p>
             {% endif %}
-
         </div>
-
     </div>
 
-
     <div class="content-box">
-
         <div class="box-header accordion-header" onclick="toggleAdminBox('divisiBox')">
-
             <h3>DIVISI</h3>
-
             <span id="icon-divisi">▼</span>
-
         </div>
 
-
         <div class="box-body accordion-body" id="divisiBox">
-
             <ul class="divisi-list">
-
                 {% for d in divisi_list %}
-
                 <li>
                     <span>{{ d.divisi }}</span>
                     <strong>{{ d.jumlah }} orang</strong>
                 </li>
-
                 {% endfor %}
-
             </ul>
-
-        </div>
-
-    </div>
-
-<div class="content-box">
-        <div class="box-header accordion-header" onclick="toggleAdminBox('karyawanBox')">
-            <h3>Data Karyawan Terbaru</h3>
-            <span id="icon-karyawan">▼</span>
-        </div>
-
-        <div class="box-body no-padding accordion-body" id="karyawanBox">
-            <table class="amarta-table">
-                <thead>
-                    <tr>
-                        <th>Nama</th>
-                        <th>Divisi</th>
-                        <th>Jabatan</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for k in karyawan_terbaru %}
-                    <tr>
-                        <td>{{ k.nama_lengkap }}</td>
-                        <td>{{ k.divisi }}</td>
-                        <td>{{ k.jabatan }}</td>
-                        <td>
-                            <span class="status-badge {{ 'aktif' if k.status == 'Aktif' else 'baris' }}">
-                                {{ k.status }}
-                            </span>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
         </div>
     </div>
 
 </div>
 
+<div class="content-box margin-top-20">
+    <div class="box-header accordion-header" onclick="toggleAdminBox('karyawanBox')">
+        <h3>Data Karyawan Terbaru</h3>
+        <span id="icon-karyawan">▼</span>
+    </div>
+
+    <div class="box-body no-padding accordion-body" id="karyawanBox">
+        <table class="amarta-table">
+            <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>Divisi</th>
+                    <th>Jabatan</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for k in karyawan_terbaru %}
+                <tr>
+                    <td>{{ k.nama_lengkap }}</td>
+                    <td>{{ k.divisi }}</td>
+                    <td>{{ k.jabatan }}</td>
+                    <td>
+                        <span class="status-badge {{ 'aktif' if k.status == 'Aktif' else 'baris' }}">
+                            {{ k.status }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const bars = document.querySelectorAll('.progress-fill');
-    
     bars.forEach(bar => {
         if (bar.hasAttribute('data-value')) {
             const value = parseInt(bar.getAttribute('data-value'));
-
             bar.style.setProperty('width', value + '%', 'important');
-
             let color = '';
             if (value >= 1 && value <= 39) {
                 color = 'red';
@@ -216,7 +151,6 @@ document.addEventListener("DOMContentLoaded", function() {
             } else if (value >= 80 && value <= 100) {
                 color = '#0ff007';
             }
-
             bar.style.setProperty('background-color', color, 'important');
         }
     });
@@ -224,41 +158,24 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 <script>
-
 function toggleAdminBox(id){
-
     let box = document.getElementById(id);
-
     let icon;
-
-
     if(id === "laporanBox"){
         icon = document.getElementById("icon-laporan");
-    }
-
-    else if(id === "divisiBox"){
+    } else if(id === "divisiBox"){
         icon = document.getElementById("icon-divisi");
-    }
-
-    else if(id === "karyawanBox"){
+    } else if(id === "karyawanBox"){
         icon = document.getElementById("icon-karyawan");
     }
-
-
     if(box.classList.contains("show")){
-
         box.classList.remove("show");
         icon.innerHTML="▼";
-
-    }else{
-
+    } else {
         box.classList.add("show");
         icon.innerHTML="▲";
-
     }
-
 }
-
 </script>
 
 {% endblock %}
