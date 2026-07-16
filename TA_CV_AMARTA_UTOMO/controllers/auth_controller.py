@@ -18,12 +18,14 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
+        pesan_gagal = 'Username atau Password Salah!'
+
         if username == 'Admin':
             if password == 'Glory':
                 session['user'] = {'username': 'admin', 'role': 'admin'}
                 flash('Login berhasil! Selamat datang, Admin.', 'success')
                 return redirect(url_for('admin_dashboard'))
-            flash('Password salah', 'danger')
+            flash(pesan_gagal, 'danger')
             return redirect(url_for('login'))
 
         elif username == 'Direktur':
@@ -31,7 +33,7 @@ def login():
                 session['user'] = {'username': 'direktur', 'role': 'direktur'}
                 flash('Login berhasil! Selamat datang, Direktur.', 'success')
                 return redirect(url_for('direktur_dashboard'))
-            flash('Password salah', 'danger')
+            flash(pesan_gagal, 'danger')
             return redirect(url_for('login'))
 
         elif username in DIVISI_LOGIN_MAP:
@@ -45,14 +47,15 @@ def login():
                 }
                 flash(f"Login berhasil! Selamat datang, {karyawan['nama_lengkap']}.", 'success')
                 return redirect(url_for('karyawan_dashboard'))
-            flash('Password salah', 'danger')
+            flash(pesan_gagal, 'danger')
             return redirect(url_for('login'))
 
         else:
-            flash('Username salah', 'danger')
+            flash(pesan_gagal, 'danger')
             return redirect(url_for('login'))
 
     return render_template('login.html')
+
 
 def logout():
     session.clear()

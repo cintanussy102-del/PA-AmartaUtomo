@@ -21,78 +21,71 @@
     </div>
 
     <h2>LOGIN PENGGUNA</h2>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
-    {% endwith %}
-    <form action="{{ url_for('login') }}" method="POST">
-        <div class="input-row">
-            <span class="icon">👤</span>
-            <div class="input-field">
-                <label>Username</label>
-                <input type="text" name="username" placeholder="Masukan Username" required>
-            </div>
-        </div>
-        
-        <div class="input-row">
-            <span class="icon">🔐</span>
-            <div class="input-field">
-                <label>Password</label>
-                <input type="password" name="password" id="password" placeholder="Masukan Password" required>
-                <button type="button" class="eye-toggle" onclick="togglePassword()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                    </svg>
-                </button>
-            </div>
-        </div>
-        
-        <button type="submit" class="btn-submit">Masuk Sistem</button>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    {% if category == 'login_error' %}
-                        <p class="login-error">{{ message }}</p>
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
 
-    </form>
+<form action="{{ url_for('login') }}" method="POST">
+    <div class="input-row">
+        <span class="icon">👤</span>
+        <div class="input-field">
+            <label>Username</label>
+            <input type="text" name="username" placeholder="Masukan Username" required>
+        </div>
+    </div>
+
+    <div class="input-row">
+        <span class="icon">🔐</span>
+        <div class="input-field">
+            <label>Password</label>
+            <input type="password" name="password" id="password" placeholder="Masukan Password" required>
+            <button type="button" class="eye-toggle" onclick="togglePassword()">
+                <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.03 7.03 0 0 0-2.79.588l.77.771A5.94 5.94 0 0 1 8 3.5c2.12 0 3.88 1.168 5.17 2.457A13.13 13.13 0 0 1 14.83 8c-.06.087-.12.183-.2.288-.34.48-.83 1.12-1.47 1.755-.16.165-.33.328-.51.486l.71.709z"/>
+                    <path d="M11.3 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.828 2.829l.823.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.822.822a2.5 2.5 0 0 0 2.83 2.83z"/>
+                    <path d="M3.35 5.47c-.18.16-.353.322-.518.487A13.13 13.13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.03 7.03 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.709.709zM13.646 14.354l-12-12 .708-.708 12 12-.708.708z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <button type="submit" class="btn-submit">Masuk Sistem</button>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                {% if category == 'danger' %}
+                    <p class="login-error">{{ message }}</p>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+</form>
 
     </div>
 
     <script>
     function togglePassword() {
-        const passInput = document.getElementById("password");
-        const button = document.querySelector(".eye-toggle");
+    const passInput = document.getElementById("password");
+    const button = document.querySelector(".eye-toggle");
 
-        if (passInput.type === "password") {
-            passInput.type = "text";
-            button.innerHTML = `
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" 
-            stroke="currentColor" stroke-width="2">
-                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20
-                c-7 0-11-8-11-8a21.77 21.77 0 0 1 5.06-5.94">
-                </path>
-                <path d="M1 1l22 22"></path>
-            </svg>`;
-        } else {
-            passInput.type = "password";
-            button.innerHTML = `
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" 
-            stroke="currentColor" stroke-width="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z">
-                </path>
-                <circle cx="12" cy="12" r="3"></circle>
-            </svg>`;
-        }
+    if (passInput.type === "password") {
+        passInput.type = "text";
+        // Mata terbuka
+        button.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="4"></circle>
+        </svg>`;
+    } else {
+        passInput.type = "password";
+        // Mata tertutup (coret)
+        button.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.03 7.03 0 0 0-2.79.588l.77.771A5.94 5.94 0 0 1 8 3.5c2.12 0 3.88 1.168 5.17 2.457A13.13 13.13 0 0 1 14.83 8c-.06.087-.12.183-.2.288-.34.48-.83 1.12-1.47 1.755-.16.165-.33.328-.51.486l.71.709z"/>
+            <path d="M11.3 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.828 2.829l.823.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.822.822a2.5 2.5 0 0 0 2.83 2.83z"/>
+            <path d="M3.35 5.47c-.18.16-.353.322-.518.487A13.13 13.13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.03 7.03 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.709.709zM13.646 14.354l-12-12 .708-.708 12 12-.708.708z"/>
+        </svg>`;
     }
+}
     </script>
 </body>
 </html>

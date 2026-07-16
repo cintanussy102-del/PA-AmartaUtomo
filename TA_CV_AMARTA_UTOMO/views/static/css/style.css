@@ -199,8 +199,9 @@ body {
 }
 
 .btn-submit {
-    width: 50%;
-    padding: 10px 0 !important;
+    width: 100%;
+    max-width: 280px;
+    padding: 14px 0 !important;
     font-size: 1.1rem; 
     background-color: #4a5568;
     color: rgb(254, 206, 134);
@@ -264,14 +265,16 @@ body {
 
 .input-row { 
     display: flex; 
-    align-items: center; 
-    gap: 20px; 
-    margin-bottom: 25px; 
+    align-items: flex-start; 
+    gap: 15px; 
+    margin-bottom: 20px; 
 }
 
-.icon {
-    font-size: 1.3rem;
-    width: 30px;
+.icon { 
+    font-size: 1.2rem; 
+    color: #334155; 
+    width: 25px; 
+    margin-top: 34px; 
 }
 
 .input-row input {
@@ -375,4 +378,9 @@ body {
 @keyframes slideDown {
     from { opacity: 0; transform: translateY(-8px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none;
 }
