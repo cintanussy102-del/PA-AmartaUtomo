@@ -9,9 +9,9 @@
 }
 
 body {
-    background: linear-gradient(135deg, #5cbee8, #D2B4BC, #d8ab8b, #e4dbdb);
+    background: linear-gradient(135deg, #6b8cce, #a8a4d4, #e8c9dc, #f0d5c8);
     background-size: 400% 400%; 
-    animation: gradientAnimation 13s ease infinite; 
+    animation: gradientAnimation 12s ease infinite; 
     min-height: 100vh;
     display: flex;
     justify-content: center;

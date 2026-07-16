@@ -233,7 +233,7 @@ def direktur_penggajian():
 @direktur_bp.route('/direktur/slip-detail/<int:id>')
 @login_required(role='direktur')
 def direktur_slip_detail(id):
-    today = datetime.date.today()
+    today = datetime.now().date()
     bulan_dipilih = request.args.get('bulan', type=int, default=today.month)
     tahun_dipilih = request.args.get('tahun', type=int, default=today.year)
 
@@ -258,7 +258,7 @@ def kirim_slip(id):
     bulan_dipilih = request.form.get('bulan', type=int)
     tahun_dipilih = request.form.get('tahun', type=int)
     if not bulan_dipilih or not tahun_dipilih:
-        today = datetime.date.today()
+        today = datetime.now().date()
         bulan_dipilih = today.month
         tahun_dipilih = today.year
 
