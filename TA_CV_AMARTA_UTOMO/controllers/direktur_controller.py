@@ -13,6 +13,155 @@ resend.api_key = os.getenv("RESEND_API_KEY")
 
 print("KEY AKTIF DI DIREKTUR:", resend.api_key[:15] if resend.api_key else "KOSONG")
 
+from utils import build_laporan_progres_dashboard
+from models.karyawan_model import get_karyawan_per_divisi, get_total_karyawan_aktif
+from models.absensi_model import (
+    get_tingkat_kehadiran_hari_ini, get_semua_pengajuan_izin, get_absensi_tanggal,
+    get_daftar_tanggal_bulan, reset_absensi_hari_ini
+)
+from models.progres_model import (
+    get_progres_per_proyek, get_laporan_untuk_direktur, validasi_laporan, get_semua_laporan_admin
+)
+from datetime import datetime, timedelta
+
+
+def direktur_dashboard():
+    karyawan_per_divisi = get_karyawan_per_divisi()
+    total_karyawan = get_total_karyawan_aktif()
+
+    progres_proyek = get_progres_per_proyek()
+    proyek_aktif = len([p for p in progres_proyek.values() if p < 100])
+    tingkat_kehadiran = get_tingkat_kehadiran_hari_ini()
+    progres_per_divisi = build_laporan_progres_dashboard()
+
+    laporan_terbaru = []
+    for row in get_semua_laporan_admin()[:5]:
+        laporan_terbaru.append({
+            "tanggal": row['tanggal_kirim'],
+            "nama": row['nama_lengkap'] or row['nama_karyawan'],
+            "aktivitas": f"Submit laporan progres {row['nama_proyek']}",
+            "status": "Selesai" if row['status_validasi'] == 'Disetujui' else "Pending",
+        })
+
+    izin_terbaru = []
+    for izin in get_semua_pengajuan_izin()[:5]:
+        k = get_karyawan_by_id_by_username_helper(izin['nama_karyawan'])
+        izin_terbaru.append({
+            "tanggal": izin['tanggal'],
+            "nama": k['nama_lengkap'] if k else izin['nama_karyawan'],
+            "aktivitas": f"Pengajuan {izin['status']}",
+            "status": izin['status_approval'],
+        })
+
+    return render_template(
+        'direktur/dashboard.html', total_karyawan=total_karyawan, proyek_aktif=proyek_aktif,
+        tingkat_kehadiran=tingkat_kehadiran, progres_per_divisi=progres_per_divisi,
+        karyawan_per_divisi=karyawan_per_divisi, laporan_terbaru=laporan_terbaru, izin_terbaru=izin_terbaru,
+    )
+
+
+def get_karyawan_by_id_by_username_helper(username):
+    from models.karyawan_model import get_karyawan_by_username
+    return get_karyawan_by_username(username)
+
+
+def direktur_monitoring():
+    semua_laporan = get_semua_laporan_admin()
+    proyek_map = {}
+    for row in semua_laporan:
+        if row['nama_proyek'] not in proyek_map:
+            proyek_map[row['nama_proyek']] = row
+    daftar_proyek = list(proyek_map.values())
+
+    for p in daftar_proyek:
+        progres = p['progres']
+        if progres >= 70:
+            p['kondisi'], p['kondisi_class'], p['warna_progres'] = 'On Track', 'status-on-track', 'fill-green'
+        elif progres >= 30:
+            p['kondisi'], p['kondisi_class'], p['warna_progres'] = 'Delayed', 'status-delayed', 'fill-orange'
+        else:
+            p['kondisi'], p['kondisi_class'], p['warna_progres'] = 'Critical', 'status-critical', 'fill-red'
+
+    return render_template(
+        'direktur/monitoring.html', daftar_proyek=daftar_proyek,
+        total_proyek=len(daftar_proyek),
+        sudah_selesai=len([p for p in daftar_proyek if p['progres'] == 100]),
+        perlu_perhatian=len([p for p in daftar_proyek if 30 <= p['progres'] < 70]),
+        terhambat=len([p for p in daftar_proyek if p['progres'] < 30]),
+    )
+
+
+def direktur_absensi():
+    tanggal_str = request.args.get('tanggal')
+    tanggal_pilih = datetime.strptime(tanggal_str, '%Y-%m-%d').date() if tanggal_str else datetime.now().date()
+    bulan_pilih = int(request.args.get('bulan', tanggal_pilih.month))
+    tahun_pilih = int(request.args.get('tahun', tanggal_pilih.year))
+    page = int(request.args.get('page', 1))
+
+    data_absensi = get_absensi_tanggal(tanggal_pilih)
+    hadir = len([d for d in data_absensi if d['status'] == 'Hadir'])
+    izin_cuti = len([d for d in data_absensi if d['status'] in ('Cuti', 'Izin Lainnya')])
+    sakit = len([d for d in data_absensi if d['status'] == 'Sakit'])
+    alpha = len([d for d in data_absensi if d['status'] == 'Alpha'])
+
+    daftar_tanggal_bulan = get_daftar_tanggal_bulan(bulan_pilih, tahun_pilih)
+    per_page = 10
+    total_pages = max(1, (len(daftar_tanggal_bulan) + per_page - 1) // per_page)
+    page = min(max(page, 1), total_pages)
+    tanggal_halaman = daftar_tanggal_bulan[(page - 1) * per_page: (page - 1) * per_page + per_page]
+
+    tanggal_kemarin = tanggal_pilih - timedelta(days=1)
+    tanggal_besok = tanggal_pilih + timedelta(days=1)
+    bisa_maju = tanggal_besok <= datetime.now().date()
+
+    return render_template(
+        'direktur/absensi.html', data_absensi=data_absensi, total_karyawan=len(data_absensi),
+        hadir=hadir, izin_cuti=izin_cuti, sakit=sakit, alpha=alpha,
+        tanggal_pilih=tanggal_pilih, tanggal_pilih_str=tanggal_pilih.strftime('%Y-%m-%d'),
+        tanggal_kemarin=tanggal_kemarin.strftime('%Y-%m-%d'), tanggal_besok=tanggal_besok.strftime('%Y-%m-%d'),
+        bisa_maju=bisa_maju, bulan_pilih=bulan_pilih, tahun_pilih=tahun_pilih,
+        tanggal_halaman=tanggal_halaman, page=page, total_pages=total_pages,
+    )
+
+
+def direktur_reset_absensi():
+    nama = request.form.get('nama')
+    if nama == 'semua':
+        reset_absensi_hari_ini()
+        flash('Absensi hari ini untuk SEMUA orang berhasil direset!', 'success')
+    else:
+        reset_absensi_hari_ini(nama)
+        flash(f'Absensi hari ini untuk {nama} berhasil direset!', 'success')
+    return redirect(url_for('direktur_absensi'))
+
+
+def direktur_penggajian_redirect():
+    return redirect(url_for('direktur_bp.direktur_penggajian'))
+
+
+def direktur_laporan():
+    daftar_laporan = get_laporan_untuk_direktur()
+    return render_template(
+        'direktur/laporan.html', daftar_laporan=daftar_laporan,
+        total_revisi=len([l for l in daftar_laporan if l['status_validasi'] == 'Revisi']),
+        total_selesai=len([l for l in daftar_laporan if l['status_validasi'] == 'Disetujui']),
+        total_proses=len([l for l in daftar_laporan if l['status_validasi'] == 'Menunggu Validasi Direktur']),
+    )
+
+
+def direktur_validasi_laporan(id):
+    aksi = request.form.get('aksi')
+    catatan = (request.form.get('catatan_revisi') or '').strip()
+    if aksi == 'setuju':
+        validasi_laporan(id, 'Disetujui', None)
+        flash('Laporan berhasil disetujui!', 'success')
+    elif aksi == 'revisi':
+        if not catatan:
+            flash('Catatan revisi wajib diisi supaya karyawan tahu apa yang perlu diperbaiki!', 'danger')
+            return redirect(url_for('direktur_laporan'))
+        validasi_laporan(id, 'Revisi', catatan)
+        flash('Laporan dikembalikan untuk direvisi.', 'success')
+    return redirect(url_for('direktur_laporan'))
 
 def login_required(role=None):
     def decorator(f):
@@ -53,7 +202,7 @@ def _hitung_rincian_gaji(karyawan, bulan, tahun):
 @direktur_bp.route('/direktur/penggajian_data')
 @login_required(role='direktur')
 def direktur_penggajian():
-    today = datetime.date.today()
+    today = datetime.now().date()
     bulan_dipilih = request.args.get('bulan', type=int, default=today.month)
     tahun_dipilih = request.args.get('tahun', type=int, default=today.year)
 

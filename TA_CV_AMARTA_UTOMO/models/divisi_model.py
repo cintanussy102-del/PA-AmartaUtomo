@@ -82,13 +82,10 @@ def get_semua_divisi_dengan_jumlah():
     """
     return Database.fetch_all(query)
 
-def get_jabatan_tampilan(karyawan_id, nama_divisi):
-    """Tentukan label jabatan untuk slip gaji: Kepala Divisi / Anggota Divisi / Direktur."""
-    if nama_divisi == 'Direktur':
-        return 'Direktur'
-
+def get_kepala_id_by_divisi(nama_divisi):
+    """Query murni: ambil id kepala divisi dari database. Keputusan label ada di utils.py."""
     query = "SELECT kepala_id FROM divisi WHERE nama = %s"
     rows = Database.fetch_all(query, (nama_divisi,))
-    if rows and rows[0]['kepala_id'] is not None and rows[0]['kepala_id'] == karyawan_id:
-        return 'Kepala Divisi'
-    return 'Anggota Divisi'
+    if rows:
+        return rows[0]['kepala_id']
+    return None

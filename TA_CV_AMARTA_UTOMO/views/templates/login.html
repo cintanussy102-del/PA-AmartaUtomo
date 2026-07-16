@@ -21,6 +21,13 @@
     </div>
 
     <h2>LOGIN PENGGUNA</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
     <form action="{{ url_for('login') }}" method="POST">
         <div class="input-row">
             <span class="icon">👤</span>
