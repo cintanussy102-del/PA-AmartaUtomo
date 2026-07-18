@@ -9,20 +9,44 @@
 }
 
 body {
-    background: linear-gradient(135deg, #6b8cce, #a8a4d4, #e8c9dc, #f0d5c8);
-    background-size: 400% 400%; 
-    animation: gradientAnimation 12s ease infinite; 
+    position: relative;
+    overflow-x: hidden;
     min-height: 100vh;
+    margin: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px;
+    background-color: #eef2f7;
 }
 
-@keyframes gradientAnimation {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+body::before {
+    content: '';
+    position: fixed;
+    inset: -20%;
+    background:
+        radial-gradient(circle at 20% 30%, #aa94d6 0%, transparent 55%),
+        radial-gradient(circle at 80% 20%, #5586cb 0%, transparent 55%),
+        radial-gradient(circle at 30% 80%, #c9cad8 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, #974444 0%, transparent 55%),
+        radial-gradient(circle at 50% 50%, #0dcbc8 0%, transparent 60%);
+    filter: blur(60px);
+    animation: meshMove 18s ease-in-out infinite;
+    z-index: 0;
+}
+
+body > * {
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes meshMove {
+    0%   { transform: translate(0%, 0%) rotate(0deg) scale(1); }
+    20%  { transform: translate(5%, -6%) rotate(8deg) scale(1.1); }
+    40%  { transform: translate(-6%, 5%) rotate(-6deg) scale(1.05); }
+    60%  { transform: translate(6%, 6%) rotate(6deg) scale(1.1); }
+    80%  { transform: translate(-5%, -4%) rotate(-8deg) scale(1); }
+    100% { transform: translate(0%, 0%) rotate(0deg) scale(1); }
 }
 
 /* ==========================================

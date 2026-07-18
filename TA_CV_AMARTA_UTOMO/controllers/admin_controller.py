@@ -81,6 +81,7 @@ def admin_tambah_karyawan():
 
 def admin_edit_karyawan(id):
     if request.method == 'POST':
+        password_baru = request.form.get('password')
         update_karyawan(
             id=id,
             username=request.form.get('username'),
@@ -93,7 +94,8 @@ def admin_edit_karyawan(id):
             kontak=request.form.get('kontak'),
             tanggal_bergabung=request.form.get('tanggal_bergabung'),
             status=request.form.get('status'),
-            email=request.form.get('email')
+            email=request.form.get('email'),
+            password=password_baru if password_baru else None
         )
         flash('Data karyawan berhasil diperbarui!', 'success')
         return redirect(url_for('admin_data_karyawan'))
