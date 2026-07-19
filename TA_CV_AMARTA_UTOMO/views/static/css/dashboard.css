@@ -720,6 +720,12 @@ body {
     transform: translateX(3px);
 }
 
+.sidebar nav a.active {
+    background: rgba(255,255,255,0.1);
+    border-left: 3px solid #4b89dc;
+    color: #fff;
+}
+
 
 .sidebar nav a i {
     margin-right: 10px;
@@ -916,6 +922,10 @@ body {
 
     .header-action-buttons {
         flex-wrap: wrap;
+    }
+    .slip-gaji-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
     }
 }
 

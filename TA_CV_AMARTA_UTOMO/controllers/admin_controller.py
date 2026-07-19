@@ -192,17 +192,17 @@ def admin_rekap_laporan():
     semua = get_semua_laporan_admin()
     disetujui = [l for l in semua if l['status_validasi'] == 'Disetujui']
 
-    bulan_pilih = request.args.get('bulan', type=int)
-    tahun_pilih = request.args.get('tahun', type=int)
+    today = datetime.now()
+    bulan_pilih = request.args.get('bulan', type=int, default=today.month)
+    tahun_pilih = request.args.get('tahun', type=int, default=today.year)
 
-    if bulan_pilih and tahun_pilih:
-        disetujui = [l for l in disetujui if l['tanggal_validasi'] and l['tanggal_validasi'].month == bulan_pilih and l['tanggal_validasi'].year == tahun_pilih]
+    disetujui = [l for l in disetujui if l['tanggal_validasi'] and l['tanggal_validasi'].month == bulan_pilih and l['tanggal_validasi'].year == tahun_pilih]
 
     per_divisi = {}
     for l in disetujui:
         per_divisi.setdefault(l['divisi'] or 'Tanpa Divisi', []).append(l)
 
-    tahun_tersedia = sorted({l['tanggal_validasi'].year for l in semua if l['status_validasi'] == 'Disetujui' and l['tanggal_validasi']}, reverse=True) or [datetime.now().year]
+    tahun_tersedia = sorted({l['tanggal_validasi'].year for l in semua if l['status_validasi'] == 'Disetujui' and l['tanggal_validasi']}, reverse=True) or [today.year]
 
     return render_template(
         'admin/rekap_laporan.html', per_divisi=per_divisi, total_laporan=len(disetujui),

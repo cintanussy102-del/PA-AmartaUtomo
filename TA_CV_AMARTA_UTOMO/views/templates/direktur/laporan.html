@@ -14,6 +14,19 @@
   {% endif %}
 {% endwith %}
 
+<form method="GET" style="display:flex; gap:10px; align-items:center; margin-bottom:20px;">
+    <select name="bulan" class="form-control-input" onchange="this.form.submit()" style="width:auto;">
+        {% for num, nama in nama_bulan.items() %}
+        <option value="{{ num }}" {% if num == bulan_pilih %}selected{% endif %}>{{ nama }}</option>
+        {% endfor %}
+    </select>
+    <select name="tahun" class="form-control-input" onchange="this.form.submit()" style="width:auto;">
+        {% for t in tahun_tersedia %}
+        <option value="{{ t }}" {% if t == tahun_pilih %}selected{% endif %}>{{ t }}</option>
+        {% endfor %}
+    </select>
+</form>
+
 <div class="metrics-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
     <div class="metric-card" style="border-top-color: #f39c12;">
         <div class="card-info"><span class="card-label">Menunggu Validasi</span><h3 class="card-value">{{ total_proses }}</h3></div>

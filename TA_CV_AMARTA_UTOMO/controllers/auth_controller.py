@@ -22,16 +22,14 @@ def login():
 
         if username == 'Admin':
             if password == 'Glory':
-                session['user'] = {'username': 'admin', 'role': 'admin'}
-                flash('Login berhasil! Selamat datang, Admin.', 'success')
+                session['user'] = {'username': 'admin', 'nama_lengkap': 'Glory', 'role': 'admin'}
                 return redirect(url_for('admin_dashboard'))
             flash(pesan_gagal, 'danger')
             return redirect(url_for('login'))
 
         elif username == 'Direktur':
             if password == 'Gloria':
-                session['user'] = {'username': 'direktur', 'role': 'direktur'}
-                flash('Login berhasil! Selamat datang, Direktur.', 'success')
+                session['user'] = {'username': 'direktur', 'nama_lengkap': 'Gloria', 'role': 'direktur'}
                 return redirect(url_for('direktur_dashboard'))
             flash(pesan_gagal, 'danger')
             return redirect(url_for('login'))
@@ -45,7 +43,6 @@ def login():
                     'nama_lengkap': karyawan['nama_lengkap'],
                     'role': 'karyawan'
                 }
-                flash(f"Login berhasil! Selamat datang, {karyawan['nama_lengkap']}.", 'success')
                 return redirect(url_for('karyawan_dashboard'))
             flash(pesan_gagal, 'danger')
             return redirect(url_for('login'))

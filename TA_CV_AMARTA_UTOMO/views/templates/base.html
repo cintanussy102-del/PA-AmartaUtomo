@@ -94,7 +94,7 @@
                     </a>
 
                     <a href="{{ url_for('direktur_penggajian') }}"
-                    class="{% if request.endpoint == 'direktur_penggajian' %}active{% endif %}">
+                    class="{% if request.endpoint == 'direktur_bp.direktur_penggajian' %}active{% endif %}">
                         <i class="fas fa-wallet"></i> Penggajian
                     </a>
 
@@ -127,7 +127,7 @@
                     <h1 class="current-page-title">{% block page_title %}Dashboard{% endblock %}</h1>
                 </div>
                 <div class="user-profile-nav">
-                    <span>Halo, <strong>{{ session['user']['username'] if session['user'] else 'Pengguna' }}</strong></span>
+                    <span>Halo, <strong>{{ session['user']['nama_lengkap'] if session['user'] and session['user'].get('nama_lengkap') else (session['user']['username'] if session['user'] else 'Pengguna') }}</strong></span>
                     <i class="fas fa-user-circle avatar-icon"></i>
                 </div>
             </header>

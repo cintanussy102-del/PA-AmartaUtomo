@@ -29,8 +29,8 @@ def direktur_dashboard():
     karyawan_per_divisi = get_karyawan_per_divisi()
     total_karyawan = get_total_karyawan_aktif()
 
-    progres_proyek = get_progres_per_proyek()
-    proyek_aktif = len([p for p in progres_proyek.values() if p < 100])
+    from utils import TUGAS_PER_DIVISI
+    proyek_aktif = sum(len(tugas) for tugas in TUGAS_PER_DIVISI.values())
     tingkat_kehadiran = get_tingkat_kehadiran_hari_ini()
     progres_per_divisi = build_laporan_progres_dashboard()
 
@@ -82,8 +82,13 @@ def direktur_monitoring():
         else:
             p['kondisi'], p['kondisi_class'], p['warna_progres'] = 'Critical', 'status-critical', 'fill-red'
 
+    proyek_per_divisi = {}
+    for p in daftar_proyek:
+        divisi = p['divisi'] or 'Tanpa Divisi'
+        proyek_per_divisi.setdefault(divisi, []).append(p)
+
     return render_template(
-        'direktur/monitoring.html', daftar_proyek=daftar_proyek,
+        'direktur/monitoring.html', proyek_per_divisi=proyek_per_divisi,
         total_proyek=len(daftar_proyek),
         sudah_selesai=len([p for p in daftar_proyek if p['progres'] == 100]),
         perlu_perhatian=len([p for p in daftar_proyek if 30 <= p['progres'] < 70]),
@@ -140,12 +145,26 @@ def direktur_penggajian_redirect():
 
 
 def direktur_laporan():
-    daftar_laporan = get_laporan_untuk_direktur()
+    semua_laporan = get_laporan_untuk_direktur()
+
+    today = datetime.now().date()
+    bulan_pilih = request.args.get('bulan', type=int, default=today.month)
+    tahun_pilih = request.args.get('tahun', type=int, default=today.year)
+
+    daftar_laporan = [
+        l for l in semua_laporan
+        if l['tanggal_kirim'] and l['tanggal_kirim'].month == bulan_pilih and l['tanggal_kirim'].year == tahun_pilih
+    ]
+
+    tahun_tersedia = sorted({l['tanggal_kirim'].year for l in semua_laporan if l['tanggal_kirim']}, reverse=True) or [today.year]
+
     return render_template(
         'direktur/laporan.html', daftar_laporan=daftar_laporan,
         total_revisi=len([l for l in daftar_laporan if l['status_validasi'] == 'Revisi']),
         total_selesai=len([l for l in daftar_laporan if l['status_validasi'] == 'Disetujui']),
         total_proses=len([l for l in daftar_laporan if l['status_validasi'] == 'Menunggu Validasi Direktur']),
+        bulan_pilih=bulan_pilih, tahun_pilih=tahun_pilih,
+        tahun_tersedia=tahun_tersedia, nama_bulan=NAMA_BULAN,
     )
 
 

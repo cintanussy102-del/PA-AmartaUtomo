@@ -22,23 +22,19 @@
 
 <div class="content-box margin-top-20">
     <div class="box-body" style="display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
-        <form method="GET" style="display:flex; gap:10px; align-items:center;">
-            <label style="font-size:0.85rem; color:#718096;">Filter Periode:</label>
-            <select name="bulan" onchange="this.form.submit()" style="padding:7px; border-radius:6px; border:1px solid #cbd5e0;">
-                <option value="">-- Semua Bulan --</option>
-                {% for i in range(1, 13) %}
-                <option value="{{ i }}" {% if i == bulan_pilih %}selected{% endif %}>{{ nama_bulan[i] }}</option>
+        <form method="GET" style="display:flex; gap:10px; align-items:center; margin-bottom:20px; flex-wrap:wrap;">
+            <select name="bulan" class="form-control-input" onchange="this.form.submit()" style="width:auto;">
+                {% for num, nama in nama_bulan.items() %}
+                <option value="{{ num }}" {% if num == bulan_pilih %}selected{% endif %}>{{ nama }}</option>
                 {% endfor %}
             </select>
-            <select name="tahun" onchange="this.form.submit()" style="padding:7px; border-radius:6px; border:1px solid #cbd5e0;">
-                <option value="">-- Semua Tahun --</option>
-                {% for y in tahun_tersedia %}
-                <option value="{{ y }}" {% if y == tahun_pilih %}selected{% endif %}>{{ y }}</option>
+            <select name="tahun" class="form-control-input" onchange="this.form.submit()" style="width:auto;">
+                {% for t in tahun_tersedia %}
+                <option value="{{ t }}" {% if t == tahun_pilih %}selected{% endif %}>{{ t }}</option>
                 {% endfor %}
             </select>
         </form>
         {% if bulan_pilih and tahun_pilih %}
-        <a href="{{ url_for('admin_rekap_laporan') }}" style="font-size:0.85rem; color:#e53e3e;">✕ Hapus Filter</a>
         {% endif %}
     </div>
 </div>

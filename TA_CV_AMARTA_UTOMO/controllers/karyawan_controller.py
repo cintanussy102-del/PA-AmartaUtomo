@@ -1,4 +1,5 @@
 import os
+import calendar
 from flask import render_template, request, redirect, url_for, session, flash, jsonify
 from datetime import datetime, timedelta, date
 from werkzeug.utils import secure_filename
@@ -33,7 +34,12 @@ def karyawan_dashboard():
         "gaji": float(karyawan['gaji_pokok']) if karyawan else 0,
         "progres": progres_rata,
     }
-    return render_template('karyawan/dashboard.html', data=data, riwayat=riwayat, progres_tugas=progres_tugas)
+
+    today = datetime.now()
+    tanggal_terakhir = calendar.monthrange(today.year, today.month)[1]
+    batas_laporan = f"{tanggal_terakhir} {NAMA_BULAN[today.month]} {today.year}"
+
+    return render_template('karyawan/dashboard.html', data=data, riwayat=riwayat, progres_tugas=progres_tugas, batas_laporan=batas_laporan)
 
 
 def karyawan_absensi():

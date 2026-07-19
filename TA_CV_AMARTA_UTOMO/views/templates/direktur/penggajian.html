@@ -4,9 +4,11 @@
 {% block page_title %}Penggajian Karyawan{% endblock %}
 
 {% block sidebar_menu %}
-<a href="{{ url_for('direktur_dashboard') }}"><i class="fas fa-chart-line"></i> Dashboard</a>
-<a href="{{ url_for('direktur_monitoring') }}"><i class="fas fa-eye"></i> Monitoring Pekerjaan</a>
-<a href="{{ url_for('direktur_validasi_gaji') }}" class="active"><i class="fas fa-check-double"></i> Validasi Gaji</a>
+<a href="{{ url_for('direktur_dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
+<a href="{{ url_for('direktur_monitoring') }}"><i class="fas fa-chart-line"></i> Monitoring Pekerjaan</a>
+<a href="{{ url_for('direktur_absensi') }}"><i class="fas fa-calendar-check"></i> Absensi Karyawan</a>
+<a href="{{ url_for('direktur_absensi') }}"><i class="fas fa-calendar-check"></i> Penggajian</a>
+<a href="{{ url_for('direktur_laporan') }}"><i class="fas fa-file-alt"></i> Laporan</a>
 {% endblock %}
 
 {% block content %}

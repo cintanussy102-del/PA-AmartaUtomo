@@ -5,48 +5,55 @@
 
 {% block content %}
 <div class="content-box">
-    <div class="box-body no-padding">
-        <table class="amarta-table">
-            <thead>
-                <tr>
-                    <th>Nama Proyek</th>
-                    <th>PIC</th>
-                    <th>Divisi</th>
-                    <th>Status Validasi</th>
-                    <th style="width: 20%;">Progres</th>
-                    <th>Kondisi</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if daftar_proyek %}
-                    {% for p in daftar_proyek %}
-                    <tr>
-                        <td><strong>{{ p.nama_proyek }}</strong></td>
-                        <td>{{ p.nama_lengkap or p.nama_karyawan }}</td>
-                        <td>{{ p.divisi or '-' }}</td>
-                        <td>
-                            {% if p.status_validasi == 'Disetujui' %}
-                                <span class="status-badge aktif">Disetujui</span>
-                            {% elif p.status_validasi == 'Revisi' %}
-                                <span class="status-badge baris">Revisi</span>
-                            {% else %}
-                                <span class="status-badge baris">Menunggu Validasi</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="progress-bar-container">
-                                <div class="progress-bar-bg"><div class="progress-fill {{ p.warna_progres }}" style="width: {{ p.progres }}%;"></div></div>
-                                <span class="progress-text-percent">{{ p.progres }}%</span>
-                            </div>
-                        </td>
-                        <td><span class="status-badge {{ p.kondisi_class }}">{{ p.kondisi }}</span></td>
-                    </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr><td colspan="6">Belum ada laporan proyek masuk.</td></tr>
-                {% endif %}
-            </tbody>
-        </table>
+    <div class="box-body">
+        {% if proyek_per_divisi %}
+            {% for divisi, daftar in proyek_per_divisi.items() %}
+            <details class="divisi-collapse" open style="margin-bottom:15px; border-bottom:1px solid #e2e8f0; padding-bottom:10px;">
+                <summary style="cursor:pointer;">
+                    <strong>{{ divisi|upper }}</strong>
+                    <span style="color:#718096; font-size:0.85rem;">({{ daftar|length }} proyek)</span>
+                </summary>
+
+                <table class="amarta-table" style="margin-top:10px;">
+                    <thead>
+                        <tr>
+                            <th>Nama Proyek</th>
+                            <th>PIC</th>
+                            <th>Status Validasi</th>
+                            <th style="width: 20%;">Progres</th>
+                            <th>Kondisi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in daftar %}
+                        <tr>
+                            <td><strong>{{ p.nama_proyek }}</strong></td>
+                            <td>{{ p.nama_lengkap or p.nama_karyawan }}</td>
+                            <td>
+                                {% if p.status_validasi == 'Disetujui' %}
+                                    <span class="status-badge aktif">Disetujui</span>
+                                {% elif p.status_validasi == 'Revisi' %}
+                                    <span class="status-badge baris">Revisi</span>
+                                {% else %}
+                                    <span class="status-badge baris">Menunggu Validasi</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar-bg"><div class="progress-fill {{ p.warna_progres }}" style="width: {{ p.progres }}%;"></div></div>
+                                    <span class="progress-text-percent">{{ p.progres }}%</span>
+                                </div>
+                            </td>
+                            <td><span class="status-badge {{ p.kondisi_class }}">{{ p.kondisi }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </details>
+            {% endfor %}
+        {% else %}
+            <p style="color:#a0aec0;">Belum ada laporan proyek masuk.</p>
+        {% endif %}
     </div>
 </div>
 
