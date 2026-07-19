@@ -4,7 +4,7 @@
 {% block page_title %}Dashboard Admin{% endblock %}
 
 {% block content %}
-<div class="metrics-grid">
+<div class="metrics-grid-five">
     <div class="metric-card card-blue">
         <div class="card-icon"><i class="fas fa-users"></i></div>
         <div class="card-info">
@@ -28,22 +28,20 @@
             <h3 class="card-value">{{ karyawan_baru_bulan_ini }}</h3>
         </div>
     </div>
-</div>
 
-<div class="metrics-grid-four margin-top-20">
     <div class="metric-card card-blue">
         <div class="card-icon"><i class="fas fa-check-double"></i></div>
         <div class="card-info">
-            <h3 class="card-value">{{ laporan_disetujui }}</h3>
             <span class="card-label">Laporan Fix Tersimpan</span>
+            <h3 class="card-value">{{ laporan_disetujui }}</h3>
         </div>
     </div>
 
     <div class="metric-card card-purple">
         <div class="card-icon"><i class="fas fa-hourglass-half"></i></div>
         <div class="card-info">
-            <h3 class="card-value">{{ laporan_menunggu }}</h3>
             <span class="card-label">Menunggu Validasi Direktur</span>
+            <h3 class="card-value">{{ laporan_menunggu }}</h3>
         </div>
     </div>
 </div>

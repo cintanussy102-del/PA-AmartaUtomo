@@ -765,6 +765,34 @@ body {
     width: 100%; 
 }
 
+.metrics-grid-five {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+    width: 100%;
+}
+
+.metrics-grid-five .metric-card {
+    padding: 12px;
+    gap: 10px;
+}
+
+.metrics-grid-five .card-icon {
+    font-size: 1.3rem;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.metrics-grid-five .card-label {
+    font-size: 0.75rem;
+}
+
+.metrics-grid-five .card-value {
+    font-size: 1rem;
+    margin-bottom: 2px;
+}
+
 .metrics-container {
     display: flex;
     flex-direction: row; 
@@ -940,6 +968,9 @@ body {
         grid-template-columns: 1fr !important;
         gap: 20px !important;
     }
+    .metrics-grid-five {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
 }
 
 /* ==========================================
@@ -947,6 +978,9 @@ body {
    ========================================== */
 @media (max-width: 480px) {
     .metrics-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .metrics-grid-five {
         grid-template-columns: 1fr !important;
     }
 }
