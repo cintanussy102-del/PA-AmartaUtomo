@@ -793,6 +793,20 @@ body {
     margin-bottom: 2px;
 }
 
+.metrics-grid-five .metric-card::after {
+    display: none;
+}
+
+.metrics-grid-five .metric-card {
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+}
+
+.metrics-grid-five .card-info {
+    align-items: center;
+}
+
 .metrics-container {
     display: flex;
     flex-direction: row; 
