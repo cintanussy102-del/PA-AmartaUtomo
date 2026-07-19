@@ -93,8 +93,8 @@
                         <i class="fas fa-calendar-check"></i> Absensi Karyawan
                     </a>
 
-                    <a href="{{ url_for('direktur_penggajian') }}"
-                    class="{% if request.endpoint == 'direktur_bp.direktur_penggajian' %}active{% endif %}">
+                    <a href="{{ url_for('direktur_bp.direktur_penggajian') }}"
+                    class="{% if request.endpoint in ['direktur_bp.direktur_penggajian', 'direktur_penggajian'] %}active{% endif %}">
                         <i class="fas fa-wallet"></i> Penggajian
                     </a>
 
@@ -144,7 +144,17 @@
     const sidebar = document.querySelector('.sidebar');
     const btnToggle = document.getElementById('btnToggleSidebar');
     const overlay = document.getElementById('sidebarOverlay');
+    const menuLinks = document.querySelectorAll(".sidebar-menu a");
 
+    menuLinks.forEach(link=>{
+        link.addEventListener("click",()=>{
+            if(window.innerWidth <= 768){
+                sidebar.classList.remove("sidebar-open");
+                overlay.classList.remove("overlay-active");
+            }
+        });
+    });
+    
     btnToggle.addEventListener('click', function() {
         sidebar.classList.toggle('sidebar-open');
         overlay.classList.toggle('overlay-active');

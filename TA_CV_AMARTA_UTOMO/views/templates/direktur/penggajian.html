@@ -7,7 +7,7 @@
 <a href="{{ url_for('direktur_dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
 <a href="{{ url_for('direktur_monitoring') }}"><i class="fas fa-chart-line"></i> Monitoring Pekerjaan</a>
 <a href="{{ url_for('direktur_absensi') }}"><i class="fas fa-calendar-check"></i> Absensi Karyawan</a>
-<a href="{{ url_for('direktur_absensi') }}"><i class="fas fa-calendar-check"></i> Penggajian</a>
+<a href="{{ url_for('direktur_penggajian') }}"><i class="fas fa-calendar-check"></i> Penggajian</a>
 <a href="{{ url_for('direktur_laporan') }}"><i class="fas fa-file-alt"></i> Laporan</a>
 {% endblock %}
 
@@ -150,10 +150,11 @@
                     <td>
                        <a href="{{ url_for('direktur_bp.direktur_slip_detail', id=row.id, bulan=bulan_dipilih, tahun=tahun_dipilih) }}" class="btn-action edit" style="margin-right:10px;">Lihat Slip</a>
                         <form action="{{ url_for('direktur_bp.kirim_slip', id=row.id) }}" method="POST" style="display:inline;"
-                            onsubmit="return confirm('{{ 'Kirim ulang slip gaji ke ' + row.nama_lengkap + '?' if row.status_gaji == 'Terkirim' else 'Kirim slip gaji ke ' + row.nama_lengkap + '?' }}');">
+                            data-confirm-message="{{ (('Kirim ulang slip gaji ke ' ~ row.nama_lengkap ~ '?') if row.status_gaji == 'Terkirim' else ('Kirim slip gaji ke ' ~ row.nama_lengkap ~ '?')) | e }}"
+                            onsubmit="return confirm(this.dataset.confirmMessage);">
                             <input type="hidden" name="bulan" value="{{ bulan_dipilih }}">
                             <input type="hidden" name="tahun" value="{{ tahun_dipilih }}">
-                            <button type="submit" style="background: {{ '#3b82f6' if row.status_gaji == 'Terkirim' else '#e67e22' }}; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">
+                            <button type="submit" class="btn-submit {{ 'btn-terkirim' if row.status_gaji == 'Terkirim' else 'btn-belum' }}">
                                 {% if row.status_gaji == 'Terkirim' %}Kirim Ulang{% else %}Kirim Slip{% endif %}
                             </button>
                         </form>
