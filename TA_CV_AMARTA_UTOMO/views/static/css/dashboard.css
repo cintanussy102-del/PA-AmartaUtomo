@@ -393,6 +393,10 @@ body {
     width: 100%;
 }
 
+.metrics-grid-four .card-info {
+    flex-direction: column-reverse;
+}
+
 .fill-blue {
     background-color: #4b89dc;
 }
@@ -914,6 +918,15 @@ body {
 
     .amarta-table {
         min-width: 700px;
+    }
+
+    .content-box .box-body {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    }
+
+    details.divisi-collapse table.amarta-table {
+        min-width: 600px;
     }
 
     .absen-buttons-wrapper {
