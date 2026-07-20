@@ -151,19 +151,23 @@
             if(window.innerWidth <= 768){
                 sidebar.classList.remove("sidebar-open");
                 overlay.classList.remove("overlay-active");
+                document.body.classList.remove("sidebar-open");
             }
         });
     });
     
-    btnToggle.addEventListener('click', function() {
+    btnToggle.addEventListener('click', function () {
         sidebar.classList.toggle('sidebar-open');
         overlay.classList.toggle('overlay-active');
+        document.body.classList.toggle('sidebar-open');
     });
 
-    overlay.addEventListener('click', function() {
+    overlay.addEventListener('click', function () {
         sidebar.classList.remove('sidebar-open');
         overlay.classList.remove('overlay-active');
+        document.body.classList.remove('sidebar-open');
     });
+
 </script>
 </body>
 </html>
