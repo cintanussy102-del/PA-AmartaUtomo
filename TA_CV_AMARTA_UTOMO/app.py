@@ -1,4 +1,8 @@
 import os
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -12,6 +16,13 @@ app = Flask(
     __name__,
     template_folder=os.path.join('views', 'templates'),
     static_folder=os.path.join('views', 'static')
+)
+
+cloudinary.config(
+    cloud_name="dm6pbvvd3",
+    api_key="521575462567858",
+    api_secret="43I50I0YbYgLxYS-nJ77fRnxoyA",
+    secure=True
 )
 
 @app.template_filter('rupiah')
