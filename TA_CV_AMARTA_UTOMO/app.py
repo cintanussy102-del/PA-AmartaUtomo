@@ -18,10 +18,12 @@ app = Flask(
     static_folder=os.path.join('views', 'static')
 )
 
+load_dotenv()
+
 cloudinary.config(
-    cloud_name="dm6pbvvd3",
-    api_key="521575462567858",
-    api_secret="43I50I0YbYgLxYS-nJ77fRnxoyA",
+    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
+    api_key=os.getenv('CLOUDINARY_API_KEY'),
+    api_secret=os.getenv('CLOUDINARY_API_SECRET'),
     secure=True
 )
 
