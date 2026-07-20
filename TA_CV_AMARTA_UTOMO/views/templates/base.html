@@ -15,6 +15,11 @@
     <div class="dashboard-wrapper">
         <!-- SIDEBAR KIRI (Dark Theme sesuai Mockup) -->
         <aside class="sidebar">
+        
+        <button class="sidebar-close" id="sidebarClose">
+            <i class="fas fa-times"></i>
+        </button>
+
             <div class="sidebar-brand">
                 <h2>CV AMARTA UTOMO</h2>
             </div>
@@ -145,6 +150,13 @@
     const btnToggle = document.getElementById('btnToggleSidebar');
     const overlay = document.getElementById('sidebarOverlay');
     const menuLinks = document.querySelectorAll(".sidebar-menu a");
+    const sidebarClose = document.getElementById("sidebarClose");
+
+    sidebarClose.addEventListener("click", function () {
+        sidebar.classList.remove("sidebar-open");
+        overlay.classList.remove("overlay-active");
+        document.body.classList.remove("sidebar-open");
+    });
 
     menuLinks.forEach(link=>{
         link.addEventListener("click",()=>{

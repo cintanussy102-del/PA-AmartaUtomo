@@ -39,7 +39,10 @@ body {
 .card-info {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
+    flex: 1;
 }
 
 .card-label {
@@ -47,6 +50,9 @@ body {
     font-weight: 700;
     color: #6b4a3d;
     display: block;
+
+    text-align: center;
+    width: 100%;
 }
 
 .card-value {
@@ -224,6 +230,10 @@ body {
     position: sticky; 
     top: 0;
 }
+
+.sidebar-close{
+    display:none;
+}   
 
 .sidebar-brand {
     padding: 25px 20px;
@@ -860,7 +870,7 @@ body {
 }
 
 .sidebar {
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
@@ -1007,8 +1017,41 @@ body {
         background: linear-gradient(180deg,#251253,#425b7b,#190219);
     }
 
+    .sidebar-close{
+        display:block;
+        position:absolute;
+        top:15px;
+        right:15px;
+
+        background:none;
+        border:none;
+
+        color:#fff;
+        font-size:24px;
+        cursor:pointer;
+
+        z-index:10000;
+    }
+
     .sidebar.sidebar-open{
         left:0;
+    }
+
+    .metric-card{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    }
+
+    .card-info{
+        align-items: center;
+        text-align: center;
+    }
+
+    .card-label,
+    .card-value{
+        text-align: center;
     }
 
 }
@@ -1164,4 +1207,90 @@ body {
 
 body.sidebar-open{
     overflow:hidden;
+}
+
+/* ===========================
+   FIX MOBILE ABSENSI
+   =========================== */
+@media (max-width: 768px){
+
+    /* Content memenuhi layar */
+    .content-box{
+        width: 100%;
+        max-width: 100%;
+    }
+
+    /* Semua layout 2 kolom menjadi 1 kolom */
+    .row,
+    .row-grid,
+    .dashboard-grid-two,
+    .absen-wrapper,
+    .absensi-wrapper{
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    /* Semua card memenuhi lebar */
+    .left-column,
+    .right-column,
+    .col-left,
+    .col-right{
+        width: 100%;
+    }
+
+    /* Tombol masuk & keluar */
+    .absen-buttons-wrapper{
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .btn-absen{
+        width: 100%;
+    }
+
+    /* Dropdown bulan dan tahun */
+    select{
+        width: 100%;
+    }
+
+}
+/* ==========================================
+   MOBILE - SLIP GAJI
+========================================== */
+@media (max-width:768px){
+
+    .slip-grid-wrapper{
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 30px;
+    }
+
+    .slip-grid{
+        grid-template-columns: 260px 260px !important;
+        gap: 20px !important;
+        width: max-content !important;
+        margin-bottom: 0 !important;
+    }
+
+    .slip-grid table{
+        min-width: 240px;
+    }
+    
+    .info-karyawan{
+        grid-template-columns:90px 1fr !important;
+        font-size:14px;
+    }
+
+    .table-responsive{
+        overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
+    }
+
+    .table-responsive table{
+        width:100%;
+        min-width:420px;
+    }
+
 }
