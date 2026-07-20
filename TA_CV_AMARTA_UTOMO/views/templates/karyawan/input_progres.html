@@ -109,7 +109,7 @@
                     <strong>{{ row.nama_proyek }}</strong> — {{ row.status }} ({{ row.progres }}%)
                     <br><small class="text-muted">{{ row.tanggal_kirim }}</small>
                     {% if row.file_laporan %}
-                    <br><a href="{{ url_for('static', filename=row.file_laporan) }}" target="_blank">Lihat PDF</a>
+                    <br><a href="{{ row.file_laporan }}" target="_blank">Lihat PDF</a>
                     {% endif %}
                 </div>
                 <hr>
@@ -127,7 +127,7 @@
                     <strong>{{ row.nama_proyek }}</strong>
                     <br><small class="text-muted">{{ row.tanggal_kirim }}</small>
                     {% if row.file_laporan %}
-                    <br><a href="{{ url_for('static', filename=row.file_laporan) }}" target="_blank">Lihat PDF</a>
+                    <br><a href="{{ row.file_laporan }}" target="_blank">Lihat PDF</a>
                     {% endif %}
                 </div>
                 <hr>
@@ -145,9 +145,9 @@
                     <strong>{{ row.nama_proyek }}</strong>
                     <br><small class="text-muted">{{ row.tanggal_kirim }}</small>
                     {% if row.file_laporan %}
-                    <br><a href="{{ url_for('static', filename=row.file_laporan) }}" target="_blank">Lihat PDF</a>
+                    <br><a href="{{ row.file_laporan }}" target="_blank">Lihat PDF</a>
                     &bull;
-                    <a href="{{ url_for('static', filename=row.file_laporan) }}" download>Download</a>
+                    <a href="{{ row.file_laporan }}" download> Download</a>
                     {% endif %}
 
                     {% if row.catatan_revisi %}

@@ -1,8 +1,9 @@
 import os
 import calendar
+import cloudinary.uploader
+
 from flask import render_template, request, redirect, url_for, session, flash, jsonify
 from datetime import datetime, timedelta, date
-from werkzeug.utils import secure_filename
 
 from utils import allowed_file, get_jabatan_tampilan, TUGAS_PER_DIVISI
 
@@ -92,14 +93,25 @@ def karyawan_ajukan_izin(upload_folder):
         if not allowed_file(file_bukti.filename):
             flash('Format file tidak didukung. Gunakan JPG, PNG, atau PDF.', 'danger')
             return redirect(url_for('karyawan_absensi'))
-        filename = secure_filename(f"{nama_user}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{file_bukti.filename}")
-        file_bukti.save(os.path.join(upload_folder, filename))
-        file_bukti_path = f"uploads/bukti_izin/{filename}"
+        
+        print("Nama file:", file_bukti.filename)
+        print("Content Type:", file_bukti.content_type)
+                
+        try:
+            hasil_upload = cloudinary.uploader.upload(
+                file_bukti,
+                folder="bukti_izin"
+            )
 
+            file_bukti_path = hasil_upload["secure_url"]
+
+        except Exception as e:
+            flash(f"Gagal upload ke Cloudinary: {e}", "danger")
+            return redirect(url_for("karyawan_absensi"))
+        
     ajukan_izin(nama_user, jenis_izin, tanggal, keterangan, file_bukti_path)
     flash('Pengajuan izin/cuti berhasil dikirim!', 'success')
     return redirect(url_for('karyawan_absensi'))
-
 
 def karyawan_input_progres():
     nama_user = session['user']['username']
@@ -118,6 +130,11 @@ def karyawan_kirim_laporan(upload_folder_laporan):
     progres_manual = int(progres_manual) if progres_manual else None
 
     file_laporan = request.files.get('file_laporan')
+    print("======================")
+    print("Nama File :", file_laporan.filename)
+    print("Content Type :", file_laporan.content_type)
+    print("======================")
+
     if not file_laporan or file_laporan.filename == '':
         flash('File laporan (PDF) wajib diunggah!', 'danger')
         return redirect(url_for('karyawan_input_progres'))
@@ -125,14 +142,34 @@ def karyawan_kirim_laporan(upload_folder_laporan):
         flash('File laporan harus berformat PDF.', 'danger')
         return redirect(url_for('karyawan_input_progres'))
 
-    filename = secure_filename(f"{nama_user}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{file_laporan.filename}")
-    file_laporan.save(os.path.join(upload_folder_laporan, filename))
-    file_path = f"uploads/laporan_kerja/{filename}"
+    try:
+        hasil_upload = cloudinary.uploader.upload(
+            file_laporan,
+            resource_type="raw",
+            folder="laporan_kerja",
+            public_id=f"{nama_user}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        )
 
-    ajukan_laporan(nama_user, nama_proyek, deskripsi, status, progres_manual, file_path)
-    flash('Laporan kerja berhasil dikirim!', 'success')
-    return redirect(url_for('karyawan_input_progres'))
+        file_path = hasil_upload["secure_url"]
 
+        print("UPLOAD BERHASIL")
+        print(file_path)
+
+    except Exception as e:
+        flash(f"Gagal upload ke Cloudinary: {e}", "danger")
+        return redirect(url_for("karyawan_input_progres"))
+
+    ajukan_laporan(
+        nama_user,
+        nama_proyek,
+        deskripsi,
+        status,
+        progres_manual,
+        file_path
+    )
+
+    flash("Laporan kerja berhasil dikirim!", "success")
+    return redirect(url_for("karyawan_input_progres"))
 
 def karyawan_kirim_ulang_laporan(id, upload_folder_laporan):
     nama_user = session['user']['username']
@@ -144,19 +181,37 @@ def karyawan_kirim_ulang_laporan(id, upload_folder_laporan):
     file_laporan = request.files.get('file_laporan')
     if not file_laporan or file_laporan.filename == '':
         flash('File laporan revisi wajib diunggah!', 'danger')
-        return redirect(url_for('karyawan_input_progres'))
+        return redirect(url_for('karyawan_input_progres')) 
     if not file_laporan.filename.lower().endswith('.pdf'):
         flash('File laporan harus berformat PDF.', 'danger')
         return redirect(url_for('karyawan_input_progres'))
 
-    filename = secure_filename(f"{nama_user}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{file_laporan.filename}")
-    file_laporan.save(os.path.join(upload_folder_laporan, filename))
-    file_path = f"uploads/laporan_kerja/{filename}"
+    try:
+        hasil_upload = cloudinary.uploader.upload(
+            file_laporan,
+            resource_type="raw",
+            folder="laporan_kerja",
+            public_id=f"{nama_user}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        )
 
-    kirim_ulang_laporan(id, nama_user, deskripsi, status, progres_manual, file_path)
-    flash('Laporan revisi berhasil dikirim ulang untuk ditinjau!', 'success')
-    return redirect(url_for('karyawan_input_progres'))
 
+    except Exception as e:
+        flash(f"Gagal upload ke Cloudinary: {e}", "danger")
+        return redirect(url_for("karyawan_input_progres"))
+
+    file_path = hasil_upload["secure_url"]
+
+    kirim_ulang_laporan(
+        id,
+        nama_user,
+        deskripsi,
+        status,
+        progres_manual,
+        file_path
+    )
+
+    flash("Laporan revisi berhasil dikirim ulang untuk ditinjau!", "success")
+    return redirect(url_for("karyawan_input_progres"))
 
 def karyawan_slip_gaji():
     nama_user = session['user']['username']
