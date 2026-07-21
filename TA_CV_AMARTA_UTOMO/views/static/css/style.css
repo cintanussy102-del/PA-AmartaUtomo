@@ -25,12 +25,14 @@ body::before {
     position: fixed;
     inset: -20%;
     background:
-        radial-gradient(circle at 20% 30%, #aa94d6 0%, transparent 55%),
-        radial-gradient(circle at 80% 20%, #5586cb 0%, transparent 55%),
-        radial-gradient(circle at 30% 80%, #c9cad8 0%, transparent 50%),
-        radial-gradient(circle at 75% 75%, #974444 0%, transparent 55%),
-        radial-gradient(circle at 50% 50%, #0dcbc8 0%, transparent 60%);
-    filter: blur(60px);
+        radial-gradient(circle at 15% 20%, #a78bc9 0%, transparent 50%),
+        radial-gradient(circle at 85% 15%, #eeb876 0%, transparent 55%),
+        radial-gradient(circle at 20% 75%, #cd9a5c 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, #d4a574 0%, transparent 55%),
+        radial-gradient(circle at 50% 45%, #c9cad8 0%, transparent 60%),
+        radial-gradient(circle at 60% 20%, #f0c896 0%, transparent 50%),
+        radial-gradient(circle at 30% 50%, #b89bc4 0%, transparent 45%);
+    filter: blur(70px);
     animation: meshMove 18s ease-in-out infinite;
     z-index: 0;
 }

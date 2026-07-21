@@ -1,10 +1,13 @@
 import os
+import resend
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
 from dotenv import load_dotenv
 load_dotenv()
+
+resend.api_key = os.getenv('RESEND_API_KEY')
 
 from flask import Flask
 from utils import login_required
@@ -46,9 +49,7 @@ app.config['UPLOAD_FOLDER_LAPORAN'] = UPLOAD_FOLDER_LAPORAN
 debug_mode = os.getenv('FLASK_DEBUG', 'True').lower() in ['true', '1', 't']
 server_port = int(os.getenv('FLASK_PORT', 5000))
 
-# ============================================================
-# ROUTING — Semua logic ada di controllers/, app.py cuma daftar rute
-# ============================================================
+# ROUTING
 
 app.add_url_rule('/', 'welcome', auth_controller.welcome)
 app.add_url_rule('/login', 'login', auth_controller.login, methods=['GET', 'POST'])
